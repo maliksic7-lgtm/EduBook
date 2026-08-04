@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduBook - Digital Book Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f0ebe3;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        /* Container Buku */
+        .book-container {
+            max-width: 1100px;
+            width: 100%;
+            background: #faf8f5;
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.15),
+                0 0 0 1px rgba(0,0,0,0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header Buku */
+        .book-header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            padding: 25px 35px;
+            border-bottom: 4px solid #e94560;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .book-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .book-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(233, 69, 96, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+        }
+
+        .book-title-header {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .book-title-header span {
+            color: #e94560;
+        }
+
+        .book-meta {
+            color: rgba(255,255,255,0.6);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .book-meta .badge {
+            background: rgba(233, 69, 96, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: #e94560;
+            font-weight: 700;
+            font-size: 10px;
+            border: 1px solid rgba(233, 69, 96, 0.2);
+        }
+
+        .page-indicator {
+            color: rgba(255,255,255,0.8);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .page-indicator strong {
+            color: #fff;
+            font-size: 16px;
+        }
+
+        /* Navigasi Halaman */
+        .page-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .page-nav button {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .page-nav button:hover {
+            background: rgba(233, 69, 96, 0.3);
+            border-color: #e94560;
+        }
+
+        .page-nav button:active {
+            transform: scale(0.95);
+        }
+
+        .page-nav select {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            outline: none;
+        }
+
+        .page-nav select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        /* Konten Buku - Layout 2 Kolom Seperti Buku */
+        .book-content {
+            display: flex;
+            min-height: 600px;
+            padding: 0;
+        }
+
+        /* Kolom Kiri - Gambar & Referensi */
+        .book-left {
+            width: 35%;
+            min-width: 280px;
+            background: #f5f2ed;
+            padding: 35px 30px 30px 30px;
+            border-right: 2px solid #e8e3dc;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .book-left::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(to right, transparent, rgba(0,0,0,0.03));
+        }
+
+        /* Gambar Buku */
+        .book-image-section {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid #e8e3dc;
+            position: relative;
+        }
+
+        .book-image-section img {
+            width: 100%;
+            height: auto;
+            display: block;
+            min-height: 180px;
+            object-fit: cover;
+            background: #e8e3dc;
+        }
+
+        .book-image-placeholder {
+            width: 100%;
+            min-height: 220px;
+            background: linear-gradient(135deg, #e8e3dc, #ddd8d0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+            color: #8a7e72;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .book-image-placeholder .icon {
+            font-size: 48px;
+            opacity: 0.5;
+        }
+
+        .book-image-placeholder .label {
+            background: rgba(255,255,255,0.6);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #6b5f53;
+        }
+
+        /* Label Gambar */
+        .image-caption {
+            padding: 10px 15px 12px 15px;
+            font-size: 11px;
+            color: #6b5f53;
+            font-weight: 500;
+            background: #faf8f5;
+            border-top: 1px solid #e8e3dc;
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* Referensi */
+        .reference-section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px 20px;
+            border: 1px solid #e8e3dc;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+
+        .reference-section .label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #8a7e72;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reference-section .label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e8e3dc;
+        }
+
+        .reference-section a {
+            display: block;
+            color: #0f3460;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 6px 12px;
+            background: #f5f2ed;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            word-break: break-all;
+        }
+
+        .reference-section a:hover {
+            background: #e94560;
+            color: #fff;
+        }
+
+        .reference-section .ref-empty {
+            color: #b5a99c;
+            font-size: 12px;
+            font-weight: 400;
+            padding: 4px 0;
+        }
+
+        /* Kolom Kanan - Teks Buku */
+        .book-right {
+            flex: 1;
+            padding: 35px 40px 35px 35px;
+            background: #faf8f5;
+            overflow-y: auto;
+            max-height: 700px;
+        }
+
+        /* Judul Bab */
+        .chapter-title {
+            font-family: 'Merriweather', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #e94560;
+            position: relative;
+        }
+
+        .chapter-title .chapter-number {
+            display: inline-block;
+            background: #e94560;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 2px 12px;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* Paragraf */
+        .paragraph {
+            margin-bottom: 22px;
+            padding: 16px 20px;
+            background: #fff;
+            border-radius: 12px;
+            border-left: 4px solid #e94560;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+        }
+
+        .paragraph:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            transform: translateX(4px);
+        }
+
+        .paragraph-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #e94560;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .paragraph-label .number {
+            background: #e94560;
+            color: #fff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .paragraph-text {
+            font-family: 'Merriweather', serif;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #2d2a24;
+            font-weight: 400;
+        }
+
+        .paragraph-text strong {
+            color: #0f3460;
+            font-weight: 700;
+        }
+
+        /* Hiasan Buku */
+        .book-decoration {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0.03;
+            font-size: 120px;
+            pointer-events: none;
+            font-family: 'Merriweather', serif;
+        }
+
+        /* Responsive */
+        @media (max-width: 850px) {
+            .book-content {
+                flex-direction: column;
+            }
+
+            .book-left {
+                width: 100%;
+                min-width: unset;
+                border-right: none;
+                border-bottom: 2px solid #e8e3dc;
+                padding: 25px 20px;
+            }
+
+            .book-left::after {
+                display: none;
+            }
+
+            .book-right {
+                padding: 25px 20px;
+                max-height: 500px;
+            }
+
+            .book-header {
+                padding: 18px 20px;
+            }
+
+            .book-title-header {
+                font-size: 15px;
+            }
+
+            .chapter-title {
+                font-size: 19px;
+            }
+
+            .paragraph-text {
+                font-size: 14px;
+            }
+
+            .book-image-placeholder {
+                min-height: 160px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .book-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .book-header-left {
+                flex-wrap: wrap;
+            }
+
+            .page-nav {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+
+            .book-right {
+                max-height: 400px;
+            }
+
+            .paragraph {
+                padding: 12px 14px;
+            }
+
+            .chapter-title {
+                font-size: 17px;
+            }
+
+            .paragraph-text {
+                font-size: 13px;
+                line-height: 1.7;
+            }
+        }
+
+        /* Scrollbar styling */
+        .book-right::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .book-right::-webkit-scrollbar-track {
+            background: #e8e3dc;
+            border-radius: 10px;
+        }
+
+        .book-right::-webkit-scrollbar-thumb {
+            background: #c4b8ac;
+            border-radius: 10px;
+        }
+
+        .book-right::-webkit-scrollbar-thumb:hover {
+            background: #b5a99c;
+        }
+
+        /* Animasi loading */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .book-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Effect buku terbuka */
+        .book-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.04), transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Kuis Button */
+        .quiz-button-container {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e8e3dc;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .quiz-button {
+            background: linear-gradient(135deg, #e94560, #c23152);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .quiz-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
+        }
+
+        .quiz-button:active {
+            transform: scale(0.97);
+        }
+
+        /* Page number footer */
+        .book-footer {
+            padding: 15px 35px;
+            background: #f5f2ed;
+            border-top: 1px solid #e8e3dc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #8a7e72;
+            font-weight: 500;
+        }
+
+        .book-footer .page-number {
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .book-footer .total-pages {
+            color: #b5a99c;
+        }
+
+        /* Status indikator */
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            margin-right: 6px;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="book-container">
+    <!-- Header Buku -->
+    <div class="book-header">
+        <div class="book-header-left">
+            <div class="book-icon">📖</div>
+            <div>
+                <div class="book-title-header">Edu<span>Book</span></div>
+                <div class="book-meta">
+                    <span>AIoT for Social Impact</span>
+                    <span class="badge">Interactive</span>
+                    <span class="badge" style="background:rgba(34,197,94,0.2);color:#22c55e;border-color:rgba(34,197,94,0.2);">
+                        <span class="status-dot"></span>Live
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="page-nav">
+            <span class="page-indicator">Halaman <strong id="currentPageDisplay">1</strong> / <span id="totalPagesDisplay">10</span></span>
+            <button onclick="previousPage()">◀</button>
+            <select id="pageSelect" onchange="goToPage(this.value)">
+                <option value="1">Halaman 1</option>
+                <option value="2">Halaman 2</option>
+                <option value="3">Halaman 3</option>
+                <option value="4">Halaman 4</option>
+                <option value="5">Halaman 5</option>
+                <option value="6">Halaman 6</option>
+                <option value="7">Halaman 7</option>
+                <option value="8">Halaman 8</option>
+                <option value="9">Halaman 9</option>
+                <option value="10">Halaman 10</option>
+            </select>
+            <button onclick="nextPage()">▶</button>
+        </div>
+    </div>
+
+    <!-- Konten Buku -->
+    <div class="book-content">
+        <!-- Kolom Kiri: Gambar & Referensi -->
+        <div class="book-left">
+            <div class="book-image-section">
+                <div id="bookImageContainer">
+                    <img id="bookImage" src="" alt="Ilustrasi Halaman" style="display:none;">
+                    <div id="imagePlaceholder" class="book-image-placeholder">
+                        <div class="icon">🖼️</div>
+                        <div>Ilustrasi Halaman</div>
+                        <div class="label">Gambar 0-1</div>
+                    </div>
+                </div>
+                <div class="image-caption" id="imageCaption">Gambar 0-1: Ilustrasi konsep IoT</div>
+            </div>
+
+            <div class="reference-section">
+                <div class="label">🔗 Referensi & Sumber</div>
+                <div id="referenceLinkContainer">
+                    <a id="referenceLink" href="#" target="_blank" style="display:none;">Buka Sumber Referensi</a>
+                    <div id="referenceEmpty" class="ref-empty">Belum ada referensi untuk halaman ini</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kolom Kanan: Teks Buku -->
+        <div class="book-right" id="bookContent">
+            <div id="chapterTitle" class="chapter-title">
+                <span class="chapter-number">Bab 1</span>
+                Pengenalan IoT
+            </div>
+            <div id="paragraphsContainer">
+                <!-- Paragraphs will be rendered here -->
+            </div>
+            <div class="quiz-button-container">
+                <button class="quiz-button" onclick="startQuiz()">
+                    🧠 Mulai Tantangan Kuis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Buku -->
+    <div class="book-footer">
+        <span>© 2026 EduBook Innovations</span>
+        <span>
+            <span class="page-number" id="footerPageNumber">1</span>
+            <span class="total-pages">dari 10</span>
+        </span>
+    </div>
+</div>
+
+<script>
+    // Data buku (simulasi dari database)
+    const bookData = {
+        1: {
+            page_number: 1,
+            title: "Pengenalan IoT",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "Internet of Things (IoT) adalah konsep di mana perangkat-perangkat fisik terhubung ke internet dan dapat saling berkomunikasi. IoT memungkinkan benda-benda di sekitar kita menjadi 'cerdas' dan dapat dikendalikan dari jarak jauh."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "Ekosistem IoT terdiri dari 4 komponen utama: <strong>Sensor</strong> (mengumpulkan data), <strong>Konektivitas</strong> (jaringan), <strong>Pemrosesan Data</strong> (analisis), dan <strong>Aksi</strong> (aktuator). Contoh sederhana adalah lampu rumah yang bisa dinyalakan dari smartphone."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 0-1: Ilustrasi konsep dasar IoT",
+            reference_link: "https://www.ibm.com/topics/internet-of-things"
+        },
+        2: {
+            page_number: 2,
+            title: "Sensor Indra IoT",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "Sensor adalah komponen yang berfungsi seperti 'panca indra' pada sistem IoT. Sensor mengubah sinyal fisik (suhu, cahaya, gerakan) menjadi sinyal listrik yang bisa diproses oleh mikrokontroler."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "Jenis sensor yang umum digunakan dalam IoT antara lain: <strong>Sensor suhu</strong> (DHT11, DS18B20), <strong>Sensor jarak</strong> (Ultrasonic HC-SR04), <strong>Sensor gerak</strong> (PIR), dan <strong>Sensor cahaya</strong> (LDR). Setiap sensor memiliki karakteristik dan kegunaan yang berbeda."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 1-1: Berbagai jenis sensor IoT",
+            reference_link: "https://www.seeedstudio.com/blog/2020/01/20/types-of-sensors-for-iot/"
+        },
+        3: {
+            page_number: 3,
+            title: "Mikrokontroler ESP32",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "ESP32 adalah mikrokontroler populer yang memiliki <strong>built-in Wi-Fi dan Bluetooth</strong>. Di sistem AIoT, ESP32 berfungsi sebagai 'otak' yang memproses data dari sensor dan mengirimkannya ke cloud."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "Keunggulan ESP32 dibandingkan mikrokontroler lain: <strong>Hemat daya</strong> (low power), <strong>Harga terjangkau</strong>, <strong>Dual-core processor</strong>, dan memiliki <strong>banyak pin I/O</strong> untuk koneksi sensor dan aktuator."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 2-1: Modul ESP32 Development Board",
+            reference_link: "https://www.espressif.com/en/products/socs/esp32"
+        },
+        4: {
+            page_number: 4,
+            title: "Aktuator & Komponen",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "Aktuator adalah komponen yang mengubah sinyal listrik menjadi gerakan fisik. Ini adalah 'tangan' dari sistem IoT yang menjalankan perintah berdasarkan data yang diproses."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "Contoh aktuator dalam IoT: <strong>Motor DC</strong> (untuk putaran), <strong>Servo</strong> (untuk gerakan presisi), <strong>Relay</strong> (saklar otomatis), dan <strong>LED</strong> (indikator cahaya). Aktuator memungkinkan sistem IoT berinteraksi dengan dunia fisik."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 3-1: Berbagai jenis aktuator IoT",
+            reference_link: "https://www.seeedstudio.com/blog/2021/02/10/what-is-an-actuator/"
+        },
+        5: {
+            page_number: 5,
+            title: "Jaringan & Protokol",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "MQTT adalah protokol komunikasi ringan yang dirancang khusus untuk IoT. Protokol ini sangat efisien karena menggunakan <strong>bandwidth kecil</strong>, cocok untuk perangkat dengan sumber daya terbatas seperti ESP32."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "Arsitektur MQTT menggunakan model <strong>publish-subscribe</strong> dengan broker sebagai perantara. Perangkat IoT bisa menjadi publisher (mengirim data) atau subscriber (menerima data), memungkinkan komunikasi <strong>real-time</strong> yang efisien."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 4-1: Arsitektur protokol MQTT",
+            reference_link: "https://mqtt.org/"
+        },
+        6: {
+            page_number: 6,
+            title: "Cloud & Database",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "Cloud adalah tempat penyimpanan data di internet yang bisa diakses dari mana saja. Di sistem AIoT, data dari sensor dikirim ke cloud untuk disimpan dan dianalisis secara real-time."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "<strong>MongoDB</strong> adalah database NoSQL yang sering digunakan dalam proyek IoT karena <strong>fleksibel</strong>, <strong>scalable</strong>, dan mudah diintegrasikan. Data sensor dapat disimpan dalam format JSON yang mudah dibaca dan diproses."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 5-1: Arsitektur cloud IoT dengan MongoDB",
+            reference_link: "https://www.mongodb.com/use-cases/internet-of-things"
+        },
+        7: {
+            page_number: 7,
+            title: "Pengenalan AI",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "AI (Artificial Intelligence) adalah teknologi yang memungkinkan mesin 'belajar' dari data dan membuat keputusan. Di buku EduBook, AI dibahas sebagai komponen yang membuat sistem IoT menjadi '<strong>cerdas</strong>'."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "AI dalam IoT memungkinkan sistem untuk menganalisis data sensor, mendeteksi pola, dan mengambil tindakan otomatis tanpa campur tangan manusia. Contoh: <strong>sistem keamanan yang bisa mengenali wajah</strong>."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 6-1: Integrasi AI dalam sistem IoT",
+            reference_link: "https://www.ibm.com/artificial-intelligence"
+        },
+        8: {
+            page_number: 8,
+            title: "Machine Learning",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "Machine Learning (ML) adalah cabang AI di mana mesin belajar dari data tanpa diprogram secara eksplisit. ML menjadi <strong>inti dari sistem AIoT</strong> yang cerdas karena memungkinkan sistem untuk terus belajar dan beradaptasi."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "Jenis-jenis Machine Learning: <strong>Supervised Learning</strong> (belajar dengan label), <strong>Unsupervised Learning</strong> (belajar tanpa label), dan <strong>Reinforcement Learning</strong> (belajar dari trial-error)."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 7-1: Jenis-jenis Machine Learning",
+            reference_link: "https://www.ibm.com/topics/machine-learning"
+        },
+        9: {
+            page_number: 9,
+            title: "AI Kehidupan Sehari-hari",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "AI sudah menjadi bagian dari kehidupan sehari-hari kita. Dari <strong>asisten virtual</strong> (Siri, Google Assistant), <strong>rekomendasi produk</strong> di e-commerce, hingga <strong>navigasi GPS</strong> yang cerdas."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "Dalam konteks AIoT, AI membantu <strong>mengoptimalkan penggunaan energi</strong>, <strong>memprediksi kegagalan peralatan</strong>, dan <strong>meningkatkan keamanan rumah</strong>. AI membuat perangkat IoT lebih pintar."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 8-1: Penerapan AI dalam kehidupan sehari-hari",
+            reference_link: "https://builtin.com/artificial-intelligence/examples-ai-in-daily-life"
+        },
+        10: {
+            page_number: 10,
+            title: "Masa Depan AIoT",
+            paragraphs: [
+                {
+                    paragraph_id: 1,
+                    text: "Masa depan AIoT sangat cerah dengan prediksi <strong>miliaran perangkat terhubung</strong>. Teknologi <strong>5G</strong> akan mempercepat komunikasi data, sementara AI yang semakin canggih akan membuat sistem semakin otonom."
+                },
+                {
+                    paragraph_id: 2,
+                    text: "Tantangan ke depan termasuk <strong>keamanan data</strong>, <strong>privasi pengguna</strong>, dan <strong>konsumsi energi</strong>. Namun dengan inovasi berkelanjutan, AIoT akan mengubah cara kita hidup dan bekerja."
+                }
+            ],
+            image_url: "",
+            image_caption: "Gambar 9-1: Visi masa depan AIoT",
+            reference_link: "https://www.forbes.com/sites/bernardmarr/2023/01/10/the-future-of-ai-and-iot/"
+        }
+    };
+
+    let currentPage = 1;
+    const totalPages = 10;
+
+    function renderPage(pageNumber) {
+        const page = bookData[pageNumber];
+        if (!page) return;
+
+        currentPage = pageNumber;
+
+        // Update header
+        document.getElementById('currentPageDisplay').textContent = pageNumber;
+        document.getElementById('footerPageNumber').textContent = pageNumber;
+        document.getElementById('pageSelect').value = pageNumber;
+
+        // Update judul
+        document.getElementById('chapterTitle').innerHTML = `
+            <span class="chapter-number">Bab ${pageNumber}</span>
+            ${page.title}
+        `;
+
+        // Update paragraf
+        const container = document.getElementById('paragraphsContainer');
+        container.innerHTML = '';
+        page.paragraphs.forEach(p => {
+            container.innerHTML += `
+                <div class="paragraph">
+                    <div class="paragraph-label">
+                        <span class="number">${p.paragraph_id}</span>
+                        PARAGRAF ${p.paragraph_id}
+                    </div>
+                    <div class="paragraph-text">${p.text}</div>
+                </div>
+            `;
+        });
+
+        // Update gambar
+        const imgEl = document.getElementById('bookImage');
+        const placeholder = document.getElementById('imagePlaceholder');
+        const caption = document.getElementById('imageCaption');
+
+        if (page.image_url && page.image_url.trim() !== '') {
+            imgEl.src = page.image_url;
+            imgEl.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            imgEl.style.display = 'none';
+            placeholder.style.display = 'flex';
+            // Tampilkan placeholder dengan informasi halaman
+            const iconEl = placeholder.querySelector('.icon');
+            const labelEl = placeholder.querySelector('.label');
+            iconEl.textContent = '📘';
+            labelEl.textContent = `Halaman ${pageNumber}`;
+        }
+
+        caption.textContent = page.image_caption || `Gambar ${pageNumber-1}-1: Ilustrasi ${page.title}`;
+
+        // Update referensi
+        const refLink = document.getElementById('referenceLink');
+        const refEmpty = document.getElementById('referenceEmpty');
+
+        if (page.reference_link && page.reference_link.trim() !== '') {
+            refLink.href = page.reference_link;
+            refLink.style.display = 'block';
+            refLink.textContent = `🔗 ${page.reference_link.replace(/^https?:\/\//, '')}`;
+            refEmpty.style.display = 'none';
+        } else {
+            refLink.style.display = 'none';
+            refEmpty.style.display = 'block';
+        }
+
+        // Scroll ke atas
+        document.getElementById('bookContent').scrollTop = 0;
+    }
+
+    function nextPage() {
+        if (currentPage < totalPages) {
+            renderPage(currentPage + 1);
+        }
+    }
+
+    function previousPage() {
+        if (currentPage > 1) {
+            renderPage(currentPage - 1);
+        }
+    }
+
+    function goToPage(page) {
+        renderPage(parseInt(page));
+    }
+
+    function startQuiz() {
+        alert(`📝 Kuis untuk Halaman ${currentPage} akan dimulai!\n\nJawab pertanyaan berdasarkan materi yang sudah dibaca.`);
+    }
+
+    // Inisialisasi
+    renderPage(1);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            nextPage();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            previousPage();
+        }
+    });
+
+    console.log('📖 EduBook Digital Reader loaded!');
+    console.log(`📚 Total halaman: ${totalPages}`);
+    console.log('💡 Gunakan tombol panah keyboard untuk navigasi');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduBook — Masuk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0a0a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* === Animated Background === */
+        .bg-layer {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1040 30%, #0d2137 60%, #0a0a1a 100%);
+            z-index: 0;
+        }
+
+        .bg-grid {
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.06) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 1;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            z-index: 1;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+        .bg-orb:nth-child(1) {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, #6366f1, transparent);
+            top: -10%; left: -10%;
+            animation-delay: 0s;
+        }
+        .bg-orb:nth-child(2) {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, #06b6d4, transparent);
+            bottom: -15%; right: -10%;
+            animation-delay: -7s;
+        }
+        .bg-orb:nth-child(3) {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, #a855f7, transparent);
+            bottom: 30%; right: 30%;
+            animation-delay: -14s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(80px, -60px) scale(1.1); }
+            50% { transform: translate(-40px, 80px) scale(0.95); }
+            75% { transform: translate(60px, 40px) scale(1.05); }
+        }
+
+        /* === Floating Particles === */
+        .particles {
+            position: fixed; inset: 0;
+            z-index: 1; overflow: hidden; pointer-events: none;
+        }
+        .particle {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 50%;
+            animation: particleFloat linear infinite;
+        }
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* === Main Card === */
+        .card-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 460px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 48px 40px 40px;
+            box-shadow:
+                0 0 0 1px rgba(99, 102, 241, 0.1),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .card-header .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .card-header .logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+        }
+        .card-header .logo-text {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #e0e7ff, #67e8f9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card-header h1 {
+            color: #e2e8f0;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .card-header p {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* === Google Button === */
+        .google-btn {
+            width: 100%;
+            padding: 14px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .google-btn::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(6,182,212,0.15));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .google-btn:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
+        }
+        .google-btn:hover::before { opacity: 1; }
+        .google-btn:active { transform: translateY(0); }
+        .google-btn svg {
+            width: 22px; height: 22px;
+            position: relative; z-index: 1;
+        }
+        .google-btn span { position: relative; z-index: 1; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 28px 0;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .branding {
+            text-align: center;
+            margin-top: 24px;
+        }
+        .branding p {
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .branding .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 6px 14px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            color: #a5b4fc;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* === Steps Indicator === */
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+        .step-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.4s ease;
+        }
+        .step-dot.active { background: #6366f1; width: 28px; border-radius: 4px; }
+        .step-dot.done { background: #06b6d4; }
+
+        /* === Form === */
+        .form-step { display: none; }
+        .form-step.active { display: block; animation: fadeSlideIn 0.5s ease; }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .form-group input::placeholder { color: #475569; }
+        .form-group select option { background: #1a1040; color: #e2e8f0; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        /* === Photo Upload === */
+        .photo-upload {
+            position: relative;
+            width: 120px; height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            border: 2px dashed rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.03);
+        }
+        .photo-upload:hover {
+            border-color: #6366f1;
+            background: rgba(99,102,241,0.08);
+        }
+        .photo-upload.has-image {
+            border-color: transparent;
+            border-style: solid;
+        }
+        .photo-upload img {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .photo-upload .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .photo-upload .placeholder svg { width: 28px; height: 28px; opacity: 0.6; }
+        .photo-upload input[type="file"] {
+            position: absolute; inset: 0;
+            opacity: 0; cursor: pointer;
+        }
+
+        /* === Submit Button === */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+        }
+        .submit-btn:active { transform: translateY(0); }
+        .submit-btn:disabled {
+            opacity: 0.5; cursor: not-allowed;
+            transform: none; box-shadow: none;
+        }
+        .submit-btn .spinner {
+            display: none;
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin: 0 auto;
+        }
+        .submit-btn.loading .btn-text { display: none; }
+        .submit-btn.loading .spinner { display: block; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .form-step .step-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+        }
+        .form-step .step-subtitle {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        /* === Success Animation === */
+        .success-state {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .success-state.active { display: block; animation: fadeSlideIn 0.6s ease; }
+        .success-check {
+            width: 72px; height: 72px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #06b6d4, #6366f1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+            animation: checkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes checkPop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        .success-state h2 {
+            color: #e2e8f0;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .success-state p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* === Alert === */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .alert.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+        .alert.success {
+            display: block;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        /* === Loading State === */
+        .card.loading-state .card-inner { display: none; }
+        .card.loading-state .card-loader { display: flex; }
+        .card-loader {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            gap: 20px;
+        }
+        .card-loader .loader-ring {
+            width: 48px; height: 48px;
+            border: 3px solid rgba(99,102,241,0.15);
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .card-loader p {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* === Alert banner top === */
+        .alert-banner {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 14px 20px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            transform: translateY(-100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .alert-banner.show { transform: translateY(0); }
+        .alert-banner.error {
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+            backdrop-filter: blur(12px);
+        }
+        .alert-banner.success {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            backdrop-filter: blur(12px);
+        }
+
+        /* === Responsive === */
+        @media (max-width: 500px) {
+            .card { padding: 32px 24px 28px; border-radius: 20px; }
+            .form-row { grid-template-columns: 1fr; }
+            .card-header h1 { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-layer"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+    <div class="particles" id="particles"></div>
+
+    <div id="alertBanner" class="alert-banner"></div>
+
+    <div class="card-container">
+        <div class="card" id="mainCard">
+
+            <div class="card-loader">
+                <div class="loader-ring"></div>
+                <p>Memproses autentikasi...</p>
+            </div>
+
+            <div class="card-inner">
+
+                <!-- Steps -->
+                <div class="steps" id="stepsIndicator">
+                    <div class="step-dot active"></div>
+                    <div class="step-dot"></div>
+                </div>
+
+                <!-- Step 1: Login -->
+                <div class="form-step active" id="step1">
+                    <div class="card-header">
+                        <div class="logo">
+                            <div class="logo-icon">⚡</div>
+                            <span class="logo-text">EduBook</span>
+                        </div>
+                        <h1>Selamat Datang</h1>
+                        <p>Masuk untuk melanjutkan belajar</p>
+                    </div>
+
+                    <button class="google-btn" id="googleLoginBtn">
+                        <svg viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        <span>Masuk dengan Google</span>
+                    </button>
+
+                    <div class="divider">EduBook AIoT</div>
+
+                    <div class="branding">
+                        <p>AIoT Literacy for Social Impact</p>
+                        <div class="badge">⚡ Smart Learning with AIoT</div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Registration Form -->
+                <div class="form-step" id="step2">
+                    <div class="step-title">Lengkapi Profil</div>
+                    <div class="step-subtitle">Isi data dirimu untuk pengalaman belajar yang personal</div>
+
+                    <div id="step2Alert" class="alert error"></div>
+
+                    <div class="photo-upload" id="photoUpload">
+                        <input type="file" id="photoInput" accept="image/*">
+                        <div class="placeholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 15V3m0 0l-3 3m3-3l3 3M3 16v2a2 2 0 002 2h14a2 2 0 002-2v-2"/>
+                            </svg>
+                            <span>Foto Profil</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input type="text" id="inputNama" placeholder="Masukkan nama lengkap" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tanggal Lahir</label>
+                            <input type="date" id="inputTglLahir" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Jenis Kelamin</label>
+                            <select id="inputJenisKelamin">
+                                <option value="">Pilih</option>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Semester</label>
+                            <select id="inputSemester">
+                                <option value="">Pilih</option>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Kelas</label>
+                            <select id="inputKelas">
+                                <option value="">Pilih kelas</option>
+                                <option value="10">Kelas 10</option>
+                                <option value="11">Kelas 11</option>
+                                <option value="12">Kelas 12</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="submit-btn" id="submitProfile">
+                        <span class="btn-text">🚀 Mulai Belajar</span>
+                        <div class="spinner"></div>
+                    </button>
+                </div>
+
+                <!-- Success -->
+                <div class="success-state" id="successState">
+                    <div class="success-check">✓</div>
+                    <h2>Profil Selesai!</h2>
+                    <p>Kamu siap belajar dengan pengalaman yang dipersonalisasi.</p>
+                    <button class="submit-btn" id="goToDashboardBtn">🔮 Masuk ke Dashboard</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== PRODUCTION API =====
+        // Saat diakses dari domain non-lokal, otomatis pakai backend produksi.
+        // 🔧 GANTI 'CHANGE_ME_API' dengan subdomain backend Render kamu (mis. edubook-api)
+        if (!['localhost', '127.0.0.1'].includes(window.location.hostname) && !window.EDUBOOK_API_URL) {
+            window.EDUBOOK_API_URL = 'https://CHANGE_ME_API.onrender.com/api';
+        }
+        const API_URL = (window.EDUBOOK_API_URL || 'http://127.0.0.1:5000/api').replace(/\/$/, '');
+
+        // === Particles ===
+        (function initParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+                p.style.animationDuration = (15 + Math.random() * 25) + 's';
+                p.style.animationDelay = (Math.random() * 20) + 's';
+                p.style.opacity = (0.2 + Math.random() * 0.5);
+                container.appendChild(p);
+            }
+        })();
+
+        // === DOM refs ===
+        const mainCard = document.getElementById('mainCard');
+        const stepsDots = document.querySelectorAll('.step-dot');
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const successState = document.getElementById('successState');
+        const googleBtn = document.getElementById('googleLoginBtn');
+        const submitBtn = document.getElementById('submitProfile');
+        const goBtn = document.getElementById('goToDashboardBtn');
+        const photoUpload = document.getElementById('photoUpload');
+        const photoInput = document.getElementById('photoInput');
+        const inputNama = document.getElementById('inputNama');
+        const inputTglLahir = document.getElementById('inputTglLahir');
+        const inputKelas = document.getElementById('inputKelas');
+        const inputSemester = document.getElementById('inputSemester');
+        const alertBanner = document.getElementById('alertBanner');
+        const step2Alert = document.getElementById('step2Alert');
+
+        let token = null;
+        let fotoFile = null;
+
+        // === Show banner ===
+        function showBanner(msg, type) {
+            alertBanner.textContent = msg;
+            alertBanner.className = 'alert-banner ' + type + ' show';
+            setTimeout(() => alertBanner.classList.remove('show'), 5000);
+        }
+
+        // === URL Params ===
+        function getParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            const hash = window.location.hash.substring(1);
+            const hashParams = new URLSearchParams(hash);
+            return params.get(name) || hashParams.get(name);
+        }
+
+        const urlToken = getParam('token');
+        const isNew = getParam('new');
+        const error = getParam('error');
+
+        if (error) {
+            showBanner('Autentikasi gagal. Silakan coba lagi.', 'error');
+        }
+
+        if (urlToken) {
+            token = urlToken;
+            if (isNew === '1') {
+                // Remove token from URL
+                window.history.replaceState({}, document.title, '/login.html');
+                showStep2();
+            } else {
+                // Existing user - redirect to dashboard
+                window.location.href = 'index.html?token=' + encodeURIComponent(token);
+            }
+        }
+
+        // === Google Login ===
+        googleBtn.addEventListener('click', () => {
+            window.location.href = API_URL + '/auth/google';
+        });
+
+        // === Photo Upload ===
+        photoUpload.addEventListener('click', () => photoInput.click());
+
+        photoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            fotoFile = file;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                photoUpload.classList.add('has-image');
+                const img = photoUpload.querySelector('img') || document.createElement('img');
+                img.src = ev.target.result;
+                if (!photoUpload.querySelector('img')) {
+                    photoUpload.querySelector('.placeholder').remove();
+                    photoUpload.insertBefore(img, photoUpload.querySelector('input'));
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // === Steps ===
+        function setStep(step) {
+            stepsDots.forEach((d, i) => {
+                d.className = 'step-dot' + (i < step ? ' done' : '') + (i === step ? ' active' : '');
+            });
+            step1.classList.toggle('active', step === 0);
+            step2.classList.toggle('active', step === 1);
+        }
+
+        function showStep2() {
+            setStep(1);
+            const nameFromGoogle = getParam('name');
+            if (nameFromGoogle) inputNama.value = decodeURIComponent(nameFromGoogle);
+        }
+
+        // === Submit Profile ===
+        submitBtn.addEventListener('click', async () => {
+            const nama = inputNama.value.trim();
+            const tglLahir = inputTglLahir.value;
+            const kelas = inputKelas.value;
+            const semester = inputSemester.value;
+            const jenisKelamin = document.getElementById('inputJenisKelamin')?.value || '';
+
+            step2Alert.style.display = 'none';
+
+            if (!nama) { showStepError('Nama lengkap wajib diisi.'); return; }
+            if (!tglLahir) { showStepError('Tanggal lahir wajib diisi.'); return; }
+            if (!kelas) { showStepError('Pilih kelas.'); return; }
+            if (!semester) { showStepError('Pilih semester.'); return; }
+            if (!jenisKelamin) { showStepError('Pilih jenis kelamin.'); return; }
+
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('nama', nama);
+                formData.append('tanggal_lahir', tglLahir);
+                formData.append('kelas', kelas);
+                formData.append('semester', semester);
+                formData.append('jenis_kelamin', jenisKelamin);
+                if (fotoFile) formData.append('foto_profil', fotoFile);
+
+                const res = await fetch(API_URL + '/auth/profile', {
+                    method: 'PUT',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    body: formData
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Gagal menyimpan profil.');
+
+                token = data.token || token;
+                showSuccess();
+            } catch (err) {
+                showStepError(err.message);
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        });
+
+        function showStepError(msg) {
+            step2Alert.textContent = msg;
+            step2Alert.style.display = 'block';
+        }
+
+        function showSuccess() {
+            setStep(-1);
+            step1.style.display = 'none';
+            step2.style.display = 'none';
+            successState.classList.add('active');
+        }
+
+        // === Go to Dashboard ===
+        goBtn.addEventListener('click', () => {
+            window.location.href = 'index.html?token=' + encodeURIComponent(token);
+        });
+
+    </script>
+</body>
+</html>
