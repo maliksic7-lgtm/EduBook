@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="config.js"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .font-serif { font-family: 'Playfair Display', Georgia, serif; }
@@ -1313,12 +1314,18 @@
     <script>
         
         // ===== PRODUCTION API =====
-        // Saat diakses dari domain non-lokal, otomatis pakai backend produksi.
-        // 🔧 GANTI 'CHANGE_ME_API' dengan subdomain backend Render kamu (mis. edubook-api)
-        if (!['localhost', '127.0.0.1'].includes(window.location.hostname) && !window.EDUBOOK_API_URL) {
-            window.EDUBOOK_API_URL = 'https://CHANGE_ME_API.onrender.com/api';
-        }
+        // URL backend dikelola di config.js (root project). Edit di sana jika perlu.
         const API_URL = (window.EDUBOOK_API_URL || 'http://127.0.0.1:5000/api').replace(/\/$/, '');
+
+        // ===== NGROK BYPASS WARNING =====
+        // ngrok free menampilkan halaman "warning" untuk request API dari browser.
+        // Header ini memerintahkan ngrok langsung meneruskan request ke backend.
+        const _edubookFetch = window.fetch;
+        window.fetch = function (input, init) {
+            init = init || {};
+            init.headers = Object.assign({}, init.headers, { 'ngrok-skip-browser-warning': 'true' });
+            return _edubookFetch(input, init);
+        };
         let AUTH_TOKEN = localStorage.getItem('edubook_token');
         let CURRENT_USER = null;
 
@@ -3284,6 +3291,15 @@ function filterChatSessions() {
             return '<div class="' + sz + ' rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0 shadow-sm">' + initial + '</div>';
         }
 
+        const EDUBOOK_INSTRUCTION_SUFFIX = " (Bila materi ini tidak ada di EduBook secara spesifik, tolong tetap jelaskan konsep dasar ilmiahnya secara luas, lengkap, dan edukatif sebagai tutor AIoT)";
+
+        function cleanUserMessage(text) {
+            if (typeof text !== 'string') return text;
+            return text.endsWith(EDUBOOK_INSTRUCTION_SUFFIX)
+                ? text.slice(0, -EDUBOOK_INSTRUCTION_SUFFIX.length)
+                : text;
+        }
+
         async function loadChatSessionFromDB(sessionId) {
     try {
         const studentName = getStudentName();
@@ -3328,7 +3344,7 @@ function filterChatSessions() {
                 chatContainer.innerHTML += `
                     <div class="flex gap-2.5 max-w-[85%] ml-auto justify-end mb-2">
                         <div class="flex flex-col items-end">
-                                <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-3 rounded-2xl rounded-tr-none shadow-md leading-relaxed">${escapeHtml(msg.text)}</div>
+                                <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-3 rounded-2xl rounded-tr-none shadow-md leading-relaxed">${escapeHtml(cleanUserMessage(msg.text))}</div>
                             <span class="text-[8px] text-slate-400 font-bold mt-1 mr-1 font-mono">${msgTime}</span>
                         </div>
                         ` + getUserAvatarHTML() + `
@@ -3408,7 +3424,7 @@ function filterChatSessions() {
                 </div>`;
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
-            const expandedMessage = `${questionText} (Bila materi ini tidak ada di EduBook secara spesifik, tolong tetap jelaskan konsep dasar ilmiahnya secara luas, lengkap, dan edukatif sebagai tutor AIoT)`;
+            const expandedMessage = questionText;
 
             try {
                 const response = await fetch(`${API_URL}/chat/message`, {

@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
@@ -638,12 +639,18 @@
 
     <script>
         // ===== PRODUCTION API =====
-        // Saat diakses dari domain non-lokal, otomatis pakai backend produksi.
-        // 🔧 GANTI 'CHANGE_ME_API' dengan subdomain backend Render kamu (mis. edubook-api)
-        if (!['localhost', '127.0.0.1'].includes(window.location.hostname) && !window.EDUBOOK_API_URL) {
-            window.EDUBOOK_API_URL = 'https://CHANGE_ME_API.onrender.com/api';
-        }
+        // URL backend dikelola di config.js (root project). Edit di sana jika perlu.
         const API_URL = (window.EDUBOOK_API_URL || 'http://127.0.0.1:5000/api').replace(/\/$/, '');
+
+        // ===== NGROK BYPASS WARNING =====
+        // ngrok free menampilkan halaman "warning" untuk request API dari browser.
+        // Header ini memerintahkan ngrok langsung meneruskan request ke backend.
+        const _edubookFetch = window.fetch;
+        window.fetch = function (input, init) {
+            init = init || {};
+            init.headers = Object.assign({}, init.headers, { 'ngrok-skip-browser-warning': 'true' });
+            return _edubookFetch(input, init);
+        };
 
         // === Particles ===
         (function initParticles() {

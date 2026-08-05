@@ -26,15 +26,30 @@ const albumRoutes = require('./routes/album.routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.set('trust proxy', 1);
+
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5500,http://127.0.0.1:5500')
     .split(',')
     .map(origin => origin.trim())
     .filter(Boolean);
 const allowNullOrigin = process.env.CORS_ALLOW_NULL_ORIGIN !== 'false';
 
+function isOriginAllowed(origin) {
+    if (!origin || allowedOrigins.includes(origin) || (origin === 'null' && allowNullOrigin)) {
+        return true;
+    }
+
+    // Wildcard subdomain: izinkan semua domain *.netlify.app (mis. https://x.netlify.app)
+    if (/^https:\/\/([a-z0-9-]+)\.netlify\.app$/i.test(origin)) {
+        return true;
+    }
+
+    return false;
+}
+
 app.use(cors({
     origin(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin) || (origin === 'null' && allowNullOrigin)) {
+        if (isOriginAllowed(origin)) {
             return callback(null, true);
         }
 
@@ -48,7 +63,10 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'edubook-sic-batch8-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000
+    }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
