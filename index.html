@@ -13,6 +13,11 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .font-serif { font-family: 'Playfair Display', Georgia, serif; }
         
+        @media (max-width: 1023px) {
+            html, body { overflow-x: clip; }
+            body { -webkit-text-size-adjust: 100%; }
+        }
+        
         @keyframes waveMove {
             0%, 100% { transform: scaleY(0.3); }
             50% { transform: scaleY(1.3); }
@@ -160,7 +165,7 @@
 </head>
 <body class="bg-[#F4F7FE] text-[#1E293B] antialiased min-h-screen flex">
 
-    <aside class="w-68 bg-gradient-to-b from-[#1E1B4B] to-[#312E81] text-white flex flex-col fixed h-full z-30 shadow-2xl border-r border-indigo-950">
+    <aside id="appSidebar" class="w-68 bg-gradient-to-b from-[#1E1B4B] to-[#312E81] text-white flex flex-col fixed inset-y-0 left-0 h-full z-50 shadow-2xl border-r border-indigo-950 -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
         <div class="h-22 flex items-center px-6 border-b border-indigo-900/50 gap-3">
             <span class="text-3xl bg-indigo-500/20 p-2 rounded-xl backdrop-blur-md shadow-inner">⚡</span>
             <div>
@@ -237,105 +242,102 @@
         </div>
     </aside>
 
-    <main class="flex-1 ml-68 min-h-screen flex flex-col">
-        <header id="appHeader" class="h-22 bg-white/80 backdrop-blur-md border-b border-gray-200/60 flex items-center justify-between px-8 sticky top-0 z-20 shadow-sm">
-            <div>
-                <p class="text-[10px] text-indigo-600 font-extrabold uppercase tracking-widest">Modul Pembelajaran Mandiri</p>
-                <p class="text-base font-black text-slate-800 mt-0.5">Kelas Inteligensi Buatan & IoT Terintegrasi</p>
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+
+    <main class="flex-1 min-w-0 ml-0 lg:ml-68 min-h-screen flex flex-col">
+        <header id="appHeader" class="h-22 bg-white/80 backdrop-blur-md border-b border-gray-200/60 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-20 shadow-sm">
+            <button id="sidebarToggle" onclick="toggleSidebar()" class="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-gray-200 shadow-sm text-xl cursor-pointer shrink-0" aria-label="Buka menu">
+                ☰
+            </button>
+            <div class="flex-1 min-w-0">
+                <p class="text-[10px] text-indigo-600 font-extrabold uppercase tracking-normal lg:tracking-widest line-clamp-1">Modul Pembelajaran Mandiri</p>
+                <p class="text-base font-black text-slate-800 mt-0.5 truncate hidden sm:block">Kelas Inteligensi Buatan & IoT Terintegrasi</p>
             </div>
-            <div class="flex items-center gap-3">
-                <div id="deviceStatusPanel" class="flex items-center gap-2 px-4 py-2 bg-slate-900/80 border border-slate-700/80 rounded-2xl shadow-inner">
+            <div class="flex items-center gap-2 lg:gap-3 shrink-0">
+                <div id="deviceStatusPanel" class="hidden md:flex items-center gap-2 px-4 py-2 bg-slate-900/80 border border-slate-700/80 rounded-2xl shadow-inner">
                     <span id="deviceStatusDot" class="w-2 h-2 bg-gray-600 rounded-full"></span>
                     <span id="deviceStatusText" class="text-[9px] font-black text-gray-400 uppercase tracking-wider">Device Offline</span>
                 </div>
-                <div class="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100/80 rounded-2xl shadow-inner">
+                <div class="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100/80 rounded-2xl shadow-inner">
                     <span class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
                     <span class="text-[10px] font-black text-indigo-700 uppercase tracking-wider">EduBook Platform</span>
                 </div>
-                <button id="darkModeToggle" onclick="toggleDarkMode()" class="relative flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-2xl shadow-sm hover:bg-gray-50 cursor-pointer transition-all" title="Mode Gelap / Terang">
+                <button id="darkModeToggle" onclick="toggleDarkMode()" class="relative flex items-center justify-center gap-2 px-2.5 lg:px-4 py-2 bg-white border border-gray-200 rounded-2xl shadow-sm hover:bg-gray-50 cursor-pointer transition-all" title="Mode Gelap / Terang">
                     <span id="darkModeIcon">🌙</span>
                     <span class="text-[10px] font-black text-slate-700 uppercase tracking-wider hidden sm:inline">Mode</span>
                 </button>
-                <button onclick="openModal('modal-notifications'); loadNotifications()" class="relative flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-2xl shadow-sm hover:bg-gray-50 cursor-pointer transition-all" title="Notifikasi">
+                <button onclick="openModal('modal-notifications'); loadNotifications()" class="relative flex items-center gap-2 px-2.5 lg:px-4 py-2 bg-white border border-gray-200 rounded-2xl shadow-sm hover:bg-gray-50 cursor-pointer transition-all" title="Notifikasi">
                     <span class="text-base">🔔</span>
                     <span id="notifBadge" class="hidden absolute -top-1 -right-0 w-5 h-5 bg-red-500 text-white text-[9px] font-extrabold rounded-full flex items-center justify-center shadow-md">0</span>
                 </button>
             </div>
         </header>
 
-        <div class="p-8 space-y-6 flex-1 max-w-5xl w-full mx-auto">
-            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                <div onclick="openModal('modal-hafalan')" class="bg-gradient-to-br from-emerald-400 to-teal-600 p-4 rounded-2xl text-white shadow-lg border border-emerald-300/20 flex items-center gap-4 relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300">
-                    <div class="absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">🎯</div>
-                    <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-inner">🎯</div>
-                    <div>
-                        <p class="text-[9px] text-emerald-100 font-extrabold uppercase tracking-wider">Rerata Hafalan</p>
-                        <p class="text-xl font-black mt-0.5" id="stat-accuracy">0%</p>
+        <div class="p-4 lg:p-8 space-y-6 flex-1 max-w-5xl w-full mx-auto">
+            <div class="grid grid-cols-5 gap-1.5 lg:gap-4">
+                <div onclick="openModal('modal-hafalan')" class="bg-gradient-to-br from-emerald-400 to-teal-600 p-1 lg:p-4 rounded-2xl text-white shadow-lg border border-emerald-300/20 flex flex-col lg:flex-row items-center gap-1 lg:gap-4 justify-center lg:justify-start text-center lg:text-left relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 min-w-0">
+                    <div class="hidden lg:block absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">🎯</div>
+                    <div class="w-8 h-8 lg:w-11 lg:h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-sm lg:text-xl shadow-inner shrink-0">🎯</div>
+                    <div class="min-w-0">
+                        <p class="text-[7px] lg:text-[9px] text-emerald-100 font-extrabold uppercase tracking-normal lg:tracking-wider leading-tight">Rerata Hafalan</p>
+                        <p class="text-sm lg:text-xl font-black mt-0.5" id="stat-accuracy">0%</p>
                     </div>
                 </div>
-                <div onclick="openModal('modal-quiz-analytics')" class="bg-gradient-to-br from-blue-500 to-indigo-600 p-4 rounded-2xl text-white shadow-lg border border-blue-400/20 flex items-center gap-4 relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300">
-                    <div class="absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">📊</div>
-                    <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-inner">📊</div>
-                    <div>
-                        <p class="text-[9px] text-blue-100 font-extrabold uppercase tracking-wider">Akurasi Kuis</p>
-                        <p class="text-xl font-black mt-0.5" id="stat-quiz-accuracy">0%</p>
+                <div onclick="openModal('modal-quiz-analytics')" class="bg-gradient-to-br from-blue-500 to-indigo-600 p-1 lg:p-4 rounded-2xl text-white shadow-lg border border-blue-400/20 flex flex-col lg:flex-row items-center gap-1 lg:gap-4 justify-center lg:justify-start text-center lg:text-left relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 min-w-0">
+                    <div class="hidden lg:block absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">📊</div>
+                    <div class="w-8 h-8 lg:w-11 lg:h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-sm lg:text-xl shadow-inner shrink-0">📊</div>
+                    <div class="min-w-0">
+                        <p class="text-[7px] lg:text-[9px] text-blue-100 font-extrabold uppercase tracking-normal lg:tracking-wider leading-tight">Akurasi Kuis</p>
+                        <p class="text-sm lg:text-xl font-black mt-0.5" id="stat-quiz-accuracy">0%</p>
                     </div>
                 </div>
-                <div onclick="openModal('modal-listening-analytics')" class="bg-gradient-to-br from-amber-500 to-orange-600 p-4 rounded-2xl text-white shadow-lg border border-amber-400/20 flex items-center gap-4 relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300">
-                    <div class="absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">🎧</div>
-                    <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-inner">🎧</div>
-                    <div>
-                        <p class="text-[9px] text-amber-100 font-extrabold uppercase tracking-wider">Akurasi Dengar</p>
-                        <p class="text-xl font-black mt-0.5" id="stat-listening-accuracy">0%</p>
+                <div onclick="openModal('modal-listening-analytics')" class="bg-gradient-to-br from-amber-500 to-orange-600 p-1 lg:p-4 rounded-2xl text-white shadow-lg border border-amber-400/20 flex flex-col lg:flex-row items-center gap-1 lg:gap-4 justify-center lg:justify-start text-center lg:text-left relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 min-w-0">
+                    <div class="hidden lg:block absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">🎧</div>
+                    <div class="w-8 h-8 lg:w-11 lg:h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-sm lg:text-xl shadow-inner shrink-0">🎧</div>
+                    <div class="min-w-0">
+                        <p class="text-[7px] lg:text-[9px] text-amber-100 font-extrabold uppercase tracking-normal lg:tracking-wider leading-tight">Akurasi Dengar</p>
+                        <p class="text-sm lg:text-xl font-black mt-0.5" id="stat-listening-accuracy">0%</p>
                     </div>
                 </div>
-                <div onclick="openModal('modal-streak')" class="bg-gradient-to-br from-amber-400 to-orange-500 p-4 rounded-2xl text-white shadow-lg border border-amber-300/20 flex items-center gap-4 relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300">
-                    <div class="absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">🔥</div>
-                    <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-inner">🔥</div>
-                    <div>
-                        <p class="text-[9px] text-amber-100 font-extrabold uppercase tracking-wider">Streak Hari</p>
-                        <p class="text-xl font-black mt-0.5" id="stat-streak">0 Hari</p>
+                <div onclick="openModal('modal-streak')" class="bg-gradient-to-br from-amber-400 to-orange-500 p-1 lg:p-4 rounded-2xl text-white shadow-lg border border-amber-300/20 flex flex-col lg:flex-row items-center gap-1 lg:gap-4 justify-center lg:justify-start text-center lg:text-left relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 min-w-0">
+                    <div class="hidden lg:block absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">🔥</div>
+                    <div class="w-8 h-8 lg:w-11 lg:h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-sm lg:text-xl shadow-inner shrink-0">🔥</div>
+                    <div class="min-w-0">
+                        <p class="text-[7px] lg:text-[9px] text-amber-100 font-extrabold uppercase tracking-normal lg:tracking-wider leading-tight">Streak Hari</p>
+                        <p class="text-sm lg:text-xl font-black mt-0.5" id="stat-streak">0 Hari</p>
                     </div>
                 </div>
-                <div onclick="openModal('modal-level')" class="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-4 rounded-2xl text-white shadow-lg border border-fuchsia-400/20 flex items-center gap-4 relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300">
-                    <div class="absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">🏅</div>
-                    <div class="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl shadow-inner">🏅</div>
-                    <div>
-                        <p class="text-[9px] text-fuchsia-100 font-extrabold uppercase tracking-wider">Learning Rank</p>
-                        <p class="text-xs font-black mt-1.5 tracking-tight" id="stat-rank-title">Pemula AIoT</p>
+                <div onclick="openModal('modal-level')" class="bg-gradient-to-br from-fuchsia-500 to-purple-600 p-1 lg:p-4 rounded-2xl text-white shadow-lg border border-fuchsia-400/20 flex flex-col lg:flex-row items-center gap-1 lg:gap-4 justify-center lg:justify-start text-center lg:text-left relative overflow-hidden group cursor-pointer hover:scale-[1.03] transition-all duration-300 min-w-0">
+                    <div class="hidden lg:block absolute -right-2 -bottom-2 text-6xl opacity-15 transform group-hover:scale-110 transition duration-300">🏅</div>
+                    <div class="w-8 h-8 lg:w-11 lg:h-11 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-sm lg:text-xl shadow-inner shrink-0">🏅</div>
+                    <div class="min-w-0">
+                        <p class="text-[7px] lg:text-[9px] text-fuchsia-100 font-extrabold uppercase tracking-normal lg:tracking-wider leading-tight">Learning Rank</p>
+                        <p class="text-[10px] lg:text-xs font-black mt-0.5 leading-tight" id="stat-rank-title">Pemula AIoT</p>
                     </div>
                 </div>
             </div>
 
             <div id="ebook-tab" class="tab-content relative group">
                 
-                <button onclick="prevBookPage()" id="btn-prev-page" class="absolute -left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white hover:bg-indigo-600 text-slate-700 hover:text-white rounded-full flex items-center justify-center border border-gray-200 shadow-xl transition-all duration-300 z-40 hover:scale-110 cursor-pointer disabled:opacity-0 disabled:pointer-events-none" title="Halaman Sebelumnya">
-                    <span class="text-lg font-black">◀</span>
-                </button>
-
-                <button onclick="nextBookPage()" id="btn-next-page" class="absolute -right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white hover:bg-indigo-600 text-slate-700 hover:text-white rounded-full flex items-center justify-center border border-gray-200 shadow-xl transition-all duration-300 z-40 hover:scale-110 cursor-pointer disabled:opacity-0 disabled:pointer-events-none" title="Halaman Berikutnya">
-                    <span class="text-lg font-black">▶</span>
-                </button>
-
                 <div class="bg-white rounded-3xl border border-gray-200/80 shadow-2xl relative overflow-hidden transition-all duration-300">
-                    <div class="bg-slate-50 px-8 py-3.5 border-b border-gray-100 flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest select-none">
-                        <span>EduBook Digital Innovation</span>
-                        <span class="text-indigo-600">● Bab Terstruktur: Halaman <span id="currentPageBadge" class="font-bold">1</span>/10</span>
-                        <select id="pageSelectorEbook" onchange="fetchBookPage(parseInt(this.value))" class="text-[10px] bg-indigo-50 border border-indigo-200 rounded-lg px-2 py-1 font-bold text-indigo-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-400"></select>
-                        <button id="btnTTSPage" onclick="togglePageTTS()" class="text-[10px] bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-1 rounded-lg cursor-pointer transition-all shadow-sm">🔊 Bacakan AI</button>
-                        <span>EduBook Digital Innovation</span>
+                    <div class="bg-slate-50 px-4 lg:px-8 py-3.5 border-b border-gray-100 flex items-center justify-between gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest select-none">
+                        <span class="hidden md:block">EduBook Digital Innovation</span>
+                        <span class="hidden sm:block text-indigo-600 min-w-0 truncate">● Bab Terstruktur: Halaman <span id="currentPageBadge" class="font-bold">1</span>/10</span>
+                        <select id="pageSelectorEbook" onchange="fetchBookPage(parseInt(this.value))" class="text-[10px] bg-indigo-50 border border-indigo-200 rounded-lg px-2 py-1 font-bold text-indigo-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-400 shrink-0"></select>
+                        <button id="btnTTSPage" onclick="togglePageTTS()" class="text-[10px] bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-1 rounded-lg cursor-pointer transition-all shadow-sm shrink-0">🔊 Bacakan AI</button>
+                        <span class="hidden md:block">EduBook Digital Innovation</span>
                     </div>
 
-                    <div class="bg-white px-10 md:px-14 py-0 relative">
+                    <div class="bg-white px-4 sm:px-10 md:px-14 py-0 relative">
                         <!-- Magazine Header -->
-                        <div class="flex items-center justify-between text-[10px] text-gray-400 uppercase tracking-widest font-semibold py-2 border-b border-gray-300">
+                        <div class="flex items-center justify-between gap-3 text-[10px] text-gray-400 uppercase tracking-widest font-semibold py-2 border-b border-gray-300">
                             <span id="magPageNum" class="font-mono">01</span>
                             <span>Materi Literasi · AIoT</span>
                             <span>EduBook Series</span>
                         </div>
 
                         <!-- Hero Title -->
-                        <div class="pt-10 pb-1">
+                        <div class="pt-6 sm:pt-10 pb-1">
                             <h1 id="bookTitle" class="text-4xl md:text-5xl font-extrabold text-black leading-none tracking-tight">
                                 Memuat judul halaman...
                             </h1>
@@ -366,7 +368,7 @@
 
                         <!-- Video Section -->
                         <div id="bookVideoContainer" class="hidden border-t border-gray-200 pt-6 pb-2">
-                            <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-3 block">Video Pembelajaran</span>
+                            <span class="text-xs sm:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-3 block">Video Pembelajaran</span>
                             <div id="bookVideoEmbed" class="aspect-video rounded-lg overflow-hidden bg-gray-100"></div>
                         </div>
 
@@ -385,11 +387,11 @@
                 </div>
             </div>
 
-            <div id="hafalan-tab" class="tab-content hidden bg-white p-6 rounded-2xl border border-gray-200 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
+            <div id="hafalan-tab" class="tab-content hidden bg-white p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-md flex flex-col justify-between space-y-6 relative overflow-hidden">
                 <div class="absolute top-0 left-0 h-2 w-full bg-gradient-to-r from-emerald-400 to-teal-500"></div>
                 <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">🎙️ Evaluasi Hafalan Lisan (Smart-Review)</h3>
+                    <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                        <h3 class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2">🎙️ Evaluasi Hafalan Lisan (Smart-Review)</h3>
                         <div class="flex items-center gap-2">
                             <select id="pageSelectorHafalan" onchange="fetchBookPage(parseInt(this.value))" class="text-[10px] bg-emerald-50 border border-emerald-200 rounded-lg px-2 py-1.5 font-bold text-emerald-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-400"></select>
                             <div class="flex items-center gap-2 bg-slate-50 border border-slate-200/60 px-3 py-1 rounded-xl shadow-inner">
@@ -401,11 +403,11 @@
                     <p class="text-xs text-gray-400 mb-4">Pilih satu target paragraf di bawah ini, lalu ucapkan isi materinya murni tanpa melihat buku.</p>
                     
                     <div class="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/60 mb-4 flex flex-col gap-1.5">
-                        <label class="text-[10px] font-black text-emerald-700 uppercase tracking-wider">Pilih Sasaran Paragraf Uji Lisan:</label>
+                        <label class="text-xs sm:text-[10px] font-black text-emerald-700 uppercase tracking-wider">Pilih Sasaran Paragraf Uji Lisan:</label>
                         <select id="paragraphSelect" class="bg-white border border-emerald-200 rounded-xl p-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-sm cursor-pointer w-full max-w-md"></select>
                     </div>
                     <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100/60 mb-4 flex flex-col gap-1.5" id="sentenceSelectContainer" style="display:none;">
-                        <label class="text-[10px] font-black text-amber-700 uppercase tracking-wider">Atau Pilih Satu Kalimat Spesifik:</label>
+                        <label class="text-xs sm:text-[10px] font-black text-amber-700 uppercase tracking-wider">Atau Pilih Satu Kalimat Spesifik:</label>
                         <select id="sentenceSelect" class="bg-white border border-amber-200 rounded-xl p-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-sm cursor-pointer w-full max-w-md"></select>
                     </div>
 
@@ -423,7 +425,7 @@
                     </div>
 
                     <div class="space-y-2">
-                        <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Hasil Transkrip Suara Lisan Anda:</p>
+                        <p class="text-xs sm:text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Hasil Transkrip Suara Lisan Anda:</p>
                         <div id="liveTranscript" class="p-5 bg-slate-50 border border-slate-200/80 rounded-2xl min-h-[120px] text-slate-700 text-sm leading-relaxed font-bold shadow-inner transition-all duration-300">
                             <span class="text-gray-400 italic font-medium">Suara kamu akan muncul di sini secara real-time...</span>
                         </div>
@@ -443,12 +445,12 @@
             <div id="quiz-tab" class="tab-content hidden max-w-3xl mx-auto bg-gradient-to-br from-white to-purple-50/30 rounded-2xl shadow-lg border border-purple-200/60 overflow-hidden flex flex-col justify-between relative">
                 <div class="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-purple-600 via-indigo-500 to-purple-600 z-10"></div>
                 
-                <div class="bg-gradient-to-r from-slate-50 to-white px-4 py-3 border-b border-purple-100 flex justify-between items-center gap-3">
+                <div class="bg-gradient-to-r from-slate-50 to-white px-4 py-3 border-b border-purple-100 flex justify-between items-center gap-3 flex-wrap">
                     <div class="flex items-center gap-2">
                         <span class="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black text-[10px] rounded-lg shadow-sm uppercase tracking-widest shrink-0" id="quizProgressBadge">Question 1/10</span>
-                        <select id="pageSelectorQuiz" onchange="fetchBookPage(parseInt(this.value))" class="text-[10px] bg-purple-50 border border-purple-200 rounded-lg px-2 py-1 font-bold text-purple-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-purple-400"></select>
+                        <select id="pageSelectorQuiz" onchange="fetchBookPage(parseInt(this.value))" class="text-[10px] bg-purple-50 border border-purple-200 rounded-lg px-2 py-1 font-bold text-purple-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-purple-400 shrink-0"></select>
                     </div>
-                    <div class="flex-1 max-w-xs bg-purple-100 h-2 rounded-full overflow-hidden shadow-inner">
+                    <div class="flex-1 max-w-xs min-w-[80px] bg-purple-100 h-2 rounded-full overflow-hidden shadow-inner">
                         <div id="quizProgressBar" class="bg-gradient-to-r from-purple-500 to-indigo-600 h-full rounded-full transition-all duration-500 ease-out" style="width: 10%;"></div>
                     </div>
                 </div>
@@ -472,12 +474,12 @@
                     </div>
 
                     <div class="bg-white/80 backdrop-blur-sm border border-purple-200 rounded-2xl p-4 text-left shadow-sm max-w-xl mx-auto">
-                        <p class="text-[10px] text-purple-500 font-extrabold uppercase tracking-wider mb-1">Wejangan & Ulasan Balik AI Tutor:</p>
+                        <p class="text-xs sm:text-[10px] text-purple-500 font-extrabold uppercase tracking-wider mb-1">Wejangan & Ulasan Balik AI Tutor:</p>
                         <p id="quizAIFeedback" class="text-xs text-slate-700 leading-relaxed font-bold italic">"Memproses evaluasi pintarmu..."</p>
                     </div>
 
                     <div id="quizReviewContainer" class="hidden max-w-xl mx-auto w-full text-left">
-                        <p class="text-[10px] text-indigo-600 font-extrabold uppercase tracking-wider mb-2">📋 Review Jawaban:</p>
+                        <p class="text-xs sm:text-[10px] text-indigo-600 font-extrabold uppercase tracking-wider mb-2">📋 Review Jawaban:</p>
                         <div id="quizReviewList" class="space-y-1.5 max-h-48 overflow-y-auto rounded-xl"></div>
                     </div>
 
@@ -495,10 +497,10 @@
                         <select id="pageSelectorListening" onchange="fetchBookPage(parseInt(this.value)); if(!document.getElementById('listening-tab').classList.contains('hidden'))initListeningTab()" class="text-[10px] bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 font-bold text-amber-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-400"></select>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="btnStartListening" onclick="startListeningExercise()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1">🎧 Mulai Latihan Mendengarkan</button>
+                        <button id="btnStartListening" onclick="startListeningExercise()" class="hidden sm:flex px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs rounded-xl shadow-md transition-all cursor-pointer items-center gap-1">🎧 Mulai Latihan Mendengarkan</button>
                     </div>
                 </div>
-                <div id="listeningContent" class="p-5 space-y-4 flex-1 overflow-y-auto">
+                <div id="listeningContent" class="p-4 sm:p-5 space-y-4 flex-1 overflow-y-auto">
                     <div id="listeningExerciseArea" class="space-y-4">
                         <div id="listeningLobby" class="text-center py-12 space-y-4">
                             <div class="text-6xl">🎧</div>
@@ -512,7 +514,7 @@
                                 <div class="flex-1 h-1.5 bg-amber-100 rounded-full overflow-hidden">
                                     <div id="listQBar" class="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full transition-all" style="width:0%"></div>
                                 </div>
-                                <span class="text-[9px] font-bold text-amber-600" id="listQScore">✅ 0</span>
+                                <span class="text-[10px] sm:text-[9px] font-bold text-amber-600" id="listQScore">✅ 0</span>
                             </div>
                             <div id="listQType" class="text-[10px] font-extrabold text-amber-500 uppercase tracking-wider"></div>
                             <div id="listQPlayRow" class="flex items-center gap-2">
@@ -536,42 +538,42 @@
                 </div>
             </div>
 
-            <div id="dashboard-tab" class="tab-content hidden bg-white p-6 rounded-2xl border border-gray-200 shadow-md space-y-5 relative overflow-hidden">
+            <div id="dashboard-tab" class="tab-content hidden bg-white p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-md space-y-5 relative overflow-hidden">
                 <div class="absolute top-0 left-0 h-2 w-full bg-fuchsia-500"></div>
-                <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <div class="flex justify-between items-center flex-wrap gap-2 border-b border-gray-100 pb-3">
                     <div>
                         <h3 class="text-base font-extrabold text-slate-800">📊 Riwayat Capaian & Log Belajar</h3>
                         <p class="text-xs text-gray-400 mt-0.5">Seluruh rekaman aktivitas tersimpan aman di database cloud.</p>
                     </div>
-                    <button onclick="fetchStudentHistory()" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-100 font-extrabold py-2 px-4 rounded-xl transition-all duration-300 cursor-pointer shadow-sm">🔄 Sinkronisasi Data</button>
+                    <button onclick="fetchStudentHistory()" class="text-[10px] sm:text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-100 font-extrabold py-2 px-3 sm:px-4 rounded-xl transition-all duration-300 cursor-pointer shadow-sm shrink-0">🔄 Sinkronisasi Data</button>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden ring-pulse" id="todaySummaryPanel">
                     <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-indigo-600 to-violet-600">
                         <h3 class="text-xs font-extrabold text-white flex items-center gap-1.5">🌅 Ringkasan Hari Ini</h3>
-                        <span id="todayDateLabel" class="text-[9px] text-indigo-200 font-bold uppercase tracking-wider"></span>
+                        <span id="todayDateLabel" class="text-[10px] sm:text-[9px] text-indigo-200 font-bold uppercase tracking-wider"></span>
                     </div>
                     <div class="p-4">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <div class="rounded-xl bg-indigo-50/70 border border-indigo-100 p-3">
-                                <p class="text-[9px] font-extrabold text-indigo-500 uppercase tracking-wider">⚡ XP Hari Ini</p>
+                                <p class="text-[10px] sm:text-[9px] font-extrabold text-indigo-500 uppercase tracking-wider">⚡ XP Hari Ini</p>
                                 <p id="todayXp" class="text-xl font-black text-slate-800 mt-1">0</p>
-                                <p class="text-[9px] text-gray-400 font-bold">hafalan + kuis + dengar</p>
+                                <p class="text-[10px] sm:text-[9px] text-gray-400 font-bold">hafalan + kuis + dengar</p>
                             </div>
                             <div class="rounded-xl bg-emerald-50/70 border border-emerald-100 p-3">
-                                <p class="text-[9px] font-extrabold text-emerald-500 uppercase tracking-wider">⏱️ Waktu Belajar</p>
+                                <p class="text-[10px] sm:text-[9px] font-extrabold text-emerald-500 uppercase tracking-wider">⏱️ Waktu Belajar</p>
                                 <p id="todayMinutes" class="text-xl font-black text-slate-800 mt-1">0</p>
-                                <p class="text-[9px] text-gray-400 font-bold">menit hari ini</p>
+                                <p class="text-[10px] sm:text-[9px] text-gray-400 font-bold">menit hari ini</p>
                             </div>
                             <div class="rounded-xl bg-amber-50/70 border border-amber-100 p-3">
-                                <p class="text-[9px] font-extrabold text-amber-500 uppercase tracking-wider">🎯 Soal Dikerjakan</p>
+                                <p class="text-[10px] sm:text-[9px] font-extrabold text-amber-500 uppercase tracking-wider">🎯 Soal Dikerjakan</p>
                                 <p id="todayQuestions" class="text-xl font-black text-slate-800 mt-1">0</p>
-                                <p class="text-[9px] text-gray-400 font-bold">kuis + mendengarkan</p>
+                                <p class="text-[10px] sm:text-[9px] text-gray-400 font-bold">kuis + mendengarkan</p>
                             </div>
                             <div class="rounded-xl bg-purple-50/70 border border-purple-100 p-3">
-                                <p class="text-[9px] font-extrabold text-purple-500 uppercase tracking-wider">🎙️ Sesi Hafalan</p>
+                                <p class="text-[10px] sm:text-[9px] font-extrabold text-purple-500 uppercase tracking-wider">🎙️ Sesi Hafalan</p>
                                 <p id="todayHafalan" class="text-xl font-black text-slate-800 mt-1">0</p>
-                                <p class="text-[9px] text-gray-400 font-bold">Smart Review lisan</p>
+                                <p class="text-[10px] sm:text-[9px] text-gray-400 font-bold">Smart Review lisan</p>
                             </div>
                         </div>
                         <div id="todayRecentList" class="mt-3 space-y-1.5"></div>
@@ -586,18 +588,18 @@
                     <div id="pageProgressCircles" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3"></div>
                 </div>
 
-                <div class="bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white p-5 rounded-2xl shadow-md border border-indigo-500/20 shadow-indigo-950/20">
-                    <div class="flex items-center justify-between border-b border-slate-700/50 pb-3.5 mb-3.5">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xl bg-indigo-500/10 p-2 rounded-xl border border-indigo-500/20">🧠</span>
-                            <div>
+                <div class="bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white p-4 sm:p-5 rounded-2xl shadow-md border border-indigo-500/20 shadow-indigo-950/20">
+                    <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-700/50 pb-3.5 mb-3.5">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="text-xl bg-indigo-500/10 p-2 rounded-xl border border-indigo-500/20 shrink-0">🧠</span>
+                            <div class="min-w-0">
                                 <h3 class="font-extrabold text-xs tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-300">
                                     EduBook AI Personal Recommendation
                                 </h3>
-                                <p class="text-[9px] text-slate-400 font-medium">Analisis RAG otomatis terhadap grafik nilai hafalan & kuis kognitif kamu</p>
+                                <p class="text-[10px] sm:text-[9px] text-slate-400 font-medium">Analisis RAG otomatis terhadap grafik nilai hafalan & kuis kognitif kamu</p>
                             </div>
                         </div>
-                        <button onclick="loadAIRecommendation()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-xl transition shadow-sm cursor-pointer flex items-center gap-1 active:scale-95 border border-indigo-400/30">
+                        <button onclick="loadAIRecommendation()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] px-3 py-1.5 rounded-xl transition shadow-sm cursor-pointer flex items-center gap-1 active:scale-95 border border-indigo-400/30 shrink-0">
                             ⚡ Jalankan Analisis AI
                         </button>
                     </div>
@@ -625,7 +627,7 @@
     </main>
 
     <div id="modal-hafalan" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-5xl w-full p-6 shadow-2xl border border-slate-200 flex flex-col relative overflow-hidden h-[85vh]">
+        <div class="bg-white rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 flex flex-col relative overflow-hidden h-[85vh]">
             <div class="flex justify-between items-center border-b pb-3 mb-4 shrink-0">
                 <h3 class="font-extrabold text-base text-slate-800 flex items-center gap-2">🎯 Smart-Review Mastery & AI Analytics Center</h3>
                 <button onclick="closeModal('modal-hafalan')" class="text-gray-400 hover:text-gray-600 font-bold text-sm cursor-pointer">✕</button>
@@ -705,7 +707,7 @@
     </div>
 
     <div id="modal-quiz-analytics" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-5xl w-full p-6 shadow-2xl border border-slate-200 flex flex-col relative overflow-hidden h-[85vh]">
+        <div class="bg-white rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 flex flex-col relative overflow-hidden h-[85vh]">
             <div class="flex justify-between items-center border-b pb-3 mb-4 shrink-0">
                 <h3 class="font-extrabold text-base text-slate-800 flex items-center gap-2">📊 Tantangan Kuis Analytics & Performance Desk</h3>
                 <button onclick="closeModal('modal-quiz-analytics')" class="text-gray-400 hover:text-gray-600 font-bold text-sm cursor-pointer">✕</button>
@@ -785,7 +787,7 @@
     </div>
 
     <div id="modal-listening-analytics" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-5xl w-full p-6 shadow-2xl border border-amber-200 flex flex-col relative overflow-hidden h-[85vh]">
+        <div class="bg-white rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl border border-amber-200 flex flex-col relative overflow-hidden h-[85vh]">
             <div class="flex justify-between items-center border-b border-amber-100 pb-3 mb-4 shrink-0">
                 <h3 class="font-extrabold text-base text-slate-800 flex items-center gap-2">🎧 Listening Exercise Analytics & Akurasi Dengar</h3>
                 <button onclick="closeModal('modal-listening-analytics')" class="text-gray-400 hover:text-gray-600 font-bold text-sm cursor-pointer">✕</button>
@@ -854,7 +856,7 @@
     </div>
 
     <div id="modal-streak" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-5xl w-full p-6 shadow-2xl border border-gray-200 flex flex-col relative h-[85vh]">
+        <div class="bg-white rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl border border-gray-200 flex flex-col relative h-[85vh]">
             <button onclick="closeModal('modal-streak')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-sm cursor-pointer z-10">✕</button>
             
             <div class="bg-gradient-to-r from-amber-500 via-orange-600 to-red-600 p-3 rounded-2xl text-white flex items-center justify-between shadow-lg mb-3 shrink-0">
@@ -955,7 +957,7 @@
     </div>
 
     <div id="modal-level" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-5xl w-full p-6 shadow-2xl border border-purple-200 flex flex-col relative h-[85vh]">
+        <div class="bg-white rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl border border-purple-200 flex flex-col relative h-[85vh]">
             <button onclick="closeModal('modal-level')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold cursor-pointer">&times;</button>
             
             <div class="flex items-center gap-4 border-b pb-3 mb-4 bg-purple-50/50 p-3 rounded-2xl border border-purple-100">
@@ -963,7 +965,7 @@
                 <div class="text-left flex-1">
                     <h3 id="md-rank-name" class="font-black text-base text-purple-950">Memproses Level...</h3>
                     <div class="flex items-center gap-3 w-full">
-                        <div class="w-full bg-purple-200/50 h-3 rounded-full overflow-hidden shadow-inner mt-1 max-w-xl">
+                        <div class="w-full bg-purple-200/50 h-3 rounded-full overflow-hidden shadow-inner mt-1 max-w-xl min-w-0">
                             <div id="md-xp-bar" class="xp-bar-fill bg-gradient-to-r from-fuchsia-500 to-purple-600 h-full rounded-full" style="width: 0%"></div>
                         </div>
                         <span id="md-xp-text" class="text-[11px] font-black text-purple-700 whitespace-nowrap shrink-0">0 / 1000 XP</span>
@@ -1000,8 +1002,8 @@
     </div>
 
     <div id="edubot-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white w-full max-w-5xl h-[85vh] rounded-3xl shadow-2xl flex overflow-hidden border border-slate-200 hover:shadow-3xl transition-shadow duration-300">
-            <aside class="w-72 bg-slate-900 text-white flex flex-col justify-between border-r border-slate-800 shrink-0">
+        <div class="bg-white w-full max-w-5xl h-[85vh] rounded-3xl shadow-2xl flex overflow-hidden border border-slate-200 hover:shadow-3xl transition-shadow duration-300 relative">
+            <aside id="edubotHistorySidebar" class="w-72 bg-slate-900 text-white flex flex-col justify-between border-r border-slate-800 shrink-0 absolute inset-y-0 left-0 z-30 -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
                 <div class="p-4 space-y-4">
                     <button onclick="createNewChatSessionInDB()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black py-3 px-4 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer border border-indigo-400/20">
                         <span>+</span> Obrolan Baru (New Chat)
@@ -1020,22 +1022,25 @@
                 </div>
             </aside>
 
-            <div class="flex-1 flex flex-col h-full bg-white">
-                <div class="bg-gradient-to-r from-[#1E1B4B] to-[#312E81] text-white p-4 flex items-center justify-between border-b border-slate-200 shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl bg-white/10 p-2 rounded-xl">🤖</span>
-                        <div>
-                            <h3 class="font-extrabold text-sm tracking-tight">EduBot AI Learning Tutor <span id="activeSessionBadgeText" class="text-[10px] text-indigo-300 font-normal ml-1">#ObrolanAktif</span></h3>
-                            <p id="edubot-status" class="text-[10px] text-cyan-400 font-bold flex items-center gap-1.5 mt-0.5">
+            <div class="flex-1 flex flex-col h-full bg-white min-w-0">
+                <div class="bg-gradient-to-r from-[#1E1B4B] to-[#312E81] text-white p-3 sm:p-4 flex items-center justify-between border-b border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                        <span class="text-lg sm:text-2xl bg-white/10 p-1.5 sm:p-2 rounded-xl shrink-0">🤖</span>
+                        <div class="min-w-0">
+                            <h3 class="font-extrabold text-xs sm:text-sm tracking-tight truncate">EduBot AI Learning Tutor <span id="activeSessionBadgeText" class="text-[9px] sm:text-[10px] text-indigo-300 font-normal ml-1">#ObrolanAktif</span></h3>
+                            <p id="edubot-status" class="text-[9px] sm:text-[10px] text-cyan-400 font-bold flex items-center gap-1.5 mt-0.5 truncate">
                                 <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping"></span> Online Knowledge RAG System
                             </p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="toggleBotVoice()" id="btn-mute-bot" class="text-slate-300 hover:text-white text-[11px] font-bold bg-white/10 px-3 py-1.5 rounded-xl transition cursor-pointer">
+                    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        <button onclick="toggleEduBotHistory()" class="text-slate-300 hover:text-white text-[10px] font-bold bg-white/10 px-2.5 py-1.5 rounded-xl transition cursor-pointer">
+                            ☰ Riwayat
+                        </button>
+                        <button onclick="toggleBotVoice()" id="btn-mute-bot" class="text-slate-300 hover:text-white text-[10px] sm:text-[11px] font-bold bg-white/10 px-2.5 py-1.5 rounded-xl transition cursor-pointer">
                             🔊 Voice ON
                         </button>
-                        <button onclick="closeEduBotModal()" class="text-slate-300 hover:text-white text-2xl p-2 cursor-pointer font-bold leading-none">&times;</button>
+                        <button onclick="closeEduBotModal()" class="text-slate-300 hover:text-white text-xl sm:text-2xl p-1.5 sm:p-2 cursor-pointer font-bold leading-none">&times;</button>
                     </div>
                 </div>
 
@@ -1044,7 +1049,7 @@
 
                 <div class="p-4 bg-white border-t border-slate-200 flex gap-2.5 items-center shadow-lg">
                     <button onclick="startVoiceInput()" id="btn-edubot-mic" class="w-11 h-11 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl flex items-center justify-center text-sm transition cursor-pointer shrink-0 shadow-sm" title="Tanya pakai suara">🎙️</button>
-                    <input type="text" id="edubot-user-input" placeholder="Tanyakan seputar materi AIoT disini, EduBot siap menjawab..." class="flex-1 border border-slate-300 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 placeholder-slate-400 font-medium hover:border-indigo-400 transition-colors duration-200" onkeypress="if(event.key === 'Enter') sendQuestionToEduBotWithMemory()">
+                    <input type="text" id="edubot-user-input" placeholder="Tanyakan seputar materi AIoT disini, EduBot siap menjawab..." class="flex-1 min-w-0 border border-slate-300 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 placeholder-slate-400 font-medium hover:border-indigo-400 transition-colors duration-200" onkeypress="if(event.key === 'Enter') sendQuestionToEduBotWithMemory()">
                     <button onclick="sendQuestionToEduBotWithMemory()" id="btn-send-edubot" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-black text-xs transition shadow-md cursor-pointer flex items-center gap-1 shrink-0">Kirim ⚡</button>
                 </div>
             </div>
@@ -1052,7 +1057,7 @@
     </div>
 
     <div id="modal-feedback-ai" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="bg-gradient-to-b from-white to-slate-50 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-emerald-200 text-center relative">
+        <div class="bg-gradient-to-b from-white to-slate-50 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-emerald-200 text-center relative">
             <div id="feedbackIcon" class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner">🏆</div>
             <h3 id="feedbackTitleModal" class="font-black text-lg text-slate-800">Evaluasi Pintar Selesai!</h3>
             <p class="text-xs text-gray-400 mt-0.5">Analisis kecocokan vokal murni oleh Google Gemini Engine.</p>
@@ -1076,7 +1081,7 @@
     </div>
 
     <div id="explain-result-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white max-w-xl w-full p-6 rounded-3xl shadow-2xl border border-slate-200 relative">
+        <div class="bg-white max-w-xl w-full p-4 sm:p-6 rounded-3xl shadow-2xl border border-slate-200 relative">
             <button onclick="closeExplainModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
             <span class="text-[9px] text-indigo-600 font-black tracking-widest uppercase block mb-1">🔬 EduBook AI Content Insight</span>
             <div id="explain-selected-text-box" class="p-3 bg-slate-50 border border-slate-200 text-slate-500 font-semibold italic text-xs rounded-xl mb-4 leading-relaxed"></div>
@@ -1328,6 +1333,29 @@
         };
         let AUTH_TOKEN = localStorage.getItem('edubook_token');
         let CURRENT_USER = null;
+
+        // ===== MOBILE SIDEBAR DRAWER =====
+        function setSidebar(open) {
+            const sb = document.getElementById('appSidebar');
+            const bd = document.getElementById('sidebarBackdrop');
+            if (!sb || !bd) return;
+            sb.classList.toggle('-translate-x-full', !open);
+            bd.classList.toggle('hidden', !open);
+            document.body.classList.toggle('overflow-hidden', open);
+        }
+        function toggleSidebar() {
+            const sb = document.getElementById('appSidebar');
+            setSidebar(!!sb && sb.classList.contains('-translate-x-full'));
+        }
+        function closeSidebar() { setSidebar(false); }
+        (function () {
+            const bd = document.getElementById('sidebarBackdrop');
+            if (bd) bd.addEventListener('click', closeSidebar);
+        })();
+        function toggleEduBotHistory() {
+            const sb = document.getElementById('edubotHistorySidebar');
+            if (sb) sb.classList.toggle('-translate-x-full');
+        }
 
         function getAuthHeaders() {
             const h = { 'Content-Type': 'application/json' };
@@ -1615,6 +1643,7 @@
         applyTheme();
 
         window.switchTab = function(tabId) {
+            closeSidebar();
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             const targetTab = document.getElementById(tabId);
             if(targetTab) targetTab.classList.remove('hidden');
@@ -1640,6 +1669,83 @@
                 }
             }
         };
+
+        // ========== SWIPE NAVIGASI (geser jari untuk ganti halaman buku 1-10) ==========
+        // Geser KIRI = ke halaman buku berikutnya, geser KANAN = ke halaman sebelumnya
+        (function initSwipeBookNavigation() {
+            let swX = 0, swY = 0, swActive = false;
+
+            function isHorizontalScroller(el) {
+                while (el && el !== document.body) {
+                    const cs = window.getComputedStyle(el);
+                    if ((cs.overflowX === 'auto' || cs.overflowX === 'scroll') && el.scrollWidth > el.clientWidth + 4) return true;
+                    el = el.parentElement;
+                }
+                return false;
+            }
+
+            document.addEventListener('touchstart', function (e) {
+                if (document.querySelector('.modal-active')) { swActive = false; return; }
+                const appSb = document.getElementById('appSidebar');
+                if (appSb && !appSb.classList.contains('-translate-x-full')) { swActive = false; return; }
+                const t = e.touches[0];
+                swX = t.clientX;
+                swY = t.clientY;
+                swActive = true;
+            }, { passive: true });
+
+            document.addEventListener('touchend', function (e) {
+                if (!swActive) return;
+                swActive = false;
+                const t = e.changedTouches[0];
+                const dx = t.clientX - swX;
+                const dy = t.clientY - swY;
+                if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 1.5) return;
+                const target = (e.target && typeof e.target.closest === 'function') ? e.target : document.body;
+                if (target.closest('input, select, textarea, button, a, .overflow-x-auto, [class*="overflow-x-auto"]')) return;
+                if (isHorizontalScroller(target)) return;
+                const ebookTab = document.getElementById('ebook-tab');
+                if (!ebookTab || ebookTab.classList.contains('hidden')) return;
+                if (dx > 0) prevBookPage();
+                else nextBookPage();
+            }, { passive: true });
+        })();
+
+        // ========== TOMBOL BACK / GESTURE SWIPE-BACK DI HP: tutup fitur yang sedang dibuka ==========
+        (function initBackCloseLayers() {
+            function isSidebarOpen() {
+                const sb = document.getElementById('appSidebar');
+                return sb && !sb.classList.contains('-translate-x-full');
+            }
+            function isEduBotHistoryOpen() {
+                const eh = document.getElementById('edubotHistorySidebar');
+                return eh && !eh.classList.contains('-translate-x-full');
+            }
+            function topModal() {
+                const list = document.querySelectorAll('.modal-active');
+                return list.length ? list[list.length - 1] : null;
+            }
+            window.addEventListener('popstate', function () {
+                let handled = false;
+                if (isSidebarOpen()) {
+                    closeSidebar();
+                    handled = true;
+                } else if (isEduBotHistoryOpen()) {
+                    document.getElementById('edubotHistorySidebar').classList.add('-translate-x-full');
+                    handled = true;
+                } else {
+                    const m = topModal();
+                    if (m) { closeModal(m.id); handled = true; }
+                }
+                if (handled) {
+                    try { history.pushState({ eb: 1 }, ''); } catch (e) {}
+                }
+            });
+            try {
+                history.replaceState({ eb: 1 }, '');
+                history.pushState({ eb: 1 }, '');
+            } catch (e) {}
+        })();
 
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, character => ({
@@ -1715,8 +1821,10 @@
                     if (el) el.value = String(page);
                 });
 
-                document.getElementById('btn-prev-page').disabled = (page === 1);
-                document.getElementById('btn-next-page').disabled = (page === 10);
+                const prevBtn = document.getElementById('btn-prev-page');
+                if (prevBtn) prevBtn.disabled = (page === 1);
+                const nextBtn = document.getElementById('btn-next-page');
+                if (nextBtn) nextBtn.disabled = (page === 10);
 
                 const imgEl = document.getElementById('magazineImage');
                 const placeholderEl = document.getElementById('magImagePlaceholder');
@@ -2604,9 +2712,9 @@
                 const overall = active.length > 0 ? Math.round(active.reduce((a, b) => a + b, 0) / active.length) : 0;
                 const dash = C * (1 - overall / 100);
                 const title = titles[p] || ('Halaman ' + p);
-                html += '<div class="flex flex-col items-center p-3 rounded-xl bg-slate-50 border border-gray-100 hover:shadow-md transition-all">' +
+                html += '<div class="flex flex-col items-center p-3 rounded-xl bg-slate-50 border border-gray-100 hover:shadow-md transition-all min-w-0">' +
                     '<div class="relative">' +
-                        '<svg viewBox="0 0 52 52" class="w-14 h-14 -rotate-90">' +
+                        '<svg viewBox="0 0 52 52" class="w-12 h-12 sm:w-14 sm:h-14 -rotate-90">' +
                             '<circle cx="26" cy="26" r="20" fill="none" stroke="#e2e8f0" stroke-width="5.5"/>' +
                             '<circle cx="26" cy="26" r="20" fill="none" stroke="#6366f1" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="' + C + '" stroke-dashoffset="' + dash + '" style="transition: stroke-dashoffset 1s ease"/>' +
                         '</svg>' +
@@ -2614,10 +2722,10 @@
                     '</div>' +
                     '<p class="text-[10px] font-extrabold text-slate-700 mt-1.5">Hal ' + p + '</p>' +
                     '<p class="text-[7px] text-gray-400 font-medium truncate w-full text-center">' + title + '</p>' +
-                    '<div class="flex gap-1.5 mt-1">' +
-                        '<span class="text-[8px] font-black px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">🎙 ' + (h > 0 ? h + '%' : '–') + '</span>' +
-                        '<span class="text-[8px] font-black px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">🧠 ' + (q > 0 ? q + '%' : '–') + '</span>' +
-                        '<span class="text-[8px] font-black px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">🎧 ' + (l > 0 ? l + '%' : '–') + '</span>' +
+                    '<div class="flex flex-wrap justify-center gap-1 mt-1">' +
+                        '<span class="text-[8px] font-black px-1 py-0.5 rounded bg-emerald-100 text-emerald-700 whitespace-nowrap">🎙 ' + (h > 0 ? h + '%' : '–') + '</span>' +
+                        '<span class="text-[8px] font-black px-1 py-0.5 rounded bg-indigo-100 text-indigo-700 whitespace-nowrap">🧠 ' + (q > 0 ? q + '%' : '–') + '</span>' +
+                        '<span class="text-[8px] font-black px-1 py-0.5 rounded bg-amber-100 text-amber-700 whitespace-nowrap">🎧 ' + (l > 0 ? l + '%' : '–') + '</span>' +
                     '</div>' +
                 '</div>';
             }
@@ -3352,8 +3460,14 @@ function filterChatSessions() {
             }
         });
         chatContainer.scrollTop = chatContainer.scrollHeight;
+        closeEduBotHistoryDrawer();
     } catch (err) { console.error("Gagal memuat detail obrolan:", err); showToast('Gagal memuat percakapan.', 'error'); }
 }
+
+        function closeEduBotHistoryDrawer() {
+            const sb = document.getElementById('edubotHistorySidebar');
+            if (sb) sb.classList.add('-translate-x-full');
+        }
 
         async function createNewChatSessionInDB() {
     try {
@@ -3407,9 +3521,13 @@ function filterChatSessions() {
             }
 
             const chatContainer = document.getElementById('edubot-chat-messages');
+            const msgTimeNow = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
             chatContainer.innerHTML += `
                 <div class="flex gap-2.5 max-w-[85%] ml-auto justify-end">
-                    <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-3 rounded-2xl rounded-tr-none shadow-md leading-relaxed">${escapeHtml(questionText)}</div>
+                    <div class="flex flex-col items-end">
+                        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-3 rounded-2xl rounded-tr-none shadow-md leading-relaxed">${escapeHtml(questionText)}</div>
+                        <span class="text-[8px] text-slate-400 font-bold mt-1 mr-1 font-mono">${msgTimeNow}</span>
+                    </div>
                     ` + getUserAvatarHTML() + `
                 </div>`;
             
@@ -3444,9 +3562,11 @@ function filterChatSessions() {
                 chatContainer.innerHTML += `
                     <div class="flex gap-2.5 max-w-[85%]">
                         <div class="w-7 h-7 rounded-lg bg-indigo-900 text-white flex items-center justify-center font-bold text-[11px] shrink-0">🤖</div>
-                        <!-- FIX: Menambahkan pemanggilan fungsi formatMarkdownToHTML(data.reply) -->
-                        <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-200 text-slate-700 shadow-sm leading-relaxed space-y-1">
-                            ${formatMarkdownToHTML(data.reply)}
+                        <div class="flex flex-col">
+                            <div class="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-200 text-slate-700 shadow-sm leading-relaxed space-y-1">
+                                ${formatMarkdownToHTML(data.reply)}
+                            </div>
+                            <span class="text-[8px] text-slate-400 font-bold mt-1 ml-1 font-mono">${new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})}</span>
                         </div>
                     </div>`;
                 chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -4158,27 +4278,30 @@ function filterChatSessions() {
                 container.innerHTML = '';
                 // Table header
                 const header = document.createElement('div');
-                header.className = 'grid grid-cols-[1fr_80px_80px_170px] gap-2 px-3 py-2 text-[9px] text-slate-400 font-bold uppercase tracking-wider border-b border-gray-100';
+                header.className = 'hidden sm:grid sm:grid-cols-[1fr_70px_70px_150px] gap-2 px-3 py-2 text-[9px] text-slate-400 font-bold uppercase tracking-wider border-b border-gray-100';
                 header.innerHTML = '<span>Nama Siswa</span><span class="text-center">Kelas</span><span class="text-center">Semester</span><span class="text-center"></span>';
                 container.appendChild(header);
                 for (const u of users) {
                     const card = document.createElement('div');
-                    card.className = 'grid grid-cols-[1fr_80px_80px_170px] gap-2 items-center p-3 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white transition-all';
+                    card.className = 'flex flex-col sm:grid sm:grid-cols-[1fr_70px_70px_150px] gap-2 items-center p-3 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white transition-all';
                     const hasFoto = u.foto_profil && u.foto_profil.trim();
                     const avatarHtml = hasFoto
                         ? `<div class="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-gray-100"><img src="${API_URL.replace('/api', '')}${u.foto_profil}" class="w-full h-full object-cover"></div>`
                         : `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-white flex items-center justify-center text-xs font-black shrink-0">${(u.nama||'?').charAt(0).toUpperCase()}</div>`;
                     const semester = u.semester ? 'Smt ' + u.semester : '—';
                     card.innerHTML = `
-                        <div class="flex items-center gap-3 min-w-0">
+                        <div class="flex items-center gap-3 min-w-0 w-full">
                             ${avatarHtml}
-                            <span class="text-xs font-extrabold text-slate-800 truncate">${u.nama}</span>
+                            <div class="min-w-0 flex-1">
+                                <span class="block text-xs font-extrabold text-slate-800 truncate">${u.nama}</span>
+                                <span class="sm:hidden text-[10px] text-slate-500 font-bold">${u.kelas ? 'Kelas ' + u.kelas : ''}${u.kelas && u.semester ? ' · ' : ''}${semester}</span>
+                            </div>
                         </div>
-                        <span class="text-[10px] text-slate-500 font-bold text-center">${u.kelas ? 'Kelas ' + u.kelas : '—'}</span>
-                        <span class="text-[10px] text-slate-500 font-bold text-center">${semester}</span>
-                        <div class="flex gap-1.5 justify-end">
-                            <button onclick="event.stopPropagation(); viewUserProfile('${u.user_id}')" class="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-extrabold px-3 py-1.5 rounded-lg transition-all cursor-pointer">Lihat</button>
-                            <button onclick="event.stopPropagation(); openCompareModal('${u.user_id}')" class="text-[10px] bg-cyan-100 hover:bg-cyan-200 text-cyan-700 font-extrabold px-3 py-1.5 rounded-lg transition-all cursor-pointer">Bandingkan</button>
+                        <span class="hidden sm:block text-[10px] text-slate-500 font-bold text-center">${u.kelas ? 'Kelas ' + u.kelas : '—'}</span>
+                        <span class="hidden sm:block text-[10px] text-slate-500 font-bold text-center">${semester}</span>
+                        <div class="flex gap-1.5 justify-end w-full sm:w-auto">
+                            <button onclick="event.stopPropagation(); viewUserProfile('${u.user_id}')" class="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-extrabold px-3 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Lihat</button>
+                            <button onclick="event.stopPropagation(); openCompareModal('${u.user_id}')" class="text-[10px] bg-cyan-100 hover:bg-cyan-200 text-cyan-700 font-extrabold px-3 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Bandingkan</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -4822,10 +4945,10 @@ function filterChatSessions() {
                 if (!data.user1 || !data.user2) throw new Error('Gagal');
                 const container = document.getElementById('compareContent');
                 container.innerHTML = `
-                    <div class="flex gap-6 items-start">
-                        <div class="flex-1">${buildCompareCard(data.user1)}</div>
-                        <div class="flex items-center justify-center text-3xl text-slate-300 font-black pt-16 shrink-0">⚡ VS ⚡</div>
-                        <div class="flex-1">${buildCompareCard(data.user2)}</div>
+                    <div class="flex flex-col md:flex-row gap-4 md:gap-6 items-center md:items-start">
+                        <div class="w-full md:flex-1 md:min-w-0">${buildCompareCard(data.user1)}</div>
+                        <div class="flex items-center justify-center text-xl md:text-3xl text-slate-300 font-black md:pt-16 shrink-0">⚡ VS ⚡</div>
+                        <div class="w-full md:flex-1 md:min-w-0">${buildCompareCard(data.user2)}</div>
                     </div>
                 `;
             } catch (e) {
@@ -4844,13 +4967,13 @@ function filterChatSessions() {
                     <p class="text-center font-extrabold text-slate-800 text-sm mt-2">${u.nama}</p>
                     <p class="text-center text-[10px] text-slate-400 font-bold">${u.kelas ? 'Kelas ' + u.kelas : ''}</p>
                     <div class="mt-3 space-y-2">
-                        <div class="flex justify-between text-xs p-2 bg-indigo-50 rounded-lg"><span class="font-bold text-slate-600">Level</span><span class="font-black text-indigo-600">${info.level} - ${info.title}</span></div>
-                        <div class="flex justify-between text-xs p-2 bg-emerald-50 rounded-lg"><span class="font-bold text-slate-600">Total XP</span><span class="font-black text-emerald-600">${u.totalXP || 0}</span></div>
-                        <div class="flex justify-between text-xs p-2 bg-amber-50 rounded-lg"><span class="font-bold text-slate-600">Akurasi Kuis</span><span class="font-black text-amber-600">${u.quizPrecision || 0}%</span></div>
-                        <div class="flex justify-between text-xs p-2 bg-blue-50 rounded-lg"><span class="font-bold text-slate-600">Rerata Hafalan</span><span class="font-black text-blue-600">${u.avgHafalan || 0}%</span></div>
-                        <div class="flex justify-between text-xs p-2 bg-purple-50 rounded-lg"><span class="font-bold text-slate-600">Total Kuis</span><span class="font-black text-purple-600">${u.quizCount || 0}</span></div>
-                        <div class="flex justify-between text-xs p-2 bg-teal-50 rounded-lg"><span class="font-bold text-slate-600">Total Hafalan</span><span class="font-black text-teal-600">${u.hafalanCount || 0}</span></div>
-                        <div class="flex justify-between text-xs p-2 bg-orange-50 rounded-lg"><span class="font-bold text-slate-600">Hari Unik</span><span class="font-black text-orange-600">${u.uniqueDays || 0} hari</span></div>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-indigo-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Level</span><span class="font-black text-indigo-600 text-right min-w-0 truncate">${info.level} - ${info.title}</span></div>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-emerald-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Total XP</span><span class="font-black text-emerald-600 text-right min-w-0 truncate">${u.totalXP || 0}</span></div>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-amber-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Akurasi Kuis</span><span class="font-black text-amber-600 text-right min-w-0 truncate">${u.quizPrecision || 0}%</span></div>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-blue-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Rerata Hafalan</span><span class="font-black text-blue-600 text-right min-w-0 truncate">${u.avgHafalan || 0}%</span></div>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-purple-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Total Kuis</span><span class="font-black text-purple-600 text-right min-w-0 truncate">${u.quizCount || 0}</span></div>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-teal-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Total Hafalan</span><span class="font-black text-teal-600 text-right min-w-0 truncate">${u.hafalanCount || 0}</span></div>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-orange-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Hari Unik</span><span class="font-black text-orange-600 text-right min-w-0 truncate">${u.uniqueDays || 0} hari</span></div>
                     </div>
                 </div>
             `;
@@ -5104,7 +5227,7 @@ function filterChatSessions() {
         </div>
     </div>
 
-    <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none" style="min-width:280px;max-width:420px"></div>
+    <div id="toastContainer" class="fixed top-5 left-3 right-3 sm:left-auto sm:right-5 sm:w-auto sm:min-w-[280px] sm:max-w-[420px] z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
     <style>
         .animate-slide-in { animation: slideIn 0.3s ease-out; pointer-events: auto; }
