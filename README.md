@@ -20,7 +20,7 @@ dan fitur sosial — semua terintegrasi real-time melalui IoT (MQTT) dan cloud (
 - **Gamifikasi**: XP & level/rank, Achievement Center, misi harian/mingguan/bulanan,
   streak bonus harian, dan badge.
 - **Fitur Sosial**: cari & tambah teman, profil siswa, notifikasi, leaderboard (multi-kategori),
-  showcase badge, dan album foto.
+  showcase badge, album foto, dan **DM/chat antar user** (personal message real-time).
 - **Otentikasi multi-user**: login email+password (bcrypt) dan Google OAuth (passport/JWT),
   profil dengan upload foto.
 - **Integrasi hardware**: ESP32-S3 (MQTT + TTS/STT), sinkronisasi halaman real-time via SSE,
@@ -42,10 +42,12 @@ edubook/
 │   │   ├── DailyQuest.js        Misi harian/mingguan/bulanan
 │   │   ├── Notification.js      Notifikasi (follow, achievement, streak…)
 │   │   ├── Friendship.js        Relasi teman
+│   │   ├── Message.js           DM antar user (personal chat)
 │   │   └── Album.js             Album foto siswa
 │   ├── middleware/              auth (JWT), requireAdminKey, upload
 │   └── seeds/seed.js            Data buku (10 halaman, 10 soal/halaman)
 ├── config/                      config/db.js (koneksi MongoDB)
+├── config.js                    URL backend produksi (satu-satunya tempat override untuk non-lokal)
 ├── firmware/                    ESP32-S3 firmware (PlatformIO)
 │   ├── src/                     main.cpp, AudioManager(.cpp/.h)
 │   └── include/Config.h         pinout, WiFi, MQTT
@@ -101,6 +103,12 @@ Server berjalan di `http://localhost:5000` (cara lain: `node server.js` dari roo
 Buka `index.html` (root project) di browser, daftar/login akun, lalu dashboard
 otomatis terhubung ke `http://127.0.0.1:5000/api`.
 
+**Akses non-lokal (HP/STB/link demo):** frontend otomatis memakai URL di
+`config.js` (`window.EDUBOOK_API_URL`) saat diakses dari domain selain
+`localhost`/`127.0.0.1`. Saat ini mengarah ke ngrok
+`https://blazer-repaying-backlight.ngrok-free.dev/api`. Jika URL berubah,
+ganti satu baris di `config.js`.
+
 ## Menguji Alur Hardware Tanpa Komponen Fisik
 
 Komponen IoT (ESP32-S3, INMP441, dll) belum selalu tersedia saat development.
@@ -131,11 +139,12 @@ PlatformIO. Lihat `firmware/README.md`.
 | Buku            | `/book/*` (konten + soal per halaman) |
 | Aktivitas       | `/activity/*` (hafalan, quiz, listening) |
 | Chat EduBot     | `/chat/*` (session, pesan) |
-| Explainer       | `/explain/*` (simplify/detail AI) |
+| Explainer       | `/explain/*` (simplify/detail AI), `/quiz/feedback` (feedback jawaban kuis) |
 | Device          | `/device/keyword`, `/device/info` |
 | Leaderboard     | `/leaderboard/*` |
 | Misi            | `/quests/*` (harian/mingguan/bulanan) |
 | Sosial          | `/social/*`, `/album/*` |
+| DM              | `/dm/*` (send, conversations, thread, read) |
 | Cache/Stream    | `/cache/*`, `/stream/*` (SSE real-time) |
 
 ## Ketentuan yang perlu diketahui (Prototype)

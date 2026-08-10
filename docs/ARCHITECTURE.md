@@ -153,6 +153,13 @@ belum diamankan. Sejak v2.x arsitektur migrasi ke **multi-user**:
   mengikut, `Notification` (tipe: follow, achievement, streak_reminder,
   quest_reminder, fun), leaderboard multi-kategori (hafalan, kuis, listening),
   showcase badge, dan album foto (`/album/...` + upload).
+- **DM / personal chat antar user**: model `Message` (`sender_id`,
+  `receiver_id`, `text`, `read`) dipakai untuk percakapan 1-on-1. Endpoint
+  `/dm/send` (kirim pesan, cek penerima valid & bukan diri sendiri),
+  `/dm/conversations` (daftar percakapan + pesan terakhir + unread count),
+  `/dm/:userId` (thread dengan satu user, otomatis menandai notifikasi & pesan
+  sebagai `read`), dan `/dm/read`. Frontend me-polling daftar pesan dan badge
+  notifikasi; notifikasi bertipe `message` bisa diklik untuk membuka thread DM.
 
 ## 10. Ringkasan lapisan & nama domain
 
@@ -164,11 +171,12 @@ Tabel ringkas area API (prefix `/api`):
 | Buku | `book/*` | konten + bank soal per halaman |
 | Aktivitas | `activity/*` | hafalan, kuis, listening |
 | Chat | `chat/*` | sesi & pesan EduBot (AI + fallback) |
-| Explainer | `explain/*` | simplify/detail materi via AI |
+| Explainer | `explain/*`, `/quiz/feedback` | simplify/detail materi via AI + feedback jawaban kuis |
 | Device | `device/keyword`, `device/info` | deteksi keyword suara & info device |
 | Leaderboard | `leaderboard/*` | ranking multi-kategori |
 | Misi | `quests/*` | harian/mingguan/bulanan |
 | Sosial | `social/*`, `album/*` | teman, notifikasi, profil, album |
+| DM | `dm/*` | personal chat antar user (send/thread/read) |
 | Cache/Stream | `cache/*`, `stream/*` | caching AI & SSE real-time |
 
 Kunci transport async: MQTT (`mqttService.js`) untuk arah device, dan SSE
@@ -176,7 +184,17 @@ Kunci transport async: MQTT (`mqttService.js`) untuk arah device, dan SSE
 di `aiService.js` (Gemini) dengan `fallbackService.js` sebagai knowledge-base
 cadangan saat API AI gagal/timeout.
 
-## 11. Known trade-off yang belum diperbaiki (sengaja, untuk versi prototype)
+## 11. URL backend non-lokal (`config.js`)
+
+Awalnya frontend hardcode `http://localhost:5000/api` di banyak tempat — gagal
+saat dashboard diakses dari HP/STB atau link demo karena `localhost` menunjuk ke
+device user. Sekarang `config.js` (root) menjadi **satu-satunya tempat** mengatur
+URL backend: saat diakses dari domain selain `localhost`/`127.0.0.1`, frontend
+otomatis memakai `window.EDUBOOK_API_URL` (saat ini ngrok
+`https://blazer-repaying-backlight.ngrok-free.dev/api`). Menambah domain baru
+cukup dengan mengatur `EDUBOOK_API_URL` lebih dulu.
+
+## 12. Known trade-off yang belum diperbaiki (sengaja, untuk versi prototype)
 
 - Cache in-memory (`cacheService.js`) tidak persist antar restart server dan
   tidak scalable ke multi-instance (misal kalau nanti deploy dengan load
