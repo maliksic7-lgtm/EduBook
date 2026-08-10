@@ -89,6 +89,11 @@ app.use('/api', dailyQuestRoutes);
 app.use('/api', socialRoutes);
 app.use('/api/album', albumRoutes);
 
+// Semua endpoint /api/* yang tidak dikenal → JSON (bukan HTML 404 Express)
+app.use('/api', (req, res) => {
+    res.status(404).json({ error: 'Route tidak ditemukan.' });
+});
+
 app.use((err, req, res, next) => {
     console.error('❌ Unhandled Error:', err.message);
     if (err.code === 'LIMIT_FILE_SIZE') {

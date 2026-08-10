@@ -212,6 +212,9 @@
 <button onclick="openModal('modal-friends'); loadFriendsList()" class="w-full flex items-center gap-3.5 px-4 py-3 text-xs font-bold rounded-xl transition-all duration-300 text-sky-300 border border-sky-500/20 bg-sky-50/5 cursor-pointer hover:bg-white/5">
     <span class="text-base">👥</span> Temanku
 </button>
+<button onclick="openDm()" class="w-full flex items-center gap-3.5 px-4 py-3 text-xs font-bold rounded-xl transition-all duration-300 text-sky-300 border border-sky-500/20 bg-sky-50/5 cursor-pointer hover:bg-white/5">
+    <span class="text-base">💬</span> Chat
+</button>
 <button onclick="openModal('modal-achievement-center'); setTimeout(()=>renderAchievements(window.__achData||{}),100)" class="w-full flex items-center gap-3.5 px-4 py-3 text-xs font-bold rounded-xl transition-all duration-300 text-amber-300 border border-amber-500/20 bg-amber-50/5 cursor-pointer hover:bg-white/5">
     <span class="text-base">🎖️</span> Achievement Center
 </button>
@@ -1300,10 +1303,28 @@
             </div>
 
             <button id="followUserBtn" onclick="handleFollowUser()" class="flex-1 py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer shadow-md shrink-0">...</button>
+            <button id="chatUserBtn" onclick="openDm(this._targetUserId, this._targetName)" class="px-3 py-2.5 rounded-xl font-extrabold text-xs bg-sky-100 text-sky-700 hover:bg-sky-200 transition-all cursor-pointer shadow-md shrink-0">💬 Chat</button>
             <button onclick="openCompareModal(document.getElementById('followUserBtn')._targetUserId)" class="px-3 py-2.5 rounded-xl font-extrabold text-xs bg-cyan-100 text-cyan-700 hover:bg-cyan-200 transition-all cursor-pointer shadow-md shrink-0">⚖️ Bandingkan</button>
         </div>
     </div>
 </div>
+
+    <div id="modal-dm" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col border border-gray-200 overflow-hidden h-[80vh]" onclick="event.stopPropagation()">
+            <div class="bg-gradient-to-r from-sky-500 to-indigo-500 p-4 flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center gap-2">
+                    <button id="dmBackBtn" onclick="dmBackToList()" class="text-white/80 hover:text-white font-bold text-sm cursor-pointer hidden">←</button>
+                    <h3 class="font-black text-white text-sm tracking-wider" id="dmTitle">💬 Chat</h3>
+                </div>
+                <button onclick="closeDm()" class="text-white/80 hover:text-white font-bold text-sm cursor-pointer">✕</button>
+            </div>
+            <div id="dmBody" class="flex-1 overflow-y-auto p-4 space-y-2 min-h-[100px]"></div>
+            <div id="dmInputBar" class="hidden border-t border-gray-100 p-3 flex items-center gap-2">
+                <input id="dmInput" placeholder="Ketik pesan..." class="flex-1 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:bg-white" />
+                <button onclick="sendDm()" class="text-[10px] bg-sky-500 hover:bg-sky-600 text-white font-extrabold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-md">Kirim ➤</button>
+            </div>
+        </div>
+    </div>
 
 <style>
     @keyframes fadeIn {
@@ -2874,6 +2895,91 @@
 
         let quizAnswerLog = [];
 
+        function quizPickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        const QUIZ_FB_CORRECT = [
+            '✅ Jawaban Benar!',
+            '🎯 Tepat sekali, kamu benar!',
+            '✨ Keren, jawabanmu pas banget!',
+            '👏 Betul! Kamu jagoan kuis!',
+            '🌟 Hebat, tidak ada yang salah!',
+            '🚀 Mantap, jawabanmu tepat!',
+            '🏅 Pintar! Kamu menjawab dengan benar!'
+        ];
+        const QUIZ_FB_WRONG_OPEN = [
+            'Belum tepat. Kunci jawabannya: ',
+            'Keliru nih! Yang benar itu ',
+            'Hampir benar! Jawaban yang tepat: ',
+            'Kurang pas. Seharusnya: ',
+            'Jawabanmu kurang tepat, yang benar: '
+        ];
+
+        function quizShowResultAndWait(isCorrect, userAnswerText, correctAnswerText) {
+            const fb = document.getElementById('quizFeedbackOverlay');
+            const isLast = currentQuestionIndex >= currentQuizQuestions.length - 1;
+            const verdict = isCorrect
+                ? quizPickRandom(QUIZ_FB_CORRECT)
+                : quizPickRandom(QUIZ_FB_WRONG_OPEN) + `<span class="underline">${correctAnswerText}</span>`;
+            fb.className = `p-3.5 rounded-2xl text-center font-extrabold text-sm transition-all duration-300 shadow-md ${isCorrect ? 'bg-emerald-50 border border-emerald-300 text-emerald-700 shadow-emerald-200/50' : 'bg-red-50 border border-red-300 text-red-700 shadow-red-200/50'}`;
+            fb.innerHTML = `
+                <div>${verdict}</div>
+                <div id="quizAIUlasan" class="mt-2 text-[10px] font-bold italic opacity-90">💡 Memikirkan ulasan pintar...</div>
+                <button onclick="quizNextStep()" class="mt-3 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-extrabold text-xs shadow-md cursor-pointer hover:from-purple-700 hover:to-indigo-700 active:scale-[0.98] transition-all">${isLast ? 'Lihat Skor 📊' : 'Soal Selanjutnya ➡️'}</button>
+            `;
+            fb.classList.remove('hidden');
+            const q = currentQuizQuestions[currentQuestionIndex];
+            quizFetchAIFeedback(q, isCorrect, userAnswerText);
+        }
+
+        function quizNextStep() {
+            const fb = document.getElementById('quizFeedbackOverlay');
+            if (fb) fb.classList.add('hidden');
+            if (currentQuestionIndex < currentQuizQuestions.length - 1) {
+                currentQuestionIndex++;
+                renderQuizizzQuestion();
+            } else {
+                processFinishQuizizz();
+            }
+        }
+
+        let quizFBCache = (() => { try { return JSON.parse(localStorage.getItem('edubook_quiz_feedback_cache') || '{}'); } catch (e) { return {}; } })();
+
+        async function quizFetchAIFeedback(q, isCorrect, userAnswer) {
+            const key = (q.question || '') + '||' + (q.correct_answer || '');
+            if (quizFBCache[key]) { quizFillUlasan(quizFBCache[key]); return; }
+            try {
+                const res = await fetch(`${API_URL}/quiz/feedback`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        question: q.question,
+                        options: q.options || [],
+                        correct_answer: q.correct_answer,
+                        is_correct: isCorrect,
+                        user_answer: typeof userAnswer === 'string' ? userAnswer : ''
+                    })
+                });
+                if (!res.ok) { quizFillUlasan(''); return; }
+                const data = await res.json();
+                const text = (data && data.feedback ? data.feedback : '').trim();
+                if (text) {
+                    quizFBCache[key] = text;
+                    try { localStorage.setItem('edubook_quiz_feedback_cache', JSON.stringify(quizFBCache)); } catch (e) {}
+                    quizFillUlasan(text);
+                }
+            } catch (e) {
+                quizFillUlasan('');
+            }
+        }
+
+        function quizFillUlasan(text) {
+            const el = document.getElementById('quizAIUlasan');
+            if (!el) return;
+            el.innerHTML = text
+                ? `💡 <span>${text}</span>`
+                : '💡 <span>Semangat, lanjut ke soal berikutnya!</span>';
+        }
+
         function renderQuizizzQuestion() {
             document.getElementById('quizGameplayScreen').classList.remove('hidden');
             document.getElementById('quizScoreScreen').classList.add('hidden');
@@ -2924,14 +3030,7 @@
                     if (isCorrect) spawnFloatingXP(window.innerWidth / 2, window.innerHeight / 2 - 60, 5);
                     quizAnswerLog.push({ question: currentQuestion.question, selected: input.value.trim(), correct: currentQuestion.correct_answer, isCorrect });
                     input.disabled = true; submitBtn.disabled = true; submitBtn.style.opacity = '0.5';
-                    const fb = document.getElementById('quizFeedbackOverlay');
-                    fb.className = `p-3.5 rounded-2xl text-center font-extrabold text-sm transition-all duration-300 shadow-md ${isCorrect ? 'bg-emerald-50 border border-emerald-300 text-emerald-700 shadow-emerald-200/50' : 'bg-red-50 border border-red-300 text-red-700 shadow-red-200/50'}`;
-                    fb.innerHTML = isCorrect ? '✅ Jawaban Benar!' : `❌ Salah. Jawaban: <span class="underline">${currentQuestion.correct_answer}</span>`;
-                    fb.classList.remove('hidden');
-                    setTimeout(() => {
-                        fb.classList.add('hidden');
-                        if (currentQuestionIndex < totalSoal - 1) { currentQuestionIndex++; renderQuizizzQuestion(); } else { processFinishQuizizz(); }
-                    }, 1200);
+                    quizShowResultAndWait(isCorrect, input.value.trim(), currentQuestion.correct_answer);
                 };
                 input.addEventListener('keydown', e => { if (e.key === 'Enter') evaluate(); });
                 submitBtn.onclick = evaluate;
@@ -2976,14 +3075,7 @@
                         if (isCorrect) spawnFloatingXP(window.innerWidth / 2, window.innerHeight / 2 - 60, 5);
                         quizAnswerLog.push({ question: currentQuestion.question, selected: input.value.trim(), correct: currentQuestion.correct_answer, isCorrect });
                         input.disabled = true; submitBtn.disabled = true; submitBtn.style.opacity = '0.5';
-                        const fb = document.getElementById('quizFeedbackOverlay');
-                        fb.className = `p-3.5 rounded-2xl text-center font-extrabold text-sm transition-all duration-300 shadow-md ${isCorrect ? 'bg-emerald-50 border border-emerald-300 text-emerald-700 shadow-emerald-200/50' : 'bg-red-50 border border-red-300 text-red-700 shadow-red-200/50'}`;
-                        fb.innerHTML = isCorrect ? '✅ Susunan Kata Benar!' : `❌ Kurang tepat. Susunan benar: <span class="underline">${currentQuestion.correct_answer}</span>`;
-                        fb.classList.remove('hidden');
-                        setTimeout(() => {
-                            fb.classList.add('hidden');
-                            if (currentQuestionIndex < totalSoal - 1) { currentQuestionIndex++; renderQuizizzQuestion(); } else { processFinishQuizizz(); }
-                        }, 1200);
+                        quizShowResultAndWait(isCorrect, input.value.trim(), currentQuestion.correct_answer);
                     };
                     input.addEventListener('keydown', e => { if (e.key === 'Enter') evaluateSusun(); });
                     submitBtn.onclick = evaluateSusun;
@@ -3029,14 +3121,7 @@
                     if (isCorrect) spawnFloatingXP(window.innerWidth / 2, window.innerHeight / 2 - 60, 5);
                     quizAnswerLog.push({ question: currentQuestion.question, selected: userAns, correct: currentQuestion.correct_answer, isCorrect });
                     container.querySelectorAll('button').forEach(b => { b.style.opacity = '0.5'; b.style.pointerEvents = 'none'; });
-                    const fb = document.getElementById('quizFeedbackOverlay');
-                    fb.className = `p-3.5 rounded-2xl text-center font-extrabold text-sm transition-all duration-300 shadow-md ${isCorrect ? 'bg-emerald-50 border border-emerald-300 text-emerald-700 shadow-emerald-200/50' : 'bg-red-50 border border-red-300 text-red-700 shadow-red-200/50'}`;
-                    fb.innerHTML = isCorrect ? '✅ Susunan Benar!' : `❌ Kurang tepat. Jawaban: <span class="underline">${currentQuestion.correct_answer}</span>`;
-                    fb.classList.remove('hidden');
-                    setTimeout(() => {
-                        fb.classList.add('hidden');
-                        if (currentQuestionIndex < totalSoal - 1) { currentQuestionIndex++; renderQuizizzQuestion(); } else { processFinishQuizizz(); }
-                    }, 1200);
+                    quizShowResultAndWait(isCorrect, userAns, currentQuestion.correct_answer);
                 }
             }
             } else {
@@ -3083,17 +3168,7 @@
                             }
                         });
 
-                        const fb = document.getElementById('quizFeedbackOverlay');
-                        fb.className = `p-3.5 rounded-2xl text-center font-extrabold text-sm transition-all duration-300 shadow-md ${isCorrect ? 'bg-emerald-50 border border-emerald-300 text-emerald-700 shadow-emerald-200/50' : 'bg-red-50 border border-red-300 text-red-700 shadow-red-200/50'}`;
-                        fb.innerHTML = isCorrect ? '✅ Jawaban Benar!' : `❌ Jawaban Salah. Jawaban benar: <span class="underline">${currentQuestion.correct_answer}</span>`;
-                        fb.classList.remove('hidden');
-
-                        setTimeout(() => {
-                            fb.classList.add('hidden');
-                            if (currentQuestionIndex < totalSoal - 1) {
-                                currentQuestionIndex++; renderQuizizzQuestion();
-                            } else { processFinishQuizizz(); }
-                        }, 1200);
+                        quizShowResultAndWait(isCorrect, opt, currentQuestion.correct_answer);
                     };
                     optionsContainer.appendChild(btn);
                 });
@@ -3195,8 +3270,13 @@
             };
         }
 
-        startBtn.addEventListener('click', () => { if (recognition) { recognition.start(); startBtn.classList.add('hidden'); stopBtn.classList.remove('hidden'); } });
-        stopBtn.addEventListener('click', () => { if (recognition) { recognition.stop(); startBtn.classList.remove('hidden'); stopBtn.className = "hidden"; } });
+        function setRecordingUI(isRecording) {
+            startBtn.classList.toggle('hidden', isRecording);
+            stopBtn.classList.toggle('hidden', !isRecording);
+        }
+
+        startBtn.addEventListener('click', () => { if (recognition) { try { recognition.start(); setRecordingUI(true); } catch (e) { setRecordingUI(false); } } });
+        stopBtn.addEventListener('click', () => { if (recognition) { recognition.stop(); setRecordingUI(false); } });
 
         function evaluateHafalan(studentText) {
             const selectedParagraphId = document.getElementById('paragraphSelect').value;
@@ -3229,7 +3309,7 @@
             document.getElementById('modal-feedback-ai').classList.remove('modal-active'); resetHafalanUI();
             document.getElementById('waveContainer').classList.remove('listening-wave');
             document.getElementById('wavePlaceholder').innerHTML = "🔒 Mikrofon Terkunci";
-            startBtn.classList.remove('hidden'); stopBtn.classList.add('hidden');
+            setRecordingUI(false);
         };
 
         const eventSource = new EventSource(`${API_URL}/stream`);
@@ -3241,9 +3321,9 @@
                 switchTab(tabOrder[nextIndex]);
             } else if (data.type === 'START_MIC') {
                 switchTab('hafalan-tab');
-                if (recognition) { try { recognition.start(); startBtn.classList.add('hidden'); stopBtn.classList.remove('hidden'); } catch(e) {} }
+                if (recognition) { try { recognition.start(); setRecordingUI(true); } catch(e) { setRecordingUI(false); } }
             } else if (data.type === 'STOP_MIC') {
-                if (recognition) { try { recognition.stop(); startBtn.classList.remove('hidden'); stopBtn.className = "hidden"; } catch(e) {} }
+                if (recognition) { try { recognition.stop(); setRecordingUI(false); } catch(e) {} }
             } else if (data.type === 'PAGE_CHANGE' && data.page) {
                 fetchBookPage(data.page);
             } else if (data.type === 'WEB_MODE_ENABLED') {
@@ -4175,6 +4255,33 @@ function filterChatSessions() {
             }
         });
 
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Escape') return;
+
+            const eduBotModal = document.getElementById('edubot-modal');
+            if (eduBotModal && eduBotModal.style.display === 'flex') {
+                closeEduBotModal();
+                return;
+            }
+
+            const activeModals = document.querySelectorAll('.modal-active');
+            if (activeModals.length > 0) {
+                const top = activeModals[activeModals.length - 1];
+                try { closeModal(top.id); }
+                catch (err) { top.classList.remove('modal-active'); }
+                return;
+            }
+
+            const quizTab = document.getElementById('quiz-tab');
+            if (quizTab && !quizTab.classList.contains('hidden')) {
+                const gameplay = document.getElementById('quizGameplayScreen');
+                const score = document.getElementById('quizScoreScreen');
+                if ((gameplay && !gameplay.classList.contains('hidden')) || (score && !score.classList.contains('hidden'))) {
+                    switchTab('dashboard-tab');
+                }
+            }
+        });
+
         async function handleContentInsight(actionType) {
             const textToAnalyze = selectedTextGlobal || document.querySelector('.book-content p')?.innerText || 'Internet of Things (IoT) adalah konsep menghubungkan perangkat fisik ke internet';
             const resultBox = document.getElementById('ai-insight-result-box');
@@ -4278,12 +4385,12 @@ function filterChatSessions() {
                 container.innerHTML = '';
                 // Table header
                 const header = document.createElement('div');
-                header.className = 'hidden sm:grid sm:grid-cols-[1fr_70px_70px_150px] gap-2 px-3 py-2 text-[9px] text-slate-400 font-bold uppercase tracking-wider border-b border-gray-100';
+                header.className = 'hidden sm:grid sm:grid-cols-[1fr_70px_70px_210px] gap-2 px-3 py-2 text-[9px] text-slate-400 font-bold uppercase tracking-wider border-b border-gray-100';
                 header.innerHTML = '<span>Nama Siswa</span><span class="text-center">Kelas</span><span class="text-center">Semester</span><span class="text-center"></span>';
                 container.appendChild(header);
                 for (const u of users) {
                     const card = document.createElement('div');
-                    card.className = 'flex flex-col sm:grid sm:grid-cols-[1fr_70px_70px_150px] gap-2 items-center p-3 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white transition-all';
+                    card.className = 'flex flex-col sm:grid sm:grid-cols-[1fr_70px_70px_210px] gap-2 items-center p-3 bg-slate-50 rounded-xl ring-1 ring-slate-100 shadow-sm hover:bg-white transition-all';
                     const hasFoto = u.foto_profil && u.foto_profil.trim();
                     const avatarHtml = hasFoto
                         ? `<div class="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-gray-100"><img src="${API_URL.replace('/api', '')}${u.foto_profil}" class="w-full h-full object-cover"></div>`
@@ -4299,9 +4406,10 @@ function filterChatSessions() {
                         </div>
                         <span class="hidden sm:block text-[10px] text-slate-500 font-bold text-center">${u.kelas ? 'Kelas ' + u.kelas : '—'}</span>
                         <span class="hidden sm:block text-[10px] text-slate-500 font-bold text-center">${semester}</span>
-                        <div class="flex gap-1.5 justify-end w-full sm:w-auto">
-                            <button onclick="event.stopPropagation(); viewUserProfile('${u.user_id}')" class="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-extrabold px-3 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Lihat</button>
-                            <button onclick="event.stopPropagation(); openCompareModal('${u.user_id}')" class="text-[10px] bg-cyan-100 hover:bg-cyan-200 text-cyan-700 font-extrabold px-3 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Bandingkan</button>
+                        <div class="flex gap-1 justify-end w-full sm:w-auto">
+                            <button onclick="event.stopPropagation(); openDm('${u.user_id}', '${(u.nama||'').replace(/'/g, '')}')" class="text-[10px] bg-sky-100 hover:bg-sky-200 text-sky-700 font-extrabold px-2 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">💬 Chat</button>
+                            <button onclick="event.stopPropagation(); viewUserProfile('${u.user_id}')" class="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-extrabold px-2 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Lihat</button>
+                            <button onclick="event.stopPropagation(); openCompareModal('${u.user_id}')" class="text-[10px] bg-cyan-100 hover:bg-cyan-200 text-cyan-700 font-extrabold px-2 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Bandingkan</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -4450,6 +4558,8 @@ function filterChatSessions() {
                 const status = await sRes.json();
                 const btn = document.getElementById('followUserBtn');
                 btn._targetUserId = userId;
+                const chatBtn = document.getElementById('chatUserBtn');
+                if (chatBtn) { chatBtn._targetUserId = userId; chatBtn._targetName = u.nama; chatBtn.style.display = 'inline-flex'; }
                 if (status.is_friend) {
                     btn.className = 'w-full py-2.5 rounded-xl font-extrabold text-xs transition-all cursor-pointer shadow-md bg-emerald-100 text-emerald-700 hover:bg-emerald-200';
                     btn.textContent = '✅ Saling Follow (Teman)';
@@ -4521,15 +4631,16 @@ function filterChatSessions() {
                         ? `<div class="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-gray-100"><img src="${API_URL.replace('/api', '')}${f.foto_profil}" class="w-full h-full object-cover"></div>`
                         : `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-white flex items-center justify-center text-xs font-black shrink-0">${(f.nama||'?').charAt(0).toUpperCase()}</div>`;
                     div.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            ${avatarHtml}
-                            <div class="flex-1">
-                                <p class="text-xs font-extrabold text-slate-800">${f.nama}</p>
-                                <p class="text-[9px] text-slate-500 font-bold">${f.kelas ? 'Kelas ' + f.kelas : ''}</p>
-                            </div>
+                        ${avatarHtml}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-extrabold text-slate-800 truncate">${f.nama}</p>
+                            <p class="text-[9px] text-slate-500 font-bold">${f.kelas ? 'Kelas ' + f.kelas : ''}</p>
                         </div>
-                        <button onclick="viewUserProfile('${f.user_id}')" class="text-[9px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-extrabold px-2.5 py-1 rounded-lg transition-all cursor-pointer">Profil</button>
-                        <button onclick="openCompareModal('${f.user_id}')" class="text-[9px] bg-cyan-100 hover:bg-cyan-200 text-cyan-700 font-extrabold px-2.5 py-1 rounded-lg transition-all cursor-pointer">Bandingkan</button>
+                        <div class="flex flex-col gap-1.5 shrink-0">
+                            <button onclick="openDm('${f.user_id}', '${(f.nama||'').replace(/'/g, '')}')" class="text-[9px] bg-sky-100 hover:bg-sky-200 text-sky-700 font-extrabold px-3 py-1 rounded-lg transition-all cursor-pointer w-full text-center">💬 Chat</button>
+                            <button onclick="viewUserProfile('${f.user_id}')" class="text-[9px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-extrabold px-3 py-1 rounded-lg transition-all cursor-pointer w-full text-center">Profil</button>
+                            <button onclick="openCompareModal('${f.user_id}')" class="text-[9px] bg-cyan-100 hover:bg-cyan-200 text-cyan-700 font-extrabold px-3 py-1 rounded-lg transition-all cursor-pointer w-full text-center">Bandingkan</button>
+                        </div>
                     `;
                     container.appendChild(div);
                 });
@@ -4548,10 +4659,12 @@ function filterChatSessions() {
                 if (!notifs.length) { container.innerHTML = '<div class="text-center py-8"><p class="text-xs text-slate-400 font-bold">Belum ada notifikasi</p></div>'; return; }
                 container.innerHTML = '';
                 notifs.forEach(n => {
-                    const icons = { follow: '👋', achievement: '🎖️', streak_reminder: '🔥', quest_reminder: '📋', fun: '🎉' };
+                    const icons = { follow: '👋', achievement: '🎖️', streak_reminder: '🔥', quest_reminder: '📋', fun: '🎉', message: '💬' };
                     const div = document.createElement('div');
                     const isUnread = !n.read;
+                    const isMsg = n.type === 'message';
                     div.className = 'flex items-start gap-3 p-3 rounded-xl text-left transition-all relative ' + (isUnread ? 'bg-indigo-50 border border-indigo-200 shadow-sm' : 'bg-white border border-gray-100');
+                    if (isMsg) div.className += ' cursor-pointer hover:bg-sky-50';
                     div.innerHTML = `
                         ${isUnread ? '<span class="absolute top-3 left-3 w-2 h-2 bg-indigo-500 rounded-full"></span>' : ''}
                         <span class="text-base mt-0.5 ${isUnread ? 'ml-4' : ''}">${icons[n.type] || '🔔'}</span>
@@ -4559,8 +4672,11 @@ function filterChatSessions() {
                             <p class="text-xs font-bold ${isUnread ? 'text-indigo-900' : 'text-slate-600'}">${n.message}</p>
                             <p class="text-[9px] text-slate-400 mt-0.5">${new Date(n.createdAt).toLocaleDateString('id-ID', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})}</p>
                         </div>
-                        ${isUnread ? `<button onclick="markNotifRead('${n._id}')" class="text-[9px] text-white font-extrabold bg-indigo-500 hover:bg-indigo-600 px-2.5 py-1 rounded-lg cursor-pointer transition-all shadow-sm">Tandai Baca</button>` : '<span class="text-[9px] text-slate-300 font-bold px-2">✓ Dibaca</span>'}
+                        ${isMsg
+                            ? `<button onclick="event.stopPropagation(); markNotifRead('${n._id}'); openDm('${n.from_user_id}', '${(n.from_user_name||'').replace(/'/g, '')}')" class="text-[9px] text-white font-extrabold bg-sky-500 hover:bg-sky-600 px-2.5 py-1 rounded-lg cursor-pointer transition-all shadow-sm shrink-0">Balas</button>`
+                            : (isUnread ? `<button onclick="markNotifRead('${n._id}')" class="text-[9px] text-white font-extrabold bg-indigo-500 hover:bg-indigo-600 px-2.5 py-1 rounded-lg cursor-pointer transition-all shadow-sm">Tandai Baca</button>` : '<span class="text-[9px] text-slate-300 font-bold px-2">✓ Dibaca</span>')}
                     `;
+                    if (isMsg) div.onclick = () => { markNotifRead(n._id); openDm(n.from_user_id, n.from_user_name || ''); };
                     container.appendChild(div);
                 });
             } catch (e) {
@@ -4609,6 +4725,185 @@ function filterChatSessions() {
             updateNotifBadge();
             setInterval(updateNotifBadge, 30000);
         }
+
+        // ========== DM / CHAT ==========
+        let dmCurrentUser = null;
+        let dmCurrentName = '';
+        let dmPollTimer = null;
+
+        function openDm(userId, userName) {
+            dmCurrentUser = userId || null;
+            dmCurrentName = userName || '';
+            openModal('modal-dm');
+            const back = document.getElementById('dmBackBtn');
+            const title = document.getElementById('dmTitle');
+            const inputBar = document.getElementById('dmInputBar');
+            if (back) back.style.display = userId ? 'flex' : 'none';
+            if (title) title.textContent = userId ? '💬 Chat dengan ' + (userName || '...') : '💬 Chat';
+            if (inputBar) inputBar.classList.toggle('hidden', !userId);
+            if (userId) { loadDmThread(userId); } else { loadDmConversations(); }
+            startDmPolling();
+        }
+
+        function closeDm() {
+            stopDmPolling();
+            closeModal('modal-dm');
+        }
+
+        function dmBackToList() {
+            dmCurrentUser = null;
+            dmCurrentName = '';
+            const back = document.getElementById('dmBackBtn');
+            const title = document.getElementById('dmTitle');
+            const inputBar = document.getElementById('dmInputBar');
+            if (back) back.style.display = 'none';
+            if (title) title.textContent = '💬 Chat';
+            if (inputBar) inputBar.classList.add('hidden');
+            loadDmConversations();
+        }
+
+        function stopDmPolling() {
+            if (dmPollTimer) { clearInterval(dmPollTimer); dmPollTimer = null; }
+        }
+
+        function startDmPolling() {
+            stopDmPolling();
+            dmPollTimer = setInterval(() => {
+                const modal = document.getElementById('modal-dm');
+                if (!modal || modal.classList.contains('hidden')) { stopDmPolling(); return; }
+                if (dmCurrentUser) loadDmThread(dmCurrentUser, true); else loadDmConversations(true);
+            }, 5000);
+        }
+
+        async function loadDmConversations(silent) {
+            const body = document.getElementById('dmBody');
+            if (!body) return;
+            if (!silent) body.innerHTML = '<div class="text-xs text-slate-400 font-bold text-center py-8">💬 Memuat chat...</div>';
+            try {
+                const res = await fetch(API_URL + '/dm/conversations', { headers: getAuthHeaders() });
+                if (!res.ok) { body.innerHTML = '<div class="text-center py-10 space-y-2"><p class="text-2xl">😴</p><p class="text-xs text-slate-400 font-bold">Server chat belum aktif</p><p class="text-[10px] text-slate-300">Pastikan backend sudah di-restart dengan versi terbaru, lalu coba lagi.</p></div>'; return; }
+                const convs = await res.json();
+                if (!convs.length) { body.innerHTML = '<div class="text-center py-10 space-y-2"><p class="text-2xl">💬</p><p class="text-xs text-slate-400 font-bold">Belum ada percakapan</p><p class="text-[10px] text-slate-300">Chat dengan teman dari menu 🔍 Cari Teman</p></div>'; return; }
+                body.innerHTML = '';
+                convs.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:bg-white hover:shadow-md transition-all cursor-pointer' + (c.unread > 0 ? ' border-sky-300 bg-sky-50' : '');
+                    const name = c.other_user?.nama || '(akun dihapus)';
+                    const initial = (name || '?').charAt(0).toUpperCase();
+                    const avatar = c.other_user?.foto_profil
+                        ? `<div class="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-100"><img src="${API_URL.replace('/api', '')}${c.other_user.foto_profil}" class="w-full h-full object-cover"></div>`
+                        : `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white flex items-center justify-center text-sm font-black shrink-0">${initial}</div>`;
+                    const time = new Date(c.last_at).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    const preview = (c.last_sender_id === CURRENT_USER?.user_id ? 'Kamu: ' : '') + c.last_message;
+                    div.innerHTML = `
+                        ${avatar}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="text-xs font-extrabold text-slate-800 truncate">${escapeHtml(name)}</p>
+                                <span class="text-[8px] text-slate-400 font-bold shrink-0">${time}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500 font-bold truncate ${c.unread > 0 ? 'text-sky-700' : ''}">${escapeHtml(preview)}</p>
+                        </div>
+                        ${c.unread > 0 ? `<span class="w-5 h-5 bg-sky-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shrink-0">${c.unread}</span>` : ''}
+                    `;
+                    div.onclick = () => { dmCurrentUser = c.other_user_id; dmCurrentName = name; openDmThreadView(); };
+                    body.appendChild(div);
+                });
+            } catch (e) {}
+        }
+
+        function openDmThreadView() {
+            const back = document.getElementById('dmBackBtn');
+            const title = document.getElementById('dmTitle');
+            const inputBar = document.getElementById('dmInputBar');
+            if (back) back.style.display = 'flex';
+            if (title) title.textContent = '💬 Chat dengan ' + dmCurrentName;
+            if (inputBar) inputBar.classList.remove('hidden');
+            loadDmThread(dmCurrentUser);
+        }
+
+        async function loadDmThread(userId, silent) {
+            const body = document.getElementById('dmBody');
+            if (!body) return;
+            if (!silent) body.innerHTML = '<div class="text-xs text-slate-400 font-bold text-center py-8">Memuat chat...</div>';
+            try {
+                const res = await fetch(API_URL + '/dm/' + encodeURIComponent(userId), { headers: getAuthHeaders() });
+                if (!res.ok) { if (!silent) body.innerHTML = '<div class="text-center py-10 space-y-2"><p class="text-2xl">😴</p><p class="text-xs text-slate-400 font-bold">Server chat belum aktif</p><p class="text-[10px] text-slate-300">Pastikan backend sudah di-restart dengan versi terbaru, lalu coba lagi.</p></div>'; return; }
+                const data = await res.json();
+                if (data.other_user && !dmCurrentName) dmCurrentName = data.other_user.nama;
+                const msgs = data.messages || [];
+                if (!msgs.length) { body.innerHTML = '<div class="text-center py-10 space-y-2"><p class="text-2xl">👋</p><p class="text-xs text-slate-400 font-bold">Belum ada pesan</p><p class="text-[10px] text-slate-300">Sapa dulu, ya!</p></div>'; return; }
+                body.innerHTML = '';
+                let lastDay = '';
+                msgs.forEach(m => {
+                    const day = new Date(m.createdAt).toDateString();
+                    if (day !== lastDay) {
+                        lastDay = day;
+                        const sep = document.createElement('div');
+                        sep.className = 'text-center py-1';
+                        sep.innerHTML = `<span class="text-[8px] text-slate-400 font-bold bg-slate-100 rounded-full px-2.5 py-0.5">${new Date(m.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>`;
+                        body.appendChild(sep);
+                    }
+                    const mine = m.sender_id === CURRENT_USER?.user_id;
+                    const time = new Date(m.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    const row = document.createElement('div');
+                    row.className = 'flex ' + (mine ? 'justify-end' : 'justify-start');
+                    row.innerHTML = `
+                        <div class="max-w-[75%] px-3.5 py-2 rounded-2xl text-xs font-bold shadow-sm ${mine ? 'bg-sky-500 text-white rounded-br-sm' : 'bg-slate-100 text-slate-700 rounded-bl-sm'}">
+                            <p class="whitespace-pre-wrap break-words">${escapeHtml(m.text)}</p>
+                            <p class="text-[8px] mt-0.5 ${mine ? 'text-sky-100' : 'text-slate-400'} text-right">${time}${mine ? (m.read ? ' ✓✓' : ' ✓') : ''}</p>
+                        </div>
+                    `;
+                    body.appendChild(row);
+                });
+                body.scrollTop = body.scrollHeight;
+                if (!silent) {
+                    const input = document.getElementById('dmInput');
+                    if (input) input.focus();
+                }
+                updateNotifBadge();
+            } catch (e) {}
+        }
+
+        async function sendDm() {
+            const input = document.getElementById('dmInput');
+            if (!input || !dmCurrentUser) return;
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            const body = document.getElementById('dmBody');
+            try {
+                const res = await fetch(API_URL + '/dm/send', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ receiver_id: dmCurrentUser, text })
+                });
+                if (!res.ok) {
+                    let msg = 'Gagal kirim pesan';
+                    try { const d = await res.json(); msg = d.message || d.error || msg; } catch (_) {}
+                    throw new Error(msg);
+                }
+                await res.json();
+                const row = document.createElement('div');
+                row.className = 'flex justify-end';
+                row.innerHTML = `
+                    <div class="max-w-[75%] px-3.5 py-2 rounded-2xl text-xs font-bold shadow-sm bg-sky-500 text-white rounded-br-sm">
+                        <p class="whitespace-pre-wrap break-words">${escapeHtml(text)}</p>
+                        <p class="text-[8px] mt-0.5 text-sky-100 text-right">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} ✓</p>
+                    </div>
+                `;
+                if (body.querySelector('.text-center')) body.innerHTML = '';
+                body.appendChild(row);
+                body.scrollTop = body.scrollHeight;
+            } catch (e) {
+                input.value = text;
+                showToast(e.message || 'Gagal kirim pesan', 'error');
+            }
+        }
+
+        document.getElementById('dmInput')?.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendDm(); }
+        });
 
         // ========== PROFILE XP & LEVEL ==========
         const rankData = [
@@ -5139,10 +5434,10 @@ function filterChatSessions() {
                         <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Nama Lengkap</label><input id="profileNama" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 outline-none transition-all" disabled /></div>
                         <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Email</label><input id="profileEmail" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 text-sm outline-none cursor-not-allowed" disabled readonly /></div>
                         <div class="grid grid-cols-2 gap-3">
-                            <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Kelas</label><select id="profileKelas" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-indigo-500 outline-none transition-all" disabled><option value="">Pilih</option><option value="10">Kelas 10</option><option value="11">Kelas 11</option><option value="12">Kelas 12</option></select></div>
-                            <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Semester</label><select id="profileSemester" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-indigo-500 outline-none transition-all" disabled><option value="">Pilih</option><option value="1">Semester 1</option><option value="2">Semester 2</option></select></div>
+                            <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Kelas</label><select id="profileKelas" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-indigo-500 outline-none transition-all" disabled><option value="10">Kelas 10</option><option value="11">Kelas 11</option><option value="12">Kelas 12</option></select></div>
+                            <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Semester</label><select id="profileSemester" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-indigo-500 outline-none transition-all" disabled><option value="1">Semester 1</option><option value="2">Semester 2</option></select></div>
                             <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Tanggal Lahir</label><input id="profileTglLahir" type="date" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-indigo-500 outline-none transition-all color-scheme-dark" disabled /></div>
-                            <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Jenis Kelamin</label><select id="profileJenisKelamin" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-indigo-500 outline-none transition-all" disabled><option value="">Pilih</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+                            <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Jenis Kelamin</label><select id="profileJenisKelamin" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-indigo-500 outline-none transition-all" disabled><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
                         </div>
                         <div><label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Bio</label><textarea id="profileBio" maxlength="50" class="profile-field w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-indigo-500 outline-none transition-all resize-none" disabled oninput="document.getElementById('bioCounter').textContent=this.value.length"></textarea><p class="text-[9px] text-slate-500 mt-1 text-right"><span id="bioCounter">0</span>/50</p></div>
                     </div>

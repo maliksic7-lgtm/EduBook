@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const Friendship = require('../models/Friendship');
 const Notification = require('../models/Notification');
+const Message = require('../models/Message');
 const { authenticateToken } = require('../middleware/auth');
 
 function getUserId(req) {
@@ -360,6 +361,125 @@ router.get('/users/compare/:userId1/:userId2', authenticateToken, async (req, re
         res.json({ user1: s1, user2: s2 });
     } catch (err) {
         console.error('Compare error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Kirim pesan DM
+router.post('/dm/send', authenticateToken, async (req, res) => {
+    try {
+        const me = getUserId(req);
+        const { receiver_id, text } = req.body;
+        if (!receiver_id || me === receiver_id) return res.status(400).json({ message: 'Receiver tidak valid' });
+        if (!text || !text.trim()) return res.status(400).json({ message: 'Pesan kosong' });
+        if (text.trim().length > 2000) return res.status(400).json({ message: 'Pesan terlalu panjang (maks 2000 karakter)' });
+
+        const receiver = await User.findOne({ user_id: receiver_id }).select('nama user_id');
+        if (!receiver) return res.status(404).json({ message: 'User tidak ditemukan' });
+
+        const saved = await Message.create({
+            sender_id: me,
+            sender_name: req.user?.nama || 'Someone',
+            receiver_id,
+            text: text.trim()
+        });
+
+        // Hapus notif lama untuk pembicaraan ini agar tidak menumpuk
+        await Notification.deleteMany({ user_id: receiver_id, type: 'message', from_user_id: me });
+
+        await Notification.create({
+            user_id: receiver_id,
+            type: 'message',
+            from_user_id: me,
+            from_user_name: req.user?.nama || 'Someone',
+            message: `💬 ${req.user?.nama || 'Someone'}: ${text.trim().slice(0, 80)}${text.trim().length > 80 ? '…' : ''}`,
+            link: '#'
+        });
+
+        res.json({ ok: true, message: saved });
+    } catch (err) {
+        console.error('Send DM error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Daftar percakapan (dengan pesan terakhir + unread count)
+router.get('/dm/conversations', authenticateToken, async (req, res) => {
+    try {
+        const me = getUserId(req);
+        const messages = await Message.find({ $or: [{ sender_id: me }, { receiver_id: me }] })
+            .sort({ createdAt: -1 })
+            .limit(500);
+
+        const convMap = {};
+        const convOrder = [];
+        messages.forEach(m => {
+            const otherId = m.sender_id === me ? m.receiver_id : m.sender_id;
+            if (!convMap[otherId]) {
+                convMap[otherId] = { other_user_id: otherId, last_message: m.text, last_sender_id: m.sender_id, last_at: m.createdAt, unread: 0 };
+                convOrder.push(otherId);
+            }
+            if (m.receiver_id === me && !m.read) convMap[otherId].unread++;
+        });
+
+        const otherIds = convOrder;
+        const users = await User.find({ user_id: { $in: otherIds } }).select('nama user_id foto_profil kelas');
+        const userMap = {};
+        users.forEach(u => userMap[u.user_id] = u);
+
+        const result = convOrder.map(id => ({
+            ...convMap[id],
+            other_user: userMap[id] ? { nama: userMap[id].nama, foto_profil: userMap[id].foto_profil, kelas: userMap[id].kelas } : { nama: '(akun dihapus)' }
+        }));
+
+        res.json(result);
+    } catch (err) {
+        console.error('Get conversations error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Ambil riwayat chat dengan user lain (mark semua pesan masuk sebagai read)
+router.get('/dm/:userId', authenticateToken, async (req, res) => {
+    try {
+        const me = getUserId(req);
+        const otherId = req.params.userId;
+        const messages = await Message.find({
+            $or: [
+                { sender_id: me, receiver_id: otherId },
+                { sender_id: otherId, receiver_id: me }
+            ]
+        }).sort({ createdAt: 1 }).limit(200);
+
+        await Message.updateMany({ sender_id: otherId, receiver_id: me, read: false }, { read: true });
+        await Notification.updateMany({ user_id: me, type: 'message', from_user_id: otherId }, { read: true });
+
+        const user = await User.findOne({ user_id: otherId }).select('nama user_id foto_profil kelas');
+        res.json({
+            other_user: user ? { nama: user.nama, foto_profil: user.foto_profil, kelas: user.kelas } : null,
+            messages
+        });
+    } catch (err) {
+        console.error('Get DM history error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Tandai semua pesan dari user tertentu sebagai read
+router.post('/dm/read', authenticateToken, async (req, res) => {
+    try {
+        const me = getUserId(req);
+        const { from_user_id } = req.body;
+        if (from_user_id) {
+            await Message.updateMany({ sender_id: from_user_id, receiver_id: me, read: false }, { read: true });
+            await Notification.updateMany({ user_id: me, type: 'message', from_user_id }, { read: true });
+        } else {
+            await Message.updateMany({ receiver_id: me, read: false }, { read: true });
+            await Notification.updateMany({ user_id: me, type: 'message' }, { read: true });
+        }
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('DM read error:', err);
         res.status(500).json({ error: err.message });
     }
 });

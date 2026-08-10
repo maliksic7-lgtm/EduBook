@@ -41,4 +41,27 @@ async function contentInsightRedirect(req, res) {
     }
 }
 
-module.exports = { explainText, contentInsightRedirect };
+async function quizAnswerFeedback(req, res) {
+    try {
+        const { question, options, correct_answer, is_correct, user_answer } = req.body;
+
+        if (!question || !correct_answer) {
+            return res.status(400).json({ message: 'Soal dan kunci jawaban wajib diisi.' });
+        }
+
+        const feedback = await aiService.generateQuizAnswerFeedback(
+            question,
+            Array.isArray(options) ? options : [],
+            correct_answer,
+            !!is_correct,
+            typeof user_answer === 'string' ? user_answer : ''
+        );
+
+        res.json({ status: "success", feedback });
+    } catch (err) {
+        console.error("🚨 Error di quizAnswerFeedback:", err);
+        res.status(500).json({ error: "Gagal memproses feedback kuis: " + err.message });
+    }
+}
+
+module.exports = { explainText, contentInsightRedirect, quizAnswerFeedback };

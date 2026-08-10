@@ -271,10 +271,73 @@ async function callGeminiWithRetry(promptSystem, maxRetries = 3) {
     throw lastError || new Error('All models failed');
 }
 
+// ---------------------------------------------------------------
+// Feedback Jawaban Per Soal Kuis (variatif + penjelasan)
+// ---------------------------------------------------------------
+
+function fallbackQuizAnswerFeedback(isCorrect, correctAnswer) {
+    if (isCorrect) {
+        const variants = [
+            'Kamu benar! Jawaban ini memang yang tepat. Lanjutkan!',
+            'Tepat sekali, kamu menguasai materinya. Pertahankan!',
+            'Benar! Kamu memang paham konsep ini. Semangat!'
+        ];
+        return variants[Math.floor(Math.random() * variants.length)];
+    }
+    const variants = [
+        `Jawaban yang benar: ${correctAnswer}. Pelajari lagi bagian ini, pasti bisa!`,
+        `Kunci jawabannya: ${correctAnswer}. Jangan menyerah, coba lagi!`,
+        `Seharusnya: ${correctAnswer}. Semangat, kamu pasti paham setelah ini!`
+    ];
+    return variants[Math.floor(Math.random() * variants.length)];
+}
+
+async function generateQuizAnswerFeedback(question, options, correctAnswer, isCorrect, userAnswer) {
+    if (!ai) return fallbackQuizAnswerFeedback(isCorrect, correctAnswer);
+
+    const pilihan = (Array.isArray(options) && options.length)
+        ? options.map((o, i) => `(${String.fromCharCode(65 + i)}) ${o}`).join('; ')
+        : '(tidak ada pilihan)';
+
+    const prompt = `
+    Anda adalah Guru AI interaktif untuk proyek EduBook (Samsung Innovation Campus Batch 8).
+    Seorang siswa baru saja menjawab satu soal kuis dan hasilnya ${isCorrect ? 'BENAR' : 'SALAH'}.
+
+    Soal: "${question}"
+    Pilihan jawaban: ${pilihan}
+    Kunci jawaban benar: "${correctAnswer}"
+    Jawaban siswa: ${isCorrect ? '(sesuai kunci)' : `"${userAnswer || '(tidak terjawab)'}"`}
+
+    Berikan umpan balik maksimal 2 kalimat dalam Bahasa Indonesia yang:
+    - Bervariasi antar soal (jangan selalu memulai dengan kata yang sama, gunakan gaya yang berbeda-beda).
+    ${isCorrect
+        ? '- Puji singkat dan jelaskan SEKILAS mengapa jawaban tersebut memang benar (1 alasan pedagogis sederhana).'
+        : '- Tegur dengan ramah, sebutkan kunci jawaban yang benar, dan jelaskan mengapa jawaban tersebut yang tepat (1 alasan pedagogis sederhana).'}
+    - Santun dan memotivasi; panggil siswa dengan "kamu" (jangan gunakan "lo", "gue", "gw", "lu").
+    - Jangan gunakan markdown, kutipan, atau emoji berlebihan.
+
+    Keluarkan HANYA teks feedback-nya saja.
+    `;
+
+    try {
+        const result = await Promise.race([
+            ai.models.generateContent({ model: PRIMARY_MODEL, contents: prompt }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 15000))
+        ]);
+        const text = result.text ? result.text.trim() : '';
+        if (text && text.length > 5) return text;
+        return fallbackQuizAnswerFeedback(isCorrect, correctAnswer);
+    } catch (err) {
+        console.warn('⚠️ Quiz answer feedback timeout/gagal, pakai fallback:', err.message);
+        return fallbackQuizAnswerFeedback(isCorrect, correctAnswer);
+    }
+}
+
 module.exports = {
     evaluateHafalan,
     evaluateQuizFeedback,
     generateExplanation,
     generateRecommendation,
+    generateQuizAnswerFeedback,
     callGeminiWithRetry
 };

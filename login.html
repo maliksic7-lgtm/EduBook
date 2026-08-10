@@ -10,17 +10,18 @@
     <script src="config.js"></script>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; overflow: hidden; }
+        html, body { height: auto; min-height: 100%; }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: #0a0a1a;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             min-height: 100vh;
             position: relative;
             -webkit-text-size-adjust: 100%;
+            padding: 24px 0;
         }
 
         /* === Animated Background === */
@@ -99,6 +100,7 @@
             width: 100%;
             max-width: 460px;
             padding: 20px;
+            margin: auto;
         }
 
         .card {
@@ -450,6 +452,7 @@
             border: 1px solid rgba(34, 197, 94, 0.2);
             color: #86efac;
         }
+        .alert.error:empty { display: none !important; }
 
         /* === Loading State === */
         .card.loading-state .card-inner { display: none; }
@@ -598,7 +601,6 @@
                         <div class="form-group">
                             <label>Jenis Kelamin</label>
                             <select id="inputJenisKelamin">
-                                <option value="">Pilih</option>
                                 <option value="L">Laki-laki</option>
                                 <option value="P">Perempuan</option>
                             </select>
@@ -609,7 +611,6 @@
                         <div class="form-group">
                             <label>Semester</label>
                             <select id="inputSemester">
-                                <option value="">Pilih</option>
                                 <option value="1">Semester 1</option>
                                 <option value="2">Semester 2</option>
                             </select>
@@ -617,7 +618,6 @@
                         <div class="form-group">
                             <label>Kelas</label>
                             <select id="inputKelas">
-                                <option value="">Pilih kelas</option>
                                 <option value="10">Kelas 10</option>
                                 <option value="11">Kelas 11</option>
                                 <option value="12">Kelas 12</option>

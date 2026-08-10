@@ -4,7 +4,7 @@ const NotificationSchema = new mongoose.Schema({
     user_id: { type: String, required: true, index: true },
     type: {
         type: String,
-        enum: ['follow', 'achievement', 'streak_reminder', 'quest_reminder', 'fun'],
+        enum: ['follow', 'achievement', 'streak_reminder', 'quest_reminder', 'fun', 'message'],
         required: true
     },
     from_user_id: { type: String, default: '' },
