@@ -1527,6 +1527,7 @@
                 CURRENT_USER = data.user;
                 localStorage.setItem('edubook_student_name', CURRENT_USER.nama);
                 updateSidebarName();
+                connectDmStream();
             } catch {
                 localStorage.removeItem('edubook_token');
                 showToast('Sesi berakhir. Silakan login ulang.', 'warning');
@@ -4729,7 +4730,116 @@ function filterChatSessions() {
         // ========== DM / CHAT ==========
         let dmCurrentUser = null;
         let dmCurrentName = '';
-        let dmPollTimer = null;
+        let dmEventSource = null;
+        let dmFallbackTimer = null;
+        let dmRenderedIds = new Set();
+        let dmLastDay = '';
+
+        // Koneksi SSE realtime DM. Dipanggil sekali setelah login sukses.
+        // EventSource tidak bisa kirim header Authorization → token via query.
+        function connectDmStream() {
+            try { if (dmEventSource) dmEventSource.close(); } catch (e) {}
+            if (!AUTH_TOKEN) return;
+            const es = new EventSource(`${API_URL}/dm/stream?token=${encodeURIComponent(AUTH_TOKEN)}`);
+            es.onmessage = function (event) {
+                let data;
+                try { data = JSON.parse(event.data); } catch (e) { return; }
+                if (data.type === 'DM_MESSAGE') handleDmMessage(data);
+                else if (data.type === 'DM_READ') handleDmRead(data);
+            };
+            es.onerror = function () {
+                try { es.close(); } catch (e) {}
+                setTimeout(() => { if (AUTH_TOKEN) connectDmStream(); }, 3000);
+            };
+            dmEventSource = es;
+        }
+
+        function handleDmMessage(data) {
+            const msg = data.message;
+            if (!msg) return;
+            const otherId = msg.sender_id === CURRENT_USER?.user_id ? msg.receiver_id : msg.sender_id;
+            const modal = document.getElementById('modal-dm');
+            const open = modal && !modal.classList.contains('hidden');
+            if (open && dmCurrentUser && dmCurrentUser === otherId) {
+                appendDmMessage(msg); // append saja, jangan re-render seluruh thread
+            } else if (open && !dmCurrentUser) {
+                loadDmConversations(true); // lagi di daftar percakapan → refresh daftar
+            }
+            updateNotifBadge();
+        }
+
+        function handleDmRead(data) {
+            const modal = document.getElementById('modal-dm');
+            const open = modal && !modal.classList.contains('hidden');
+            if (!open || !dmCurrentUser || dmCurrentUser !== data.reader_id) return;
+            const body = document.getElementById('dmBody');
+            if (!body) return;
+            body.querySelectorAll('[data-msg-id]').forEach(row => {
+                const tick = row.querySelector('p.text-right');
+                if (tick && / ✓$/.test(tick.textContent)) {
+                    tick.textContent = tick.textContent.replace(' ✓', ' ✓✓');
+                }
+            });
+        }
+
+        // Render SATU pesan & append ke bawah thread (incremental).
+        function appendDmMessage(m) {
+            const body = document.getElementById('dmBody');
+            if (!body) return;
+            if (m._id && dmRenderedIds.has(m._id)) return;
+            const placeholder = body.querySelector('.dm-empty-placeholder');
+            if (placeholder) placeholder.remove();
+            const day = new Date(m.createdAt).toDateString();
+            if (day !== dmLastDay) {
+                dmLastDay = day;
+                const sep = document.createElement('div');
+                sep.className = 'text-center py-1';
+                sep.innerHTML = `<span class="text-[8px] text-slate-400 font-bold bg-slate-100 rounded-full px-2.5 py-0.5">${new Date(m.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>`;
+                body.appendChild(sep);
+            }
+            const mine = m.sender_id === CURRENT_USER?.user_id;
+            const time = new Date(m.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            const row = document.createElement('div');
+            row.className = 'flex ' + (mine ? 'justify-end' : 'justify-start');
+            if (m._id) row.dataset.msgId = m._id;
+            row.innerHTML = `
+                <div class="max-w-[75%] px-3.5 py-2 rounded-2xl text-xs font-bold shadow-sm ${mine ? 'bg-sky-500 text-white rounded-br-sm' : 'bg-slate-100 text-slate-700 rounded-bl-sm'}">
+                    <p class="whitespace-pre-wrap break-words">${escapeHtml(m.text)}</p>
+                    <p class="text-[8px] mt-0.5 ${mine ? 'text-sky-100' : 'text-slate-400'} text-right">${time}${mine ? (m.read ? ' ✓✓' : ' ✓') : ''}</p>
+                </div>
+            `;
+            body.appendChild(row);
+            if (m._id) dmRenderedIds.add(m._id);
+            const nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 120;
+            if (nearBottom) body.scrollTop = body.scrollHeight;
+        }
+
+        // Update centang ✓✓ untuk pesan yang sudah dibaca oleh lawan bicara.
+        function refreshDmTicks(msgs) {
+            if (!msgs || !msgs.length) return;
+            const body = document.getElementById('dmBody');
+            if (!body) return;
+            msgs.forEach(m => {
+                if (!m.read) return;
+                const row = body.querySelector(`[data-msg-id="${m._id}"]`);
+                if (!row) return;
+                const tick = row.querySelector('p.text-right');
+                if (tick && / ✓$/.test(tick.textContent)) tick.textContent = tick.textContent.replace(' ✓', ' ✓✓');
+            });
+        }
+
+        function startDmFallback() {
+            stopDmFallback();
+            dmFallbackTimer = setInterval(() => {
+                if (!AUTH_TOKEN) return;
+                const modal = document.getElementById('modal-dm');
+                if (!modal || modal.classList.contains('hidden')) return;
+                if (dmCurrentUser) loadDmThread(dmCurrentUser, true); else loadDmConversations(true);
+            }, 20000);
+        }
+        function stopDmFallback() {
+            if (dmFallbackTimer) { clearInterval(dmFallbackTimer); dmFallbackTimer = null; }
+        }
 
         function openDm(userId, userName) {
             dmCurrentUser = userId || null;
@@ -4742,11 +4852,11 @@ function filterChatSessions() {
             if (title) title.textContent = userId ? '💬 Chat dengan ' + (userName || '...') : '💬 Chat';
             if (inputBar) inputBar.classList.toggle('hidden', !userId);
             if (userId) { loadDmThread(userId); } else { loadDmConversations(); }
-            startDmPolling();
+            startDmFallback();
         }
 
         function closeDm() {
-            stopDmPolling();
+            stopDmFallback();
             closeModal('modal-dm');
         }
 
@@ -4762,19 +4872,6 @@ function filterChatSessions() {
             loadDmConversations();
         }
 
-        function stopDmPolling() {
-            if (dmPollTimer) { clearInterval(dmPollTimer); dmPollTimer = null; }
-        }
-
-        function startDmPolling() {
-            stopDmPolling();
-            dmPollTimer = setInterval(() => {
-                const modal = document.getElementById('modal-dm');
-                if (!modal || modal.classList.contains('hidden')) { stopDmPolling(); return; }
-                if (dmCurrentUser) loadDmThread(dmCurrentUser, true); else loadDmConversations(true);
-            }, 5000);
-        }
-
         async function loadDmConversations(silent) {
             const body = document.getElementById('dmBody');
             if (!body) return;
@@ -4783,7 +4880,7 @@ function filterChatSessions() {
                 const res = await fetch(API_URL + '/dm/conversations', { headers: getAuthHeaders() });
                 if (!res.ok) { body.innerHTML = '<div class="text-center py-10 space-y-2"><p class="text-2xl">😴</p><p class="text-xs text-slate-400 font-bold">Server chat belum aktif</p><p class="text-[10px] text-slate-300">Pastikan backend sudah di-restart dengan versi terbaru, lalu coba lagi.</p></div>'; return; }
                 const convs = await res.json();
-                if (!convs.length) { body.innerHTML = '<div class="text-center py-10 space-y-2"><p class="text-2xl">💬</p><p class="text-xs text-slate-400 font-bold">Belum ada percakapan</p><p class="text-[10px] text-slate-300">Chat dengan teman dari menu 🔍 Cari Teman</p></div>'; return; }
+                if (!convs.length) { body.innerHTML = '<div class="dm-empty-placeholder text-center py-10 space-y-2"><p class="text-2xl">💬</p><p class="text-xs text-slate-400 font-bold">Belum ada percakapan</p><p class="text-[10px] text-slate-300">Chat dengan teman dari menu 🔍 Cari Teman</p></div>'; return; }
                 body.innerHTML = '';
                 convs.forEach(c => {
                     const div = document.createElement('div');
@@ -4832,32 +4929,20 @@ function filterChatSessions() {
                 const data = await res.json();
                 if (data.other_user && !dmCurrentName) dmCurrentName = data.other_user.nama;
                 const msgs = data.messages || [];
-                if (!msgs.length) { body.innerHTML = '<div class="text-center py-10 space-y-2"><p class="text-2xl">👋</p><p class="text-xs text-slate-400 font-bold">Belum ada pesan</p><p class="text-[10px] text-slate-300">Sapa dulu, ya!</p></div>'; return; }
-                body.innerHTML = '';
-                let lastDay = '';
-                msgs.forEach(m => {
-                    const day = new Date(m.createdAt).toDateString();
-                    if (day !== lastDay) {
-                        lastDay = day;
-                        const sep = document.createElement('div');
-                        sep.className = 'text-center py-1';
-                        sep.innerHTML = `<span class="text-[8px] text-slate-400 font-bold bg-slate-100 rounded-full px-2.5 py-0.5">${new Date(m.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>`;
-                        body.appendChild(sep);
-                    }
-                    const mine = m.sender_id === CURRENT_USER?.user_id;
-                    const time = new Date(m.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                    const row = document.createElement('div');
-                    row.className = 'flex ' + (mine ? 'justify-end' : 'justify-start');
-                    row.innerHTML = `
-                        <div class="max-w-[75%] px-3.5 py-2 rounded-2xl text-xs font-bold shadow-sm ${mine ? 'bg-sky-500 text-white rounded-br-sm' : 'bg-slate-100 text-slate-700 rounded-bl-sm'}">
-                            <p class="whitespace-pre-wrap break-words">${escapeHtml(m.text)}</p>
-                            <p class="text-[8px] mt-0.5 ${mine ? 'text-sky-100' : 'text-slate-400'} text-right">${time}${mine ? (m.read ? ' ✓✓' : ' ✓') : ''}</p>
-                        </div>
-                    `;
-                    body.appendChild(row);
-                });
-                body.scrollTop = body.scrollHeight;
                 if (!silent) {
+                    body.innerHTML = '';
+                    dmRenderedIds = new Set();
+                    dmLastDay = '';
+                }
+                if (!msgs.length) {
+                    if (!silent) body.innerHTML = '<div class="dm-empty-placeholder text-center py-10 space-y-2"><p class="text-2xl">👋</p><p class="text-xs text-slate-400 font-bold">Belum ada pesan</p><p class="text-[10px] text-slate-300">Sapa dulu, ya!</p></div>';
+                    updateNotifBadge();
+                    return;
+                }
+                msgs.forEach(m => appendDmMessage(m));
+                refreshDmTicks(msgs);
+                if (!silent) {
+                    body.scrollTop = body.scrollHeight;
                     const input = document.getElementById('dmInput');
                     if (input) input.focus();
                 }
@@ -4871,7 +4956,6 @@ function filterChatSessions() {
             const text = input.value.trim();
             if (!text) return;
             input.value = '';
-            const body = document.getElementById('dmBody');
             try {
                 const res = await fetch(API_URL + '/dm/send', {
                     method: 'POST',
@@ -4883,18 +4967,10 @@ function filterChatSessions() {
                     try { const d = await res.json(); msg = d.message || d.error || msg; } catch (_) {}
                     throw new Error(msg);
                 }
-                await res.json();
-                const row = document.createElement('div');
-                row.className = 'flex justify-end';
-                row.innerHTML = `
-                    <div class="max-w-[75%] px-3.5 py-2 rounded-2xl text-xs font-bold shadow-sm bg-sky-500 text-white rounded-br-sm">
-                        <p class="whitespace-pre-wrap break-words">${escapeHtml(text)}</p>
-                        <p class="text-[8px] mt-0.5 text-sky-100 text-right">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} ✓</p>
-                    </div>
-                `;
-                if (body.querySelector('.text-center')) body.innerHTML = '';
-                body.appendChild(row);
-                body.scrollTop = body.scrollHeight;
+                const data = await res.json();
+                // Tampilkan pesan dari respons server (ber-id, jadi tidak dobel
+                // saat SSE echo datang dari /dm/send).
+                if (data.message && data.message._id) appendDmMessage(data.message);
             } catch (e) {
                 input.value = text;
                 showToast(e.message || 'Gagal kirim pesan', 'error');

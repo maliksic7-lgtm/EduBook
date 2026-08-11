@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Friendship = require('../models/Friendship');
 const Notification = require('../models/Notification');
 const Message = require('../models/Message');
 const { authenticateToken } = require('../middleware/auth');
+const streamService = require('../services/streamService');
 
 function getUserId(req) {
     return req.user?.user_id || '';
@@ -396,11 +398,35 @@ router.post('/dm/send', authenticateToken, async (req, res) => {
             link: '#'
         });
 
+        // Broadcast realtime ke penerima (dan pengirim, untuk multi-tab)
+        streamService.sendToUser(receiver_id, { type: 'DM_MESSAGE', message: saved.toObject(), to: receiver_id });
+        streamService.sendToUser(me, { type: 'DM_MESSAGE', message: saved.toObject(), to: receiver_id });
+
         res.json({ ok: true, message: saved });
     } catch (err) {
         console.error('Send DM error:', err);
         res.status(500).json({ error: err.message });
     }
+});
+
+// SSE real-time DM (EventSource tidak bisa kirim header Authorization → token via query)
+router.get('/dm/stream', (req, res) => {
+    const token = (req.query.token || '').trim();
+    let user = null;
+    try {
+        user = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+        return res.status(401).json({ error: 'Token tidak valid.' });
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    streamService.addUserClient(user.user_id, res);
+
+    req.on('close', () => streamService.removeUserClient(user.user_id, res));
 });
 
 // Daftar percakapan (dengan pesan terakhir + unread count)
@@ -454,6 +480,9 @@ router.get('/dm/:userId', authenticateToken, async (req, res) => {
         await Message.updateMany({ sender_id: otherId, receiver_id: me, read: false }, { read: true });
         await Notification.updateMany({ user_id: me, type: 'message', from_user_id: otherId }, { read: true });
 
+        // Beri tahu pengirim bahwa pesannya sudah dibaca (✓✓ realtime)
+        streamService.sendToUser(otherId, { type: 'DM_READ', reader_id: me, read_at: new Date() });
+
         const user = await User.findOne({ user_id: otherId }).select('nama user_id foto_profil kelas');
         res.json({
             other_user: user ? { nama: user.nama, foto_profil: user.foto_profil, kelas: user.kelas } : null,
@@ -473,6 +502,7 @@ router.post('/dm/read', authenticateToken, async (req, res) => {
         if (from_user_id) {
             await Message.updateMany({ sender_id: from_user_id, receiver_id: me, read: false }, { read: true });
             await Notification.updateMany({ user_id: me, type: 'message', from_user_id }, { read: true });
+            streamService.sendToUser(from_user_id, { type: 'DM_READ', reader_id: me, read_at: new Date() });
         } else {
             await Message.updateMany({ receiver_id: me, read: false }, { read: true });
             await Notification.updateMany({ user_id: me, type: 'message' }, { read: true });
