@@ -158,8 +158,17 @@ belum diamankan. Sejak v2.x arsitektur migrasi ke **multi-user**:
   `/dm/send` (kirim pesan, cek penerima valid & bukan diri sendiri),
   `/dm/conversations` (daftar percakapan + pesan terakhir + unread count),
   `/dm/:userId` (thread dengan satu user, otomatis menandai notifikasi & pesan
-  sebagai `read`), dan `/dm/read`. Frontend me-polling daftar pesan dan badge
-  notifikasi; notifikasi bertipe `message` bisa diklik untuk membuka thread DM.
+  sebagai `read`), `/dm/read`, dan `/dm/stream` (SSE realtime per-user).
+  **Realtime via SSE**: frontend membuka `EventSource` ke `/dm/stream` (token
+  lewat query karena EventSource tidak bisa kirim header Authorization);
+  server memakai `streamService.sendToUser()` untuk mendorong event
+  `DM_MESSAGE` saat pesan terkirim dan `DM_READ` saat pesan dibaca. Thread
+  dirender **incremental** — hanya pesan baru yang di-append, bukan re-render
+  seluruh DOM, sehingga chat lama tidak hilang/tertimbun (perilaku ala
+  WhatsApp). `EventSource` terhubung sejak login sukses, jadi pesan masuk tetap
+  muncul meski modal chat tertutup. Polling lama (5 detik) diganti; kini hanya
+  fallback ringan (20 detik) bila SSE putus. Notifikasi bertipe `message` bisa
+  diklik untuk membuka thread DM.
 
 ## 10. Ringkasan lapisan & nama domain
 
@@ -180,9 +189,10 @@ Tabel ringkas area API (prefix `/api`):
 | Cache/Stream | `cache/*`, `stream/*` | caching AI & SSE real-time |
 
 Kunci transport async: MQTT (`mqttService.js`) untuk arah device, dan SSE
-(`streamService.js`) untuk dorongan real-time ke dashboard. AI di-konsolidasi
-di `aiService.js` (Gemini) dengan `fallbackService.js` sebagai knowledge-base
-cadangan saat API AI gagal/timeout.
+(`streamService.js`) untuk dorongan real-time ke dashboard — mode *broadcast*
+(device/mode ke semua client) dan *per-user* (`sendToUser()`, dipakai DM
+realtime). AI di-konsolidasi di `aiService.js` (Gemini) dengan
+`fallbackService.js` sebagai knowledge-base cadangan saat API AI gagal/timeout.
 
 ## 11. URL backend non-lokal (`config.js`)
 

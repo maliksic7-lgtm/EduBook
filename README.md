@@ -144,7 +144,7 @@ PlatformIO. Lihat `firmware/README.md`.
 | Leaderboard     | `/leaderboard/*` |
 | Misi            | `/quests/*` (harian/mingguan/bulanan) |
 | Sosial          | `/social/*`, `/album/*` |
-| DM              | `/dm/*` (send, conversations, thread, read) |
+| DM              | `/dm/*` (send, conversations, thread, read, stream SSE realtime) |
 | Cache/Stream    | `/cache/*`, `/stream/*` (SSE real-time) |
 
 ## Ketentuan yang perlu diketahui (Prototype)
