@@ -328,12 +328,17 @@ router.get('/users/compare/:userId1/:userId2', authenticateToken, async (req, re
         const Activity = require('../models/Activity');
         const fetchStats = async (user) => {
             const activities = await Activity.find({ student_name: user.nama }).sort({ timestamp: -1 }).limit(500);
-            let totalXP = 0, hafalanCount = 0, quizCount = 0, hafalanSum = 0, quizSum = 0;
+            let totalXP = 0, hafalanCount = 0, quizCount = 0, listeningCount = 0, hafalanSum = 0, quizSum = 0, listeningSum = 0;
             activities.forEach(a => {
                 const score = a.hafalan_features?.score || 0;
                 if (a.activity_type === 'quiz') {
                     quizCount++;
                     quizSum += score;
+                    const correct = Math.round((score / 100) * (a.quiz_total_questions || 1));
+                    totalXP += correct * 5;
+                } else if (a.activity_type === 'listening') {
+                    listeningCount++;
+                    listeningSum += score;
                     const correct = Math.round((score / 100) * (a.quiz_total_questions || 1));
                     totalXP += correct * 5;
                 } else {
@@ -354,7 +359,8 @@ router.get('/users/compare/:userId1/:userId2', authenticateToken, async (req, re
                 nama: user.nama, foto_profil: user.foto_profil, kelas: user.kelas,
                 totalXP, avgHafalan: hafalanCount > 0 ? Math.round(hafalanSum / hafalanCount) : 0,
                 quizPrecision: quizCount > 0 ? Math.round(quizSum / quizCount) : 0,
-                level, hafalanCount, quizCount, uniqueDays
+                listeningPrecision: listeningCount > 0 ? Math.round(listeningSum / listeningCount) : 0,
+                level, hafalanCount, quizCount, listeningCount, uniqueDays
             };
         };
 
