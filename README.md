@@ -159,4 +159,8 @@ Lihat `docs/ARCHITECTURE.md` untuk detail keputusan teknis.
 
 ## Tim
 
-Samsung Innovation Campus Batch 8 — 3 Teknik Komputer, 1 Teknik Elektro.
+Samsung Innovation Campus Batch 8 — 3 Teknik Jaringan Komputer dan Telekomunikasi, 1 Teknik Elektronika Industri.
+1. Zsi Malik Aqilla Mustaqim - Teknik Jaringan Komputer dan Telekomunikasi
+2. A.Rohman Bagus Aji Tajiwo - Teknik Elektronika Industri
+3. Muhammad Raffa Nurhalim - Teknik Jaringan Komputer dan Telekomunikasi
+4. Hadi Mishal Ramadhan - Teknik Jaringan Komputer dan Telekomunikasi
