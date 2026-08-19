@@ -16,14 +16,15 @@ function getUserId(req) {
 router.get('/users/search', authenticateToken, async (req, res) => {
     try {
         const q = (req.query.q || '').trim();
-        if (!q) return res.json([]);
         const me = getUserId(req);
-        const users = await User.find({
-            $and: [
-                { user_id: { $ne: me } },
-                { nama: { $regex: q, $options: 'i' } }
-            ]
-        }).select('nama user_id foto_profil kelas semester').limit(20);
+        const limit = Math.min(Math.max(parseInt(req.query.limit) || 30, 1), 50);
+        const filter = {
+            user_id: { $ne: me }
+        };
+        if (q) filter.nama = { $regex: q, $options: 'i' };
+        const users = await User.find(filter)
+            .select('nama user_id foto_profil kelas semester')
+            .limit(limit);
         res.json(users);
     } catch (err) {
         console.error('Search users error:', err);

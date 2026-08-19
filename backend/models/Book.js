@@ -28,6 +28,18 @@ const BookSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    reference_author: {
+        type: String,
+        default: ''
+    },
+    reference_title: {
+        type: String,
+        default: ''
+    },
+    reference_year: {
+        type: String,
+        default: ''
+    },
     video_url: {
         type: String,
         default: ''

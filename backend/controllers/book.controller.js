@@ -12,7 +12,7 @@ async function getBookPage(req, res) {
 
 async function createBookPage(req, res) {
     try {
-        const { page_number, title, paragraphs, quiz_questions, image_url, reference_link, video_url } = req.body;
+        const { page_number, title, paragraphs, quiz_questions, image_url, reference_link, reference_author, reference_title, reference_year, video_url } = req.body;
         const pageNumber = Number(page_number);
 
         if (!Number.isInteger(pageNumber) || pageNumber < 1 || pageNumber > 10) {
@@ -35,6 +35,9 @@ async function createBookPage(req, res) {
             quiz_questions,
             image_url,
             reference_link,
+            reference_author,
+            reference_title,
+            reference_year,
             video_url
         });
         const savedPage = await newPage.save();

@@ -104,6 +104,7 @@
         }
 
         /* ========== DARK MODE ========== */
+        html.dark { color-scheme: dark; }
         html.dark body { background: #0B1220 !important; color: #E2E8F0 !important; }
         html.dark #appHeader { background: rgba(17, 24, 39, 0.85) !important; border-color: #1F2937 !important; }
 
@@ -119,6 +120,11 @@
         html.dark .bg-purple-50\/70, html.dark .bg-purple-50, html.dark .bg-purple-100, html.dark .bg-purple-200, html.dark .bg-purple-200\/60, html.dark .bg-purple-200\/50 { background-color: rgba(168, 85, 247, 0.15) !important; border-color: rgba(168, 85, 247, 0.3) !important; }
         html.dark .bg-red-50, html.dark .bg-red-100, html.dark .bg-red-200 { background-color: rgba(244, 63, 94, 0.13) !important; border-color: rgba(244, 63, 94, 0.3) !important; }
         html.dark .bg-cyan-100, html.dark .bg-cyan-200 { background-color: rgba(34, 211, 238, 0.13) !important; border-color: rgba(34, 211, 238, 0.3) !important; }
+        html.dark .bg-sky-50, html.dark .bg-sky-100, html.dark .bg-sky-200 { background-color: rgba(14, 165, 233, 0.13) !important; border-color: rgba(14, 165, 233, 0.3) !important; }
+        html.dark .bg-rose-50, html.dark .bg-rose-100, html.dark .bg-rose-200 { background-color: rgba(244, 63, 94, 0.13) !important; border-color: rgba(244, 63, 94, 0.3) !important; }
+        html.dark .bg-lime-50, html.dark .bg-lime-100, html.dark .bg-lime-200 { background-color: rgba(132, 204, 22, 0.13) !important; border-color: rgba(132, 204, 22, 0.3) !important; }
+        html.dark .bg-teal-50, html.dark .bg-teal-100, html.dark .bg-teal-200 { background-color: rgba(20, 184, 166, 0.13) !important; border-color: rgba(20, 184, 166, 0.3) !important; }
+        html.dark .bg-orange-50, html.dark .bg-orange-100, html.dark .bg-orange-200 { background-color: rgba(249, 115, 22, 0.13) !important; border-color: rgba(249, 115, 22, 0.3) !important; }
         html.dark .bg-blue-100, html.dark .bg-blue-200 { background-color: rgba(96, 165, 250, 0.13) !important; border-color: rgba(96, 165, 250, 0.3) !important; }
         html.dark .bg-fuchsia-100 { background-color: rgba(232, 121, 249, 0.14) !important; border-color: rgba(232, 121, 249, 0.3) !important; }
 
@@ -131,9 +137,13 @@
         html.dark .border-gray-100, html.dark .border-gray-200, html.dark .border-gray-300,
         html.dark .border-slate-100, html.dark .border-slate-200, html.dark .border-slate-300,
         html.dark .border-indigo-100, html.dark .border-emerald-100, html.dark .border-amber-100, html.dark .border-purple-100,
-        html.dark .border-cyan-100, html.dark .border-blue-100 { border-color: #334155 !important; }
+        html.dark .border-cyan-100, html.dark .border-blue-100,
+        html.dark .border-sky-100, html.dark .border-rose-100, html.dark .border-lime-100, html.dark .border-teal-100, html.dark .border-orange-100 { border-color: #334155 !important; }
 
         html.dark .text-black, html.dark .text-slate-800, html.dark .text-slate-700, html.dark .text-gray-800, html.dark .text-gray-900 { color: #E2E8F0 !important; }
+        html.dark .text-slate-950 { color: #F8FAFC !important; }
+        html.dark .text-indigo-950 { color: #A5B4FC !important; }
+        html.dark .text-purple-950 { color: #C4B5FD !important; }
         html.dark .text-slate-600, html.dark .text-slate-500, html.dark .text-gray-600, html.dark .text-gray-700 { color: #CBD5E1 !important; }
         html.dark .text-slate-400, html.dark .text-gray-400 { color: #94A3B8 !important; }
         html.dark .text-slate-300, html.dark .text-gray-300 { color: #64748B !important; }
@@ -159,8 +169,19 @@
         html.dark .hover\:bg-white:hover, html.dark .hover\:bg-white\/5:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
         html.dark .hover\:bg-gray-50:hover, html.dark .hover\:bg-gray-100:hover, html.dark .hover\:bg-slate-50:hover { background-color: #1E293B !important; }
 
-        html.dark ::-webkit-scrollbar-track { background: #0F172A; }
-        html.dark * { scrollbar-color: #6366f1 #0F172A; }
+        html.dark ::-webkit-scrollbar-track { background: transparent; }
+        html.dark ::-webkit-scrollbar-thumb { border-color: transparent; }
+        html.dark * { scrollbar-color: #6366f1 transparent; }
+
+        /* ===== SELECT & DROPDOWN (native) ===== */
+        select { cursor: pointer; }
+        select option { background-color: #ffffff; color: #1E293B; }
+        html.dark select option { background-color: #1E293B; color: #E2E8F0; }
+        html.dark select option:hover, html.dark select option:checked { background-color: #334155; }
+
+        /* ===== EDU BOT CHAT (dark) ===== */
+        html.dark #edubot-chat-messages { background-color: #1B2F54; }
+        html.dark #edubot-chat-messages .bg-slate-200 { background-color: #1E293B !important; }
     </style>
 </head>
 <body class="bg-[#F4F7FE] text-[#1E293B] antialiased min-h-screen flex">
@@ -189,7 +210,7 @@
                 <span class="text-base">📖</span> 1. Materi Literasi
             </button>
             <button onclick="switchTab('hafalan-tab')" id="btn-hafalan-tab" class="tab-btn w-full flex items-center gap-3.5 px-4 py-3 text-xs font-bold rounded-xl transition-all duration-300 text-indigo-200 hover:bg-white/5 hover:text-white cursor-pointer">
-                <span class="text-base">🎙️</span> 2. Smart-Review Lisan
+                <span class="text-base">🎙️</span> 2. Evaluasi Hafalan Lisan
             </button>
             <button onclick="switchTab('quiz-tab')" id="btn-quiz-tab" class="tab-btn w-full flex items-center gap-3.5 px-4 py-3 text-xs font-bold rounded-xl transition-all duration-300 text-indigo-200 hover:bg-white/5 hover:text-white cursor-pointer">
                 <span class="text-base">🧠</span> 3. Tantangan Kuis <span id="mustReviewBadge" class="hidden ml-auto text-[9px] bg-red-500 text-white px-2 py-0.5 rounded-full font-extrabold">0</span>
@@ -206,7 +227,7 @@
             <div class="pt-4 border-t border-indigo-900/30 my-2"></div>
             <!-- KODE SEBELUMNYA: openModal('modal-hafalan') -->
 <!-- UBAH MENJADI: openModal('modal-achievement-center') -->
-<button onclick="openModal('modal-search-users'); searchUsers()" class="w-full flex items-center gap-3.5 px-4 py-3 text-xs font-bold rounded-xl transition-all duration-300 text-sky-300 border border-sky-500/20 bg-sky-50/5 cursor-pointer hover:bg-white/5">
+<button onclick="openModal('modal-search-users'); var si=document.getElementById('searchUserInput'); if(si){si.value='';} searchUsers()" class="w-full flex items-center gap-3.5 px-4 py-3 text-xs font-bold rounded-xl transition-all duration-300 text-sky-300 border border-sky-500/20 bg-sky-50/5 cursor-pointer hover:bg-white/5">
     <span class="text-base">🔍</span> Cari Teman
 </button>
 <button onclick="openModal('modal-friends'); loadFriendsList()" class="w-full flex items-center gap-3.5 px-4 py-3 text-xs font-bold rounded-xl transition-all duration-300 text-sky-300 border border-sky-500/20 bg-sky-50/5 cursor-pointer hover:bg-white/5">
@@ -377,9 +398,14 @@
 
                         <!-- Reference & Footer -->
                         <div class="border-t border-gray-300 pt-4 pb-5">
-                            <div id="bookRefContainer" class="hidden mb-2">
-                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Referensi Jurnal:</span>
-                                <a id="bookRefLink" href="#" target="_blank" class="block text-sm text-gray-600 hover:text-black underline underline-offset-2 mt-0.5">Buka Jurnal</a>
+                            <div id="bookRefContainer" class="bg-indigo-50/70 border-2 border-dashed border-indigo-200 rounded-xl px-4 py-3 mb-3">
+                                <span class="text-[10px] font-black text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">📚 Sumber</span>
+                                <p class="text-sm text-slate-700 leading-relaxed mt-1">
+                                    <span id="bookRefAuthor" class="font-bold"></span>
+                                    <span id="bookRefTitle"></span>
+                                    <span id="bookRefYear"></span>
+                                    <a id="bookRefLink" href="#" target="_blank" rel="noopener" class="text-indigo-600 hover:text-indigo-800 underline underline-offset-2 break-all"></a>
+                                </p>
                             </div>
                             <div class="flex items-center justify-between text-[10px] text-gray-400 font-mono border-t border-gray-100 pt-3 mt-2">
                                 <span id="magFooterPageNum">— 1 —</span>
@@ -394,7 +420,7 @@
                 <div class="absolute top-0 left-0 h-2 w-full bg-gradient-to-r from-emerald-400 to-teal-500"></div>
                 <div>
                     <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
-                        <h3 class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2">🎙️ Evaluasi Hafalan Lisan (Smart-Review)</h3>
+                        <h3 class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2">🎙️ Evaluasi Hafalan Lisan</h3>
                         <div class="flex items-center gap-2">
                             <select id="pageSelectorHafalan" onchange="fetchBookPage(parseInt(this.value))" class="text-[10px] bg-emerald-50 border border-emerald-200 rounded-lg px-2 py-1.5 font-bold text-emerald-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-400"></select>
                             <div class="flex items-center gap-2 bg-slate-50 border border-slate-200/60 px-3 py-1 rounded-xl shadow-inner">
@@ -576,7 +602,7 @@
                             <div class="rounded-xl bg-purple-50/70 border border-purple-100 p-3">
                                 <p class="text-[10px] sm:text-[9px] font-extrabold text-purple-500 uppercase tracking-wider">🎙️ Sesi Hafalan</p>
                                 <p id="todayHafalan" class="text-xl font-black text-slate-800 mt-1">0</p>
-                                <p class="text-[10px] sm:text-[9px] text-gray-400 font-bold">Smart Review lisan</p>
+                                <p class="text-[10px] sm:text-[9px] text-gray-400 font-bold">Evaluasi hafalan lisan</p>
                             </div>
                         </div>
                         <div id="todayRecentList" class="mt-3 space-y-1.5"></div>
@@ -632,7 +658,7 @@
     <div id="modal-hafalan" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200 flex flex-col relative overflow-hidden h-[85vh]">
             <div class="flex justify-between items-center border-b pb-3 mb-4 shrink-0">
-                <h3 class="font-extrabold text-base text-slate-800 flex items-center gap-2">🎯 Smart-Review Mastery & AI Analytics Center</h3>
+                <h3 class="font-extrabold text-base text-slate-800 flex items-center gap-2">🎯 Evaluasi Hafalan Mastery & AI Analytics Center</h3>
                 <button onclick="closeModal('modal-hafalan')" class="text-gray-400 hover:text-gray-600 font-bold text-sm cursor-pointer">✕</button>
             </div>
             
@@ -859,7 +885,7 @@
     </div>
 
     <div id="modal-streak" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl border border-gray-200 flex flex-col relative h-[85vh]">
+        <div class="bg-white rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl border border-gray-200 flex flex-col relative h-[85vh] overflow-hidden">
             <button onclick="closeModal('modal-streak')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-sm cursor-pointer z-10">✕</button>
             
             <div class="bg-gradient-to-r from-amber-500 via-orange-600 to-red-600 p-3 rounded-2xl text-white flex items-center justify-between shadow-lg mb-3 shrink-0">
@@ -876,7 +902,7 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto pr-1" id="md-streak-content">
+            <div id="md-streak-content">
                 <!-- Calendar Navigation -->
                 <div class="flex items-center justify-between mb-3">
                     <button onclick="streakNavMonth(-1)" class="w-7 h-7 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-xs font-bold text-gray-500 hover:bg-gray-50 cursor-pointer hover:border-gray-300 transition-all active:scale-95">◀</button>
@@ -892,7 +918,7 @@
                 </div>
 
                 <!-- Day-of-week headers -->
-                <div class="grid grid-cols-7 gap-1 mb-1 px-1">
+                <div class="grid grid-cols-7 gap-0.5 mb-1 px-1">
                     <div class="text-[9px] font-extrabold text-slate-400 text-center uppercase tracking-wider">Min</div>
                     <div class="text-[9px] font-extrabold text-slate-400 text-center uppercase tracking-wider">Sen</div>
                     <div class="text-[9px] font-extrabold text-slate-400 text-center uppercase tracking-wider">Sel</div>
@@ -903,19 +929,20 @@
                 </div>
 
                 <!-- Calendar Grid -->
-                <div class="grid grid-cols-7 gap-1 mb-5 px-1" id="streakCalendarGrid"></div>
+                <div class="grid grid-cols-7 gap-0.5 mb-4 px-1" id="streakCalendarGrid"></div>
 
-                <!-- Enhanced Graph -->
-                <div class="bg-gradient-to-br from-slate-50 to-white rounded-2xl p-5 border border-slate-200 shadow-inner">
+                <!-- Enhanced Graph (tetap terlihat, tidak ikut scroll) -->
+                <div class="shrink-0 bg-gradient-to-br from-slate-50 to-white rounded-2xl p-4 border border-slate-200 shadow-inner">
                     <div class="flex items-center justify-between mb-3">
                         <h4 class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider" id="trendChartTitle">📈 Aktivitas 4 Minggu Terakhir</h4>
-                        <div class="flex items-center gap-2 text-[9px] text-slate-400 font-bold">
+                        <div class="flex items-center gap-2 text-[9px] text-slate-400 font-bold flex-wrap justify-end">
                             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Hafalan</span>
                             <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-500"></span> Kuis</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Dengar</span>
                         </div>
                     </div>
                     <div class="relative">
-                        <svg viewBox="0 0 240 120" class="w-full h-28" id="trendChartSvg">
+                        <svg viewBox="0 0 240 120" class="w-full h-24 lg:h-40" id="trendChartSvg">
                             <defs>
                                 <linearGradient id="trendGradientLine" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="0%" stop-color="#f59e0b"/>
@@ -924,6 +951,10 @@
                                 <linearGradient id="trendGradientQ" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="0%" stop-color="#6366f1"/>
                                     <stop offset="100%" stop-color="#6366f1" stop-opacity="0.05"/>
+                                </linearGradient>
+                                <linearGradient id="trendGradientL" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#10b981"/>
+                                    <stop offset="100%" stop-color="#10b981" stop-opacity="0.05"/>
                                 </linearGradient>
                                 <filter id="trendShadow">
                                     <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.15"/>
@@ -939,9 +970,13 @@
                             <!-- Quiz line -->
                             <polyline id="trendQuizLine" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#trendShadow)" stroke-dasharray="6,3"/>
                             <path id="trendQuizArea" fill="url(#trendGradientQ)" opacity="0.25"/>
+                            <!-- Dengar line -->
+                            <polyline id="trendListenLine" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#trendShadow)" stroke-dasharray="3,3"/>
+                            <path id="trendListenArea" fill="url(#trendGradientL)" opacity="0.25"/>
                             <!-- Dots -->
                             <g id="trendHafalanDots"></g>
                             <g id="trendQuizDots"></g>
+                            <g id="trendListenDots"></g>
                             <!-- Week labels inside SVG for perfect alignment -->
                             <g id="trendWeekLabelsSvg" font-size="7" font-weight="bold" fill="#94a3b8" text-anchor="middle">
                                 <text x="8" y="118">4 mgw lalu</text>
@@ -1199,7 +1234,10 @@
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col border border-gray-200 overflow-hidden h-[85vh]" onclick="event.stopPropagation()" onclickclose="closeModal('modal-search-users')">
         <div class="bg-gradient-to-r from-sky-500 to-cyan-500 p-4 flex items-center justify-between shrink-0">
             <h3 class="font-black text-white text-sm tracking-wider">🔍 Cari Teman</h3>
-            <button onclick="closeModal('modal-search-users')" class="text-white/80 hover:text-white font-bold text-sm cursor-pointer">✕</button>
+            <div class="flex items-center gap-2">
+                <button onclick="refreshSearchUsers()" title="Muat ulang urutan pencarian" class="bg-white/10 hover:bg-white/20 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1">🔄 Refresh</button>
+                <button onclick="closeModal('modal-search-users')" class="text-white/80 hover:text-white font-bold text-sm cursor-pointer">✕</button>
+            </div>
         </div>
         <div class="p-4 shrink-0">
             <input type="text" id="searchUserInput" oninput="searchUsers()" placeholder="Cari nama teman..." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400">
@@ -1334,6 +1372,7 @@
     #magazineLeftContent::-webkit-scrollbar, #magazineRightContent::-webkit-scrollbar { width: 4px; }
     #magazineLeftContent::-webkit-scrollbar-track, #magazineRightContent::-webkit-scrollbar-track { background: transparent; }
     #magazineLeftContent::-webkit-scrollbar-thumb, #magazineRightContent::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    html.dark #magazineLeftContent::-webkit-scrollbar-thumb, html.dark #magazineRightContent::-webkit-scrollbar-thumb { background: #818cf8; }
     #magazineLeftContent::selection, #magazineRightContent::selection { background: #c7d2fe; }
 </style>
 
@@ -1877,15 +1916,16 @@
                     if (placeholderEl) placeholderEl.classList.remove('hidden');
                 }
 
-                const refContainer = document.getElementById('bookRefContainer');
-                if (data.reference_link && data.reference_link.trim() !== "") {
-                    const linkEl = document.getElementById('bookRefLink');
-                    linkEl.href = data.reference_link;
-                    linkEl.innerText = `Buka Dokumen: ${data.title}`;
-                    refContainer.classList.remove('hidden');
-                } else {
-                    refContainer.classList.add('hidden');
-                }
+                const refAuthor = document.getElementById('bookRefAuthor');
+                const refTitle = document.getElementById('bookRefTitle');
+                const refYear = document.getElementById('bookRefYear');
+                const refLinkEl = document.getElementById('bookRefLink');
+                refAuthor.innerText = data.reference_author ? `${data.reference_author}. ` : '';
+                refTitle.innerText = data.reference_title ? `"${data.reference_title}". ` : '';
+                refYear.innerText = data.reference_year ? `(${data.reference_year}). ` : '';
+                refLinkEl.href = data.reference_link || '#';
+                refLinkEl.innerText = data.reference_link ? data.reference_link.replace(/^https?:\/\//, '') : '';
+                refLinkEl.style.display = data.reference_link ? 'inline' : 'none';
 
                 const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
                 const leftContent = document.getElementById('magazineLeftContent');
@@ -2082,7 +2122,7 @@
 
             const hCnt = [1,5,10,25,50,100];
             const hCntIcons = ['1️⃣','5️⃣','🔟','🔢','🎯','💯'];
-            hCnt.forEach((val,i) =>             a.push({ id:'hcnt_${val}',cat:'haf_cnt',tier:tiers[Math.min(i,4)],icon:hCntIcons[i],title:`${val} Hafalan`,desc:`Selesaikan ${val} sesi Smart Review`,check:data => { let h = data.historyData.filter(x => x.activity_type!=='quiz'&&(!x.activity_type||!x.hafalan_features?.feedback_text?.includes('[KUIS_OBJEKTIF]'))); return h.length >= val; },progress:data => { let h = data.historyData.filter(x => x.activity_type!=='quiz'&&(!x.activity_type||!x.hafalan_features?.feedback_text?.includes('[KUIS_OBJEKTIF]'))); return Math.min(h.length/val*100,100); } }));
+            hCnt.forEach((val,i) =>             a.push({ id:'hcnt_${val}',cat:'haf_cnt',tier:tiers[Math.min(i,4)],icon:hCntIcons[i],title:`${val} Hafalan`,desc:`Selesaikan ${val} sesi Evaluasi Hafalan`,check:data => { let h = data.historyData.filter(x => x.activity_type!=='quiz'&&(!x.activity_type||!x.hafalan_features?.feedback_text?.includes('[KUIS_OBJEKTIF]'))); return h.length >= val; },progress:data => { let h = data.historyData.filter(x => x.activity_type!=='quiz'&&(!x.activity_type||!x.hafalan_features?.feedback_text?.includes('[KUIS_OBJEKTIF]'))); return Math.min(h.length/val*100,100); } }));
 
             const lAcc = [50,70,80,90,95,100];
             const lAccIcons = ['🎧','🎧','🎧','🎧','🎧','🎧'];
@@ -2220,7 +2260,7 @@
                     const isActive = streakActiveDates.includes(compareStr);
                     const isToday = compareStr === todayStr;
                     const isPast = new Date(compareStr) < new Date(todayStr) || compareStr === todayStr;
-                    let cls = "p-1.5 text-center rounded-xl border text-[11px] font-bold flex flex-col items-center justify-center transition-all duration-200 select-none";
+                    let cls = "p-1 text-center rounded-xl border text-[11px] font-bold flex flex-col items-center justify-center transition-all duration-200 select-none";
                     if (isActive) cls += " bg-gradient-to-br from-amber-400 to-orange-500 text-white border-amber-300 shadow-lg shadow-amber-200 scale-105";
                     else if (isToday) cls += " bg-white text-indigo-600 border-indigo-300 ring-2 ring-indigo-200 animate-pulse shadow-sm";
                     else if (isPast) cls += " bg-gray-50 text-gray-400 border-gray-200";
@@ -2277,20 +2317,38 @@
                 const endDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 0);
                 let h1 = 0, h2 = 0, h3 = 0, h4 = 0;
                 let q1 = 0, q2 = 0, q3 = 0, q4 = 0;
+                let l1 = 0, l2 = 0, l3 = 0, l4 = 0;
                 if (streakHistoryData && streakHistoryData.length) {
                     streakHistoryData.forEach(item => {
                         const logDate = new Date(item.timestamp);
                         const diffMs = endDate - logDate;
                         if (diffMs < 0) return;
                         const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                        let isListening = item.activity_type === 'listening';
                         let isQuiz = item.activity_type === 'quiz' || (
                             !item.activity_type &&
                             item.hafalan_features?.feedback_text?.includes("[KUIS_OBJEKTIF]")
                         );
-                        if (diffDays <= 7) { if (isQuiz) q4++; else h4++; }
-                        else if (diffDays <= 14) { if (isQuiz) q3++; else h3++; }
-                        else if (diffDays <= 21) { if (isQuiz) q2++; else h2++; }
-                        else if (diffDays <= 28) { if (isQuiz) q1++; else h1++; }
+                        if (diffDays <= 7) {
+                            if (isListening) l4++;
+                            else if (isQuiz) q4++;
+                            else h4++;
+                        }
+                        else if (diffDays <= 14) {
+                            if (isListening) l3++;
+                            else if (isQuiz) q3++;
+                            else h3++;
+                        }
+                        else if (diffDays <= 21) {
+                            if (isListening) l2++;
+                            else if (isQuiz) q2++;
+                            else h2++;
+                        }
+                        else if (diffDays <= 28) {
+                            if (isListening) l1++;
+                            else if (isQuiz) q1++;
+                            else h1++;
+                        }
                     });
                 }
 
@@ -2327,6 +2385,13 @@
                 if (qLine) qLine.setAttribute('d', makePath(q1, q2, q3, q4));
                 if (qArea) qArea.setAttribute('d', makeArea(q1, q2, q3, q4));
                 if (qDots) qDots.innerHTML = `<g class="text-indigo-500">${makeDots(q1, q2, q3, q4)}</g>`;
+
+                const lLine = document.getElementById('trendListenLine');
+                const lArea = document.getElementById('trendListenArea');
+                const lDots = document.getElementById('trendListenDots');
+                if (lLine) lLine.setAttribute('d', makePath(l1, l2, l3, l4));
+                if (lArea) lArea.setAttribute('d', makeArea(l1, l2, l3, l4));
+                if (lDots) lDots.innerHTML = `<g class="text-emerald-500">${makeDots(l1, l2, l3, l4)}</g>`;
 
                 const labelGroup = document.getElementById('trendWeekLabelsSvg');
                 if (labelGroup) {
@@ -2568,7 +2633,7 @@
                               !item.activity_type &&
                               item.hafalan_features?.feedback_text?.includes("[KUIS_OBJEKTIF]")
                           );
-                          let typeBadge = checkIsListening ? `<span class="px-2 py-0.5 rounded-md text-[9px] bg-amber-100 text-amber-700 font-extrabold uppercase">Latihan Mendengarkan</span>` : checkIsQuiz ? `<span class="px-2 py-0.5 rounded-md text-[9px] bg-purple-100 text-purple-700 font-extrabold uppercase">Tantangan Kuis</span>` : `<span class="px-2 py-0.5 rounded-md text-[9px] bg-emerald-100 text-emerald-700 font-extrabold uppercase">Smart-Review Lisan</span>`;
+                          let typeBadge = checkIsListening ? `<span class="px-2 py-0.5 rounded-md text-[9px] bg-amber-100 text-amber-700 font-extrabold uppercase">Latihan Mendengarkan</span>` : checkIsQuiz ? `<span class="px-2 py-0.5 rounded-md text-[9px] bg-purple-100 text-purple-700 font-extrabold uppercase">Tantangan Kuis</span>` : `<span class="px-2 py-0.5 rounded-md text-[9px] bg-emerald-100 text-emerald-700 font-extrabold uppercase">Evaluasi Hafalan Lisan</span>`;
                          let dScore = item.hafalan_features ? item.hafalan_features.score : 0;
                          let dFeedback = item.hafalan_features
                              ? String(item.hafalan_features.feedback_text || "-").replace("[KUIS_OBJEKTIF]", "").trim()
@@ -4391,50 +4456,86 @@ function filterChatSessions() {
             loadLeaderboard();
         }
 
+        let searchUsersCache = [];
+
+        async function fetchSearchUsers() {
+            const res = await fetch(API_URL + '/users/search?limit=30', { headers: getAuthHeaders() });
+            const users = await res.json();
+            return Array.isArray(users) ? users : [];
+        }
+
         async function searchUsers() {
-            const q = document.getElementById('searchUserInput')?.value?.trim();
             const container = document.getElementById('searchUserResults');
             if (!container) return;
-            if (!q) { container.innerHTML = '<div class="text-xs text-slate-400 font-bold text-center py-8">Ketik nama teman untuk mencari</div>'; return; }
-            container.innerHTML = '<div class="text-xs text-slate-400 py-8">🔍 Mencari...</div>';
-            try {
-                const res = await fetch(API_URL + '/users/search?q=' + encodeURIComponent(q), { headers: getAuthHeaders() });
-                const users = await res.json();
-                if (!users.length) { container.innerHTML = '<div class="text-xs text-slate-400 font-bold text-center py-8">😕 Tidak ditemukan</div>'; return; }
-                container.innerHTML = '';
-                // Table header
-                const header = document.createElement('div');
-                header.className = 'hidden sm:grid sm:grid-cols-[1fr_70px_70px_210px] gap-2 px-3 py-2 text-[9px] text-slate-400 font-bold uppercase tracking-wider border-b border-gray-100';
-                header.innerHTML = '<span>Nama Siswa</span><span class="text-center">Kelas</span><span class="text-center">Semester</span><span class="text-center"></span>';
-                container.appendChild(header);
-                for (const u of users) {
-                    const card = document.createElement('div');
-                    card.className = 'flex flex-col sm:grid sm:grid-cols-[1fr_70px_70px_210px] gap-2 items-center p-3 bg-slate-50 rounded-xl ring-1 ring-slate-100 shadow-sm hover:bg-white transition-all';
-                    const hasFoto = u.foto_profil && u.foto_profil.trim();
-                    const avatarHtml = hasFoto
-                        ? `<div class="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-gray-100"><img src="${API_URL.replace('/api', '')}${u.foto_profil}" class="w-full h-full object-cover"></div>`
-                        : `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-white flex items-center justify-center text-xs font-black shrink-0">${(u.nama||'?').charAt(0).toUpperCase()}</div>`;
-                    const semester = u.semester ? 'Smt ' + u.semester : '—';
-                    card.innerHTML = `
-                        <div class="flex items-center gap-3 min-w-0 w-full">
-                            ${avatarHtml}
-                            <div class="min-w-0 flex-1">
-                                <span class="block text-xs font-extrabold text-slate-800 truncate">${u.nama}</span>
-                                <span class="sm:hidden text-[10px] text-slate-500 font-bold">${u.kelas ? 'Kelas ' + u.kelas : ''}${u.kelas && u.semester ? ' · ' : ''}${semester}</span>
-                            </div>
-                        </div>
-                        <span class="hidden sm:block text-[10px] text-slate-500 font-bold text-center">${u.kelas ? 'Kelas ' + u.kelas : '—'}</span>
-                        <span class="hidden sm:block text-[10px] text-slate-500 font-bold text-center">${semester}</span>
-                        <div class="flex gap-1 justify-end w-full sm:w-auto">
-                            <button onclick="event.stopPropagation(); openDm('${u.user_id}', '${(u.nama||'').replace(/'/g, '')}')" class="text-[10px] bg-sky-100 hover:bg-sky-200 text-sky-700 font-extrabold px-2 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">💬 Chat</button>
-                            <button onclick="event.stopPropagation(); viewUserProfile('${u.user_id}')" class="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-extrabold px-2 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Lihat</button>
-                            <button onclick="event.stopPropagation(); openCompareModal('${u.user_id}')" class="text-[10px] bg-cyan-100 hover:bg-cyan-200 text-cyan-700 font-extrabold px-2 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Bandingkan</button>
-                        </div>
-                    `;
-                    container.appendChild(card);
+            if (!searchUsersCache.length) {
+                container.innerHTML = '<div class="text-xs text-slate-400 py-8">🔍 Memuat daftar siswa...</div>';
+                try {
+                    searchUsersCache = await fetchSearchUsers();
+                } catch (e) {
+                    container.innerHTML = '<div class="text-xs text-red-500 font-bold text-center py-8">Gagal memuat</div>';
+                    return;
                 }
+            }
+            const q = (document.getElementById('searchUserInput')?.value || '').trim().toLowerCase();
+            const filtered = q ? searchUsersCache.filter(u => (u.nama || '').toLowerCase().includes(q)) : searchUsersCache;
+            renderSearchUsers(filtered);
+        }
+
+        async function refreshSearchUsers() {
+            const input = document.getElementById('searchUserInput');
+            if (input) input.value = '';
+            const container = document.getElementById('searchUserResults');
+            if (!container) return;
+            container.innerHTML = '<div class="text-xs text-slate-400 py-8">🔄 Memuat ulang...</div>';
+            try {
+                const users = await fetchSearchUsers();
+                for (let i = users.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [users[i], users[j]] = [users[j], users[i]];
+                }
+                searchUsersCache = users;
             } catch (e) {
                 container.innerHTML = '<div class="text-xs text-red-500 font-bold text-center py-8">Gagal memuat</div>';
+                return;
+            }
+            renderSearchUsers(searchUsersCache);
+        }
+
+        function renderSearchUsers(users) {
+            const container = document.getElementById('searchUserResults');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!users.length) { container.innerHTML = '<div class="text-xs text-slate-400 font-bold text-center py-8">😕 Tidak ditemukan</div>'; return; }
+            // Table header
+            const header = document.createElement('div');
+            header.className = 'hidden sm:grid sm:grid-cols-[1fr_70px_70px_210px] gap-2 px-3 py-2 text-[9px] text-slate-400 font-bold uppercase tracking-wider border-b border-gray-100';
+            header.innerHTML = '<span>Nama Siswa</span><span class="text-center">Kelas</span><span class="text-center">Semester</span><span class="text-center"></span>';
+            container.appendChild(header);
+            for (const u of users) {
+                const card = document.createElement('div');
+                card.className = 'flex flex-col sm:grid sm:grid-cols-[1fr_70px_70px_210px] gap-2 items-center p-3 bg-slate-50 rounded-xl ring-1 ring-slate-100 shadow-sm hover:bg-white transition-all';
+                const hasFoto = u.foto_profil && u.foto_profil.trim();
+                const avatarHtml = hasFoto
+                    ? `<div class="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-gray-100"><img src="${API_URL.replace('/api', '')}${u.foto_profil}" class="w-full h-full object-cover"></div>`
+                    : `<div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-white flex items-center justify-center text-xs font-black shrink-0">${(u.nama||'?').charAt(0).toUpperCase()}</div>`;
+                const semester = u.semester ? 'Smt ' + u.semester : '—';
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 min-w-0 w-full">
+                        ${avatarHtml}
+                        <div class="min-w-0 flex-1">
+                            <span class="block text-xs font-extrabold text-slate-800 truncate">${u.nama}</span>
+                            <span class="sm:hidden text-[10px] text-slate-500 font-bold">${u.kelas ? 'Kelas ' + u.kelas : ''}${u.kelas && u.semester ? ' · ' : ''}${semester}</span>
+                        </div>
+                    </div>
+                    <span class="hidden sm:block text-[10px] text-slate-500 font-bold text-center">${u.kelas ? 'Kelas ' + u.kelas : '—'}</span>
+                    <span class="hidden sm:block text-[10px] text-slate-500 font-bold text-center">${semester}</span>
+                    <div class="flex gap-1 justify-end w-full sm:w-auto">
+                        <button onclick="event.stopPropagation(); openDm('${u.user_id}', '${(u.nama||'').replace(/'/g, '')}')" class="text-[10px] bg-sky-100 hover:bg-sky-200 text-sky-700 font-extrabold px-2 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">💬 Chat</button>
+                        <button onclick="event.stopPropagation(); viewUserProfile('${u.user_id}')" class="text-[10px] bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-extrabold px-2 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Lihat</button>
+                        <button onclick="event.stopPropagation(); openCompareModal('${u.user_id}')" class="text-[10px] bg-cyan-100 hover:bg-cyan-200 text-cyan-700 font-extrabold px-2 py-1.5 rounded-lg transition-all cursor-pointer shrink-0">Bandingkan</button>
+                    </div>
+                `;
+                container.appendChild(card);
             }
         }
 
@@ -5356,15 +5457,19 @@ function filterChatSessions() {
                     <p class="text-center font-extrabold text-slate-800 text-sm mt-2">${u.nama}</p>
                     <p class="text-center text-[10px] text-slate-400 font-bold">${u.kelas ? 'Kelas ' + u.kelas : ''}</p>
                     <div class="mt-3 space-y-2">
+                        <p class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest">👤 Profil</p>
                         <div class="flex justify-between gap-2 text-xs p-2 bg-indigo-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Level</span><span class="font-black text-indigo-600 text-right min-w-0 truncate">${info.level} - ${info.title}</span></div>
                         <div class="flex justify-between gap-2 text-xs p-2 bg-emerald-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Total XP</span><span class="font-black text-emerald-600 text-right min-w-0 truncate">${u.totalXP || 0}</span></div>
-                        <div class="flex justify-between gap-2 text-xs p-2 bg-amber-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Akurasi Kuis</span><span class="font-black text-amber-600 text-right min-w-0 truncate">${u.quizPrecision || 0}%</span></div>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-orange-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Hari Unik</span><span class="font-black text-orange-600 text-right min-w-0 truncate">${u.uniqueDays || 0} hari</span></div>
+                        <p class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest pt-1">🎙️ Hafalan</p>
                         <div class="flex justify-between gap-2 text-xs p-2 bg-blue-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Rerata Hafalan</span><span class="font-black text-blue-600 text-right min-w-0 truncate">${u.avgHafalan || 0}%</span></div>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-teal-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Total Hafalan</span><span class="font-black text-teal-600 text-right min-w-0 truncate">${u.hafalanCount || 0}</span></div>
+                        <p class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest pt-1">📝 Kuis</p>
+                        <div class="flex justify-between gap-2 text-xs p-2 bg-amber-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Akurasi Kuis</span><span class="font-black text-amber-600 text-right min-w-0 truncate">${u.quizPrecision || 0}%</span></div>
                         <div class="flex justify-between gap-2 text-xs p-2 bg-purple-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Total Kuis</span><span class="font-black text-purple-600 text-right min-w-0 truncate">${u.quizCount || 0}</span></div>
+                        <p class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest pt-1">🎧 Dengar</p>
                         <div class="flex justify-between gap-2 text-xs p-2 bg-rose-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Akurasi Dengar</span><span class="font-black text-rose-600 text-right min-w-0 truncate">${u.listeningPrecision || 0}%</span></div>
                         <div class="flex justify-between gap-2 text-xs p-2 bg-lime-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Total Dengar</span><span class="font-black text-lime-600 text-right min-w-0 truncate">${u.listeningCount || 0}</span></div>
-                        <div class="flex justify-between gap-2 text-xs p-2 bg-teal-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Total Hafalan</span><span class="font-black text-teal-600 text-right min-w-0 truncate">${u.hafalanCount || 0}</span></div>
-                        <div class="flex justify-between gap-2 text-xs p-2 bg-orange-50 rounded-lg"><span class="font-bold text-slate-600 shrink-0">Hari Unik</span><span class="font-black text-orange-600 text-right min-w-0 truncate">${u.uniqueDays || 0} hari</span></div>
                     </div>
                 </div>
             `;

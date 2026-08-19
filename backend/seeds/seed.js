@@ -18,6 +18,9 @@ const bookData = [
         title: "Pengenalan AIoT & IoT",
         image_url: "https://i.pinimg.com/736x/c4/16/d2/c416d2ff90dab6497f260d1fb2804ff6.jpg",
         reference_link: "https://gembirapkm.my.id/index.php/jurnal/article/view/696",
+        reference_author: "Haidar Shaddam Fawwaz Fadhlullah dkk",
+        reference_title: "Pengaruh Internet of Things (IoT) dalam Industri",
+        reference_year: "2024",
         video_url: "https://www.youtube.com/watch?v=KKLOh4ObDfc",
         paragraphs: [
             { paragraph_id: 1, text: "Internet of Things (IoT) adalah konsep di mana perangkat-perangkat fisik terhubung ke internet dan dapat saling berkomunikasi. IoT memungkinkan benda-benda di sekitar kita menjadi 'cerdas' dan dapat dikendalikan dari jarak jauh. Konsep ini menjadi fondasi utama dalam transformasi digital di era modern." },
@@ -87,6 +90,9 @@ const bookData = [
         title: "Sensor Indra IoT",
         image_url: "https://i.pinimg.com/736x/7c/84/7e/7c847e461fba995cf449196bca0a97d6.jpg",
         reference_link: "https://jpti.journals.id/index.php/jpti/article/view/709",
+        reference_author: "Anis Wahyumulyaning Tiyas dkk",
+        reference_title: "Peningkatan Akurasi Sensor Suhu dan Kelembaban DHT11 dengan Kalibrasi Suhu Berbasis IoT pada Platform ThingSpeak",
+        reference_year: "2025",
         video_url: "https://www.youtube.com/watch?v=qwEnNAMY5Xk",
         paragraphs: [
             { paragraph_id: 1, text: "Sensor adalah komponen yang berfungsi seperti 'panca indra' pada sistem IoT. Sensor mengubah sinyal fisik (suhu, cahaya, gerakan) menjadi sinyal listrik yang bisa diproses oleh mikrokontroler. Tanpa sensor, sistem IoT tidak bisa merasakan kondisi lingkungan sekitarnya." },
@@ -156,6 +162,9 @@ const bookData = [
         title: "Mikrokontroler ESP32",
         image_url: "https://i.pinimg.com/736x/ee/41/79/ee4179feea5b8462096fda0d81866c55.jpg",
         reference_link: "https://journal.stmiki.ac.id/index.php/jimik/article/view/1008",
+        reference_author: "Muhammad Aqsha Rizki Sugiarto dkk",
+        reference_title: "Implementasi Sistem Pemberian Pakan Ikan Hias Otomatis Menggunakan ESP32 Berbasis IoT (Internet of Things)",
+        reference_year: "2024",
         video_url: "https://www.youtube.com/watch?v=N7eD4URv0zA",
         paragraphs: [
             { paragraph_id: 1, text: "ESP32 adalah mikrokontroler populer yang memiliki built-in Wi-Fi dan Bluetooth. Di sistem AIoT, ESP32 berfungsi sebagai 'otak' yang memproses data dari sensor dan mengirimkannya ke cloud. Chip ini dikembangkan oleh Espressif Systems yang berbasis di Tiongkok." },
@@ -225,6 +234,9 @@ const bookData = [
         title: "Aktuator & Komponen",
         image_url: "https://i.pinimg.com/736x/2d/d5/c0/2dd5c04215832139e9adff1ffe6b0953.jpg",
         reference_link: "https://ejurnal.ung.ac.id/index.php/jpj/article/view/19026",
+        reference_author: "Hermansyah dkk",
+        reference_title: "Sistem Kendali Jarak Jauh Beban Listrik Rumah Tangga Berbasis Internet of Things (IoT)",
+        reference_year: "2023",
         video_url: "https://www.youtube.com/watch?v=OdvWJA0c93U",
         paragraphs: [
             { paragraph_id: 1, text: "Aktuator adalah komponen yang mengubah sinyal listrik menjadi gerakan fisik. Ini adalah 'tangan' dari sistem IoT yang menjalankan perintah berdasarkan data yang diproses. Tanpa aktuator, sistem IoT hanya bisa mengumpulkan data tanpa bisa melakukan aksi nyata." },
@@ -294,6 +306,9 @@ const bookData = [
         title: "Jaringan & Protokol MQTT",
         image_url: "https://i.pinimg.com/736x/5d/01/33/5d0133d2d0a8c80197b8af887580626f.jpg",
         reference_link: "https://blog.flux.id/mengenal-protokol-mqtt-iot",
+        reference_author: "Sahlan",
+        reference_title: "Mengenal Protokol MQTT dalam Internet of Things (IoT)",
+        reference_year: "2025",
         video_url: "https://www.youtube.com/watch?v=i0ugzYvwBNM",
         paragraphs: [
             { paragraph_id: 1, text: "MQTT adalah protokol komunikasi ringan yang dirancang khusus untuk IoT. Protokol ini sangat efisien karena menggunakan bandwidth kecil, cocok untuk perangkat dengan sumber daya terbatas seperti ESP32. MQTT pertama kali dikembangkan oleh IBM pada tahun 1999 untuk aplikasi industri." },
@@ -363,6 +378,9 @@ const bookData = [
         title: "Cloud & Database NoSQL",
         image_url: "https://i.pinimg.com/736x/44/93/77/449377fa38ce96cb739d3951c0fb7c38.jpg",
         reference_link: "https://www.kmtech.id/post/penerapan-cloud-iot-dalam-platform-blynk-firebase-dan-thingspeak-untuk-proyek-internet-of-things",
+        reference_author: "Atista Dwi Zahra",
+        reference_title: "Penerapan Cloud IoT dalam Platform Blynk, Firebase, dan ThingSpeak untuk Proyek Internet of Things",
+        reference_year: "2023",
         video_url: "https://www.youtube.com/watch?v=LWmKEv_maDQ",
         paragraphs: [
             { paragraph_id: 1, text: "Cloud adalah tempat penyimpanan data di internet yang bisa diakses dari mana saja. Di sistem AIoT, data dari sensor dikirim ke cloud untuk disimpan dan dianalisis secara real-time. Layanan cloud populer untuk IoT antara lain AWS IoT, Google Cloud IoT, dan Microsoft Azure IoT." },
@@ -432,6 +450,9 @@ const bookData = [
         title: "Pengenalan Artificial Intelligence",
         image_url: "https://i.pinimg.com/736x/fc/d8/31/fcd8310354601ee5a6f161324cee0ada.jpg",
         reference_link: "https://www.cloudcomputing.id/tren/iot-ai-revolusi-industri-2025",
+        reference_author: "Rita Puspita Sari",
+        reference_title: "IoT & AI: Revolusi Teknologi yang Mengubah Industri 2025",
+        reference_year: "2025",
         video_url: "https://www.youtube.com/watch?v=X6Tj2PT41v8",
         paragraphs: [
             { paragraph_id: 1, text: "AI (Artificial Intelligence) adalah teknologi yang memungkinkan mesin 'belajar' dari data dan membuat keputusan. Di buku EduBook, AI dibahas sebagai komponen yang membuat sistem IoT menjadi 'cerdas'. AI bekerja dengan cara meniru kemampuan kognitif manusia seperti belajar, bernalar, dan memecahkan masalah." },
@@ -501,6 +522,9 @@ const bookData = [
         title: "Machine Learning Core",
         image_url: "https://i.pinimg.com/736x/83/53/48/83534893cc6fdcc4bbe82d11d25ed3a9.jpg",
         reference_link: "https://siml.ums.ac.id/2026/",
+        reference_author: "Panitia SIML 2026",
+        reference_title: "International Conference on Smart Computing, IoT and Machine Learning (SIML 2026)",
+        reference_year: "2026",
         video_url: "https://www.youtube.com/watch?v=d7o2B7Wgyyo",
         paragraphs: [
             { paragraph_id: 1, text: "Machine Learning (ML) adalah cabang AI di mana mesin belajar dari data tanpa diprogram secara eksplisit. ML menjadi inti dari sistem AIoT yang cerdas karena memungkinkan sistem untuk terus belajar dan beradaptasi. Semakin banyak data yang diproses, semakin akurat prediksi yang dihasilkan oleh model ML." },
@@ -570,6 +594,9 @@ const bookData = [
         title: "AI Kehidupan Sehari-hari",
         image_url: "https://i.pinimg.com/736x/64/7a/5f/647a5fd5249bd608ce1ad8f94f91d6fe.jpg",
         reference_link: "https://ejournal.undip.ac.id/index.php/transmisi/article/view/70859",
+        reference_author: "Mufid Ridlo Effendi dkk",
+        reference_title: "Sistem Smart Home Berbasis IoT dengan Integrasi Pengendalian Suara dan Aplikasi Smartphone",
+        reference_year: "2025",
         video_url: "https://www.youtube.com/watch?v=2vfqzHsTzTQ",
         paragraphs: [
             { paragraph_id: 1, text: "AI sudah menjadi bagian dari kehidupan sehari-hari kita. Dari asisten virtual (Siri, Google Assistant), rekomendasi produk di e-commerce, hingga navigasi GPS yang cerdas. Bahkan fitur face unlock di smartphone juga menggunakan teknologi AI untuk mengenali wajah pengguna." },
@@ -639,6 +666,9 @@ const bookData = [
         title: "Masa Depan AIoT Mandiri",
         image_url: "https://i.pinimg.com/736x/0e/5e/08/0e5e0834628441c0fb7a906f6cc91de2.jpg",
         reference_link: "https://www.neuroncloud.ai/indonesias-ai-iot-market-in-2026-from-pilot-projects-to-core-infrastructure/",
+        reference_author: "Cosmas Widyawan",
+        reference_title: "Indonesia's AI & IoT Market in 2026: From Pilot Projects to Core Infrastructure",
+        reference_year: "2026",
         video_url: "https://www.youtube.com/watch?v=aey4xkrz7zE",
         paragraphs: [
             { paragraph_id: 1, text: "Masa depan AIoT sangat cerah dengan prediksi miliaran perangkat terhubung. Teknologi 5G akan mempercepat komunikasi data, sementara AI yang semakin canggih akan membuat sistem semakin otonom. Diperkirakan pada tahun 2030 akan ada lebih dari 29 miliar perangkat IoT yang terhubung di seluruh dunia." },

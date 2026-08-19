@@ -275,22 +275,29 @@
             background: #e8e3dc;
         }
 
-        .reference-section a {
-            display: block;
-            color: #0f3460;
+        .reference-section .ref-citation {
+            color: #5f574c;
             font-size: 13px;
+            font-weight: 500;
+            line-height: 1.7;
+            word-break: break-word;
+        }
+
+        .reference-section .ref-author {
+            color: #1a1a2e;
+            font-weight: 700;
+        }
+
+        .reference-section a {
+            color: #0f3460;
             font-weight: 600;
-            text-decoration: none;
-            padding: 6px 12px;
-            background: #f5f2ed;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            text-decoration: underline;
+            text-underline-offset: 2px;
             word-break: break-all;
         }
 
         .reference-section a:hover {
-            background: #e94560;
-            color: #fff;
+            color: #e94560;
         }
 
         .reference-section .ref-empty {
@@ -648,9 +655,14 @@
             </div>
 
             <div class="reference-section">
-                <div class="label">🔗 Referensi & Sumber</div>
+                <div class="label">📚 Sumber</div>
                 <div id="referenceLinkContainer">
-                    <a id="referenceLink" href="#" target="_blank" style="display:none;">Buka Sumber Referensi</a>
+                    <p class="ref-citation">
+                        <span id="referenceAuthor" class="ref-author"></span>
+                        <span id="referenceTitle"></span>
+                        <span id="referenceYear"></span>
+                        <a id="referenceLink" href="#" target="_blank" rel="noopener" style="display:none;"></a>
+                    </p>
                     <div id="referenceEmpty" class="ref-empty">Belum ada referensi untuk halaman ini</div>
                 </div>
             </div>
@@ -915,13 +927,20 @@
         caption.textContent = page.image_caption || `Gambar ${pageNumber-1}-1: Ilustrasi ${page.title}`;
 
         // Update referensi
+        const refAuthor = document.getElementById('referenceAuthor');
+        const refTitle = document.getElementById('referenceTitle');
+        const refYear = document.getElementById('referenceYear');
         const refLink = document.getElementById('referenceLink');
         const refEmpty = document.getElementById('referenceEmpty');
 
+        refAuthor.textContent = page.reference_author ? `${page.reference_author}. ` : '';
+        refTitle.textContent = page.reference_title ? `"${page.reference_title}". ` : '';
+        refYear.textContent = page.reference_year ? `(${page.reference_year}). ` : '';
+
         if (page.reference_link && page.reference_link.trim() !== '') {
             refLink.href = page.reference_link;
-            refLink.style.display = 'block';
-            refLink.textContent = `🔗 ${page.reference_link.replace(/^https?:\/\//, '')}`;
+            refLink.style.display = 'inline';
+            refLink.textContent = page.reference_link.replace(/^https?:\/\//, '');
             refEmpty.style.display = 'none';
         } else {
             refLink.style.display = 'none';
