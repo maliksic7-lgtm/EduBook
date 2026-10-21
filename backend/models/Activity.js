@@ -13,6 +13,11 @@ const ActivitySchema = new mongoose.Schema({
         default: 'hafalan',
         index: true
     },
+    subject_id: {
+        type: String,
+        default: null,
+        index: true
+    },
     current_page: {
         type: Number,
         required: true
@@ -53,5 +58,6 @@ const ActivitySchema = new mongoose.Schema({
 });
 
 ActivitySchema.index({ student_name: 1, timestamp: -1 });
+ActivitySchema.index({ student_name: 1, subject_id: 1, activity_type: 1 });
 
 module.exports = mongoose.model('Activity', ActivitySchema);

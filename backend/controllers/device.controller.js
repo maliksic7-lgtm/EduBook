@@ -1,4 +1,5 @@
 const aiService = require('../services/aiService');
+const { publishToDevice, MQTT_TOPIC_NAV } = require('../services/mqttService');
 
 async function detectKeyword(req, res) {
     try {
@@ -85,4 +86,18 @@ async function getDeviceInfo(req, res) {
     }
 }
 
-module.exports = { detectKeyword, getDeviceInfo };
+async function navigatePage(req, res) {
+    try {
+        const { page } = req.body;
+        if (!page || page < 1 || page > 10) {
+            return res.status(400).json({ error: 'Page harus antara 1-10' });
+        }
+        publishToDevice(MQTT_TOPIC_NAV, { action: 'navigate_page', page });
+        res.json({ success: true, message: `Navigasi ke halaman ${page} dikirim ke device` });
+    } catch (err) {
+        console.error('Error di navigatePage:', err);
+        res.status(500).json({ error: err.message });
+    }
+}
+
+module.exports = { detectKeyword, getDeviceInfo, navigatePage };

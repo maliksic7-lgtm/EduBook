@@ -1,0 +1,1152 @@
+{
+  "sd_ppkn": {
+    "subject_id": "sd_ppkn",
+    "nama": "Pendidikan Pancasila",
+    "reference": {
+      "title": "Pancasila",
+      "link": "https://id.wikipedia.org/wiki/Pancasila",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_bindo": {
+    "subject_id": "sd_bindo",
+    "nama": "Bahasa Indonesia",
+    "reference": {
+      "title": "Bahasa Indonesia",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Indonesia",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_mtk": {
+    "subject_id": "sd_mtk",
+    "nama": "Matematika",
+    "reference": {
+      "title": "Matematika",
+      "link": "https://id.wikipedia.org/wiki/Matematika",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_ipas": {
+    "subject_id": "sd_ipas",
+    "nama": "IPAS",
+    "reference": {
+      "title": "Ilmu Pengetahuan Alam dan Sosial",
+      "link": "https://id.wikipedia.org/wiki/Ilmu_Pengetahuan_Alam_dan_Sosial",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_seni": {
+    "subject_id": "sd_seni",
+    "nama": "Seni & Budaya",
+    "reference": {
+      "title": "Seni",
+      "link": "https://id.wikipedia.org/wiki/Seni",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_pjok": {
+    "subject_id": "sd_pjok",
+    "nama": "PJOK",
+    "reference": {
+      "title": "Olahraga",
+      "link": "https://id.wikipedia.org/wiki/Olahraga",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_bing": {
+    "subject_id": "sd_bing",
+    "nama": "Bahasa Inggris",
+    "reference": {
+      "title": "Bahasa Inggris",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Inggris",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_agama_islam": {
+    "subject_id": "sd_agama_islam",
+    "nama": "Pendidikan Agama Islam",
+    "reference": {
+      "title": "Islam",
+      "link": "https://id.wikipedia.org/wiki/Islam",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_agama_kristen": {
+    "subject_id": "sd_agama_kristen",
+    "nama": "Pendidikan Agama Kristen",
+    "reference": {
+      "title": "Kekristenan",
+      "link": "https://id.wikipedia.org/wiki/Kekristenan",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_agama_katolik": {
+    "subject_id": "sd_agama_katolik",
+    "nama": "Pendidikan Agama Katolik",
+    "reference": {
+      "title": "Katolik",
+      "link": "https://id.wikipedia.org/wiki/Katolik",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_agama_hindu": {
+    "subject_id": "sd_agama_hindu",
+    "nama": "Pendidikan Agama Hindu",
+    "reference": {
+      "title": "Agama Hindu",
+      "link": "https://id.wikipedia.org/wiki/Agama_Hindu",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_agama_buddha": {
+    "subject_id": "sd_agama_buddha",
+    "nama": "Pendidikan Agama Buddha",
+    "reference": {
+      "title": "Siddhattha Gotama",
+      "link": "https://id.wikipedia.org/wiki/Siddhattha_Gotama",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sd_agama_khonghucu": {
+    "subject_id": "sd_agama_khonghucu",
+    "nama": "Pendidikan Agama Khonghucu",
+    "reference": {
+      "title": "Taoisme",
+      "link": "https://id.wikipedia.org/wiki/Taoisme",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_ppkn": {
+    "subject_id": "smp_ppkn",
+    "nama": "Pendidikan Pancasila",
+    "reference": {
+      "title": "Pancasila",
+      "link": "https://id.wikipedia.org/wiki/Pancasila",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_bindo": {
+    "subject_id": "smp_bindo",
+    "nama": "Bahasa Indonesia",
+    "reference": {
+      "title": "Bahasa Indonesia",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Indonesia",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_mtk": {
+    "subject_id": "smp_mtk",
+    "nama": "Matematika",
+    "reference": {
+      "title": "Matematika",
+      "link": "https://id.wikipedia.org/wiki/Matematika",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_ipa": {
+    "subject_id": "smp_ipa",
+    "nama": "IPA",
+    "reference": {
+      "title": "Ilmu alam",
+      "link": "https://id.wikipedia.org/wiki/Ilmu_alam",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_ips": {
+    "subject_id": "smp_ips",
+    "nama": "IPS",
+    "reference": {
+      "title": "Ilmu sosial",
+      "link": "https://id.wikipedia.org/wiki/Ilmu_sosial",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_bing": {
+    "subject_id": "smp_bing",
+    "nama": "Bahasa Inggris",
+    "reference": {
+      "title": "Bahasa Inggris",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Inggris",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_inf": {
+    "subject_id": "smp_inf",
+    "nama": "Informatika",
+    "reference": {
+      "title": "Informatika",
+      "link": "https://id.wikipedia.org/wiki/Informatika",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_prakarya": {
+    "subject_id": "smp_prakarya",
+    "nama": "Prakarya",
+    "reference": {
+      "title": "Keterampilan hidup",
+      "link": "https://id.wikipedia.org/wiki/Keterampilan_hidup",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_seni": {
+    "subject_id": "smp_seni",
+    "nama": "Seni Budaya",
+    "reference": {
+      "title": "Seni",
+      "link": "https://id.wikipedia.org/wiki/Seni",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_pjok": {
+    "subject_id": "smp_pjok",
+    "nama": "PJOK",
+    "reference": {
+      "title": "Olahraga",
+      "link": "https://id.wikipedia.org/wiki/Olahraga",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_agama_islam": {
+    "subject_id": "smp_agama_islam",
+    "nama": "Pendidikan Agama Islam",
+    "reference": {
+      "title": "Islam",
+      "link": "https://id.wikipedia.org/wiki/Islam",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_agama_kristen": {
+    "subject_id": "smp_agama_kristen",
+    "nama": "Pendidikan Agama Kristen",
+    "reference": {
+      "title": "Kekristenan",
+      "link": "https://id.wikipedia.org/wiki/Kekristenan",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_agama_katolik": {
+    "subject_id": "smp_agama_katolik",
+    "nama": "Pendidikan Agama Katolik",
+    "reference": {
+      "title": "Katolik",
+      "link": "https://id.wikipedia.org/wiki/Katolik",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_agama_hindu": {
+    "subject_id": "smp_agama_hindu",
+    "nama": "Pendidikan Agama Hindu",
+    "reference": {
+      "title": "Agama Hindu",
+      "link": "https://id.wikipedia.org/wiki/Agama_Hindu",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_agama_buddha": {
+    "subject_id": "smp_agama_buddha",
+    "nama": "Pendidikan Agama Buddha",
+    "reference": {
+      "title": "Siddhattha Gotama",
+      "link": "https://id.wikipedia.org/wiki/Siddhattha_Gotama",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smp_agama_khonghucu": {
+    "subject_id": "smp_agama_khonghucu",
+    "nama": "Pendidikan Agama Khonghucu",
+    "reference": {
+      "title": "Taoisme",
+      "link": "https://id.wikipedia.org/wiki/Taoisme",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_ppkn": {
+    "subject_id": "sma_ppkn",
+    "nama": "Pendidikan Pancasila",
+    "reference": {
+      "title": "Pancasila",
+      "link": "https://id.wikipedia.org/wiki/Pancasila",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_bindo": {
+    "subject_id": "sma_bindo",
+    "nama": "Bahasa Indonesia",
+    "reference": {
+      "title": "Bahasa Indonesia",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Indonesia",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_bing": {
+    "subject_id": "sma_bing",
+    "nama": "Bahasa Inggris",
+    "reference": {
+      "title": "Bahasa Inggris",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Inggris",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_mtk": {
+    "subject_id": "sma_mtk",
+    "nama": "Matematika",
+    "reference": {
+      "title": "Matematika",
+      "link": "https://id.wikipedia.org/wiki/Matematika",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_ipa": {
+    "subject_id": "sma_ipa",
+    "nama": "IPA Terpadu",
+    "reference": {
+      "title": "Ilmu alam",
+      "link": "https://id.wikipedia.org/wiki/Ilmu_alam",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_ips": {
+    "subject_id": "sma_ips",
+    "nama": "IPS Terpadu",
+    "reference": {
+      "title": "Ilmu sosial",
+      "link": "https://id.wikipedia.org/wiki/Ilmu_sosial",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_inf": {
+    "subject_id": "sma_inf",
+    "nama": "Informatika",
+    "reference": {
+      "title": "Informatika",
+      "link": "https://id.wikipedia.org/wiki/Informatika",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_pjok": {
+    "subject_id": "sma_pjok",
+    "nama": "PJOK",
+    "reference": {
+      "title": "Olahraga",
+      "link": "https://id.wikipedia.org/wiki/Olahraga",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_seni": {
+    "subject_id": "sma_seni",
+    "nama": "Seni Budaya",
+    "reference": {
+      "title": "Seni",
+      "link": "https://id.wikipedia.org/wiki/Seni",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_agama_islam": {
+    "subject_id": "sma_agama_islam",
+    "nama": "Pendidikan Agama Islam",
+    "reference": {
+      "title": "Islam",
+      "link": "https://id.wikipedia.org/wiki/Islam",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_agama_kristen": {
+    "subject_id": "sma_agama_kristen",
+    "nama": "Pendidikan Agama Kristen",
+    "reference": {
+      "title": "Kekristenan",
+      "link": "https://id.wikipedia.org/wiki/Kekristenan",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_agama_katolik": {
+    "subject_id": "sma_agama_katolik",
+    "nama": "Pendidikan Agama Katolik",
+    "reference": {
+      "title": "Katolik",
+      "link": "https://id.wikipedia.org/wiki/Katolik",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_agama_hindu": {
+    "subject_id": "sma_agama_hindu",
+    "nama": "Pendidikan Agama Hindu",
+    "reference": {
+      "title": "Agama Hindu",
+      "link": "https://id.wikipedia.org/wiki/Agama_Hindu",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_agama_buddha": {
+    "subject_id": "sma_agama_buddha",
+    "nama": "Pendidikan Agama Buddha",
+    "reference": {
+      "title": "Siddhattha Gotama",
+      "link": "https://id.wikipedia.org/wiki/Siddhattha_Gotama",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_agama_khonghucu": {
+    "subject_id": "sma_agama_khonghucu",
+    "nama": "Pendidikan Agama Khonghucu",
+    "reference": {
+      "title": "Taoisme",
+      "link": "https://id.wikipedia.org/wiki/Taoisme",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_mipa_mtk": {
+    "subject_id": "sma_mipa_mtk",
+    "nama": "Matematika Tingkat Lanjut",
+    "reference": {
+      "title": "Matematika",
+      "link": "https://id.wikipedia.org/wiki/Matematika",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_mipa_fisika": {
+    "subject_id": "sma_mipa_fisika",
+    "nama": "Fisika",
+    "reference": {
+      "title": "Fisika",
+      "link": "https://id.wikipedia.org/wiki/Fisika",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_mipa_kimia": {
+    "subject_id": "sma_mipa_kimia",
+    "nama": "Kimia",
+    "reference": {
+      "title": "Kimia",
+      "link": "https://id.wikipedia.org/wiki/Kimia",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_mipa_biologi": {
+    "subject_id": "sma_mipa_biologi",
+    "nama": "Biologi",
+    "reference": {
+      "title": "Biologi",
+      "link": "https://id.wikipedia.org/wiki/Biologi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_ips_sosiologi": {
+    "subject_id": "sma_ips_sosiologi",
+    "nama": "Sosiologi",
+    "reference": {
+      "title": "Ilmu sosial",
+      "link": "https://id.wikipedia.org/wiki/Ilmu_sosial",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_ips_ekonomi": {
+    "subject_id": "sma_ips_ekonomi",
+    "nama": "Ekonomi",
+    "reference": {
+      "title": "Ekonomi",
+      "link": "https://id.wikipedia.org/wiki/Ekonomi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_ips_geografi": {
+    "subject_id": "sma_ips_geografi",
+    "nama": "Geografi",
+    "reference": {
+      "title": "Ilmu sosial",
+      "link": "https://id.wikipedia.org/wiki/Ilmu_sosial",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_ips_antropologi": {
+    "subject_id": "sma_ips_antropologi",
+    "nama": "Antropologi",
+    "reference": {
+      "title": "Ilmu sosial",
+      "link": "https://id.wikipedia.org/wiki/Ilmu_sosial",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_bahasa_bindo": {
+    "subject_id": "sma_bahasa_bindo",
+    "nama": "Bahasa Indonesia Tingkat Lanjut",
+    "reference": {
+      "title": "Bahasa Indonesia",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Indonesia",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_bahasa_bing": {
+    "subject_id": "sma_bahasa_bing",
+    "nama": "Bahasa Inggris Tingkat Lanjut",
+    "reference": {
+      "title": "Bahasa Inggris",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Inggris",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "sma_bahasa_asing": {
+    "subject_id": "sma_bahasa_asing",
+    "nama": "Bahasa Asing",
+    "reference": {
+      "title": "Bahasa asing",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_asing",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_ppkn": {
+    "subject_id": "smk_ppkn",
+    "nama": "Pendidikan Pancasila",
+    "reference": {
+      "title": "Pancasila",
+      "link": "https://id.wikipedia.org/wiki/Pancasila",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_bindo": {
+    "subject_id": "smk_bindo",
+    "nama": "Bahasa Indonesia",
+    "reference": {
+      "title": "Bahasa Indonesia",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Indonesia",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_mtk": {
+    "subject_id": "smk_mtk",
+    "nama": "Matematika",
+    "reference": {
+      "title": "Matematika",
+      "link": "https://id.wikipedia.org/wiki/Matematika",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_bing": {
+    "subject_id": "smk_bing",
+    "nama": "Bahasa Inggris",
+    "reference": {
+      "title": "Bahasa Inggris",
+      "link": "https://id.wikipedia.org/wiki/Bahasa_Inggris",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_pjok": {
+    "subject_id": "smk_pjok",
+    "nama": "PJOK",
+    "reference": {
+      "title": "Olahraga",
+      "link": "https://id.wikipedia.org/wiki/Olahraga",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_seni": {
+    "subject_id": "smk_seni",
+    "nama": "Seni Budaya",
+    "reference": {
+      "title": "Seni",
+      "link": "https://id.wikipedia.org/wiki/Seni",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_sejarah": {
+    "subject_id": "smk_sejarah",
+    "nama": "Sejarah",
+    "reference": {
+      "title": "Sejarah",
+      "link": "https://id.wikipedia.org/wiki/Sejarah",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_ipas": {
+    "subject_id": "smk_ipas",
+    "nama": "Projek IPAS",
+    "reference": {
+      "title": "Ilmu Pengetahuan Alam dan Sosial",
+      "link": "https://id.wikipedia.org/wiki/Ilmu_Pengetahuan_Alam_dan_Sosial",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_inf": {
+    "subject_id": "smk_inf",
+    "nama": "Informatika",
+    "reference": {
+      "title": "Informatika",
+      "link": "https://id.wikipedia.org/wiki/Informatika",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_agama_islam": {
+    "subject_id": "smk_agama_islam",
+    "nama": "Pendidikan Agama Islam",
+    "reference": {
+      "title": "Islam",
+      "link": "https://id.wikipedia.org/wiki/Islam",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_agama_kristen": {
+    "subject_id": "smk_agama_kristen",
+    "nama": "Pendidikan Agama Kristen",
+    "reference": {
+      "title": "Kekristenan",
+      "link": "https://id.wikipedia.org/wiki/Kekristenan",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_agama_katolik": {
+    "subject_id": "smk_agama_katolik",
+    "nama": "Pendidikan Agama Katolik",
+    "reference": {
+      "title": "Katolik",
+      "link": "https://id.wikipedia.org/wiki/Katolik",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_agama_hindu": {
+    "subject_id": "smk_agama_hindu",
+    "nama": "Pendidikan Agama Hindu",
+    "reference": {
+      "title": "Agama Hindu",
+      "link": "https://id.wikipedia.org/wiki/Agama_Hindu",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_agama_buddha": {
+    "subject_id": "smk_agama_buddha",
+    "nama": "Pendidikan Agama Buddha",
+    "reference": {
+      "title": "Siddhattha Gotama",
+      "link": "https://id.wikipedia.org/wiki/Siddhattha_Gotama",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_agama_khonghucu": {
+    "subject_id": "smk_agama_khonghucu",
+    "nama": "Pendidikan Agama Khonghucu",
+    "reference": {
+      "title": "Taoisme",
+      "link": "https://id.wikipedia.org/wiki/Taoisme",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tkj_jaringan": {
+    "subject_id": "smk_tkj_jaringan",
+    "nama": "Jaringan Komputer",
+    "reference": {
+      "title": "Jaringan komputer",
+      "link": "https://id.wikipedia.org/wiki/Jaringan_komputer",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tkj_sistem_operasi": {
+    "subject_id": "smk_tkj_sistem_operasi",
+    "nama": "Sistem Operasi",
+    "reference": {
+      "title": "Sistem operasi",
+      "link": "https://id.wikipedia.org/wiki/Sistem_operasi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tkj_perangkat_keras": {
+    "subject_id": "smk_tkj_perangkat_keras",
+    "nama": "Perangkat Keras",
+    "reference": {
+      "title": "Perangkat keras",
+      "link": "https://id.wikipedia.org/wiki/Perangkat_keras",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_rpl_pemrograman": {
+    "subject_id": "smk_rpl_pemrograman",
+    "nama": "Pemrograman Dasar",
+    "reference": {
+      "title": "Pemrograman",
+      "link": "https://id.wikipedia.org/wiki/Pemrograman",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_rpl_database": {
+    "subject_id": "smk_rpl_database",
+    "nama": "Basis Data",
+    "reference": {
+      "title": "Pangkalan data",
+      "link": "https://id.wikipedia.org/wiki/Pangkalan_data",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_rpl_web": {
+    "subject_id": "smk_rpl_web",
+    "nama": "Pemrograman Web",
+    "reference": {
+      "title": "Pengembangan web",
+      "link": "https://id.wikipedia.org/wiki/Pengembangan_web",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_dkv_desain": {
+    "subject_id": "smk_dkv_desain",
+    "nama": "Desain Grafis",
+    "reference": {
+      "title": "Desain grafis",
+      "link": "https://id.wikipedia.org/wiki/Desain_grafis",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_dkv_multimedia": {
+    "subject_id": "smk_dkv_multimedia",
+    "nama": "Multimedia",
+    "reference": {
+      "title": "Multimedia",
+      "link": "https://id.wikipedia.org/wiki/Multimedia",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_dkv_animasi": {
+    "subject_id": "smk_dkv_animasi",
+    "nama": "Animasi",
+    "reference": {
+      "title": "Animasi",
+      "link": "https://id.wikipedia.org/wiki/Animasi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_ak_dasar": {
+    "subject_id": "smk_ak_dasar",
+    "nama": "Akuntansi Dasar",
+    "reference": {
+      "title": "Akuntansi",
+      "link": "https://id.wikipedia.org/wiki/Akuntansi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_ak_keuangan": {
+    "subject_id": "smk_ak_keuangan",
+    "nama": "Keuangan",
+    "reference": {
+      "title": "Keuangan",
+      "link": "https://id.wikipedia.org/wiki/Keuangan",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_ak_perpajakan": {
+    "subject_id": "smk_ak_perpajakan",
+    "nama": "Perpajakan",
+    "reference": {
+      "title": "Pajak",
+      "link": "https://id.wikipedia.org/wiki/Pajak",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_otkp_administrasi": {
+    "subject_id": "smk_otkp_administrasi",
+    "nama": "Administrasi Perkantoran",
+    "reference": {
+      "title": "Administrasi bisnis",
+      "link": "https://id.wikipedia.org/wiki/Administrasi_bisnis",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_otkp_korrespondensi": {
+    "subject_id": "smk_otkp_korrespondensi",
+    "nama": "Korrespondensi",
+    "reference": {
+      "title": "Surat",
+      "link": "https://id.wikipedia.org/wiki/Surat",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_otkp_kearsipan": {
+    "subject_id": "smk_otkp_kearsipan",
+    "nama": "Kearsipan",
+    "reference": {
+      "title": "Arsip",
+      "link": "https://id.wikipedia.org/wiki/Arsip",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_bd_pemasaran": {
+    "subject_id": "smk_bd_pemasaran",
+    "nama": "Pemasaran Digital",
+    "reference": {
+      "title": "Pemasaran",
+      "link": "https://id.wikipedia.org/wiki/Pemasaran",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_bd_ecommerce": {
+    "subject_id": "smk_bd_ecommerce",
+    "nama": "E-Commerce",
+    "reference": {
+      "title": "Perdagangan elektronik",
+      "link": "https://id.wikipedia.org/wiki/Perdagangan_elektronik",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_bd_konten": {
+    "subject_id": "smk_bd_konten",
+    "nama": "Konten Kreatif",
+    "reference": {
+      "title": "Konten",
+      "link": "https://id.wikipedia.org/wiki/Konten",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tkr_mesin": {
+    "subject_id": "smk_tkr_mesin",
+    "nama": "Teknik Mesin",
+    "reference": {
+      "title": "Teknik mesin",
+      "link": "https://id.wikipedia.org/wiki/Teknik_mesin",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tkr_kelistrikan": {
+    "subject_id": "smk_tkr_kelistrikan",
+    "nama": "Kelistrikan",
+    "reference": {
+      "title": "Listrik",
+      "link": "https://id.wikipedia.org/wiki/Listrik",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tkr_chasis": {
+    "subject_id": "smk_tkr_chasis",
+    "nama": "Chasis & Body",
+    "reference": {
+      "title": "Industri otomotif",
+      "link": "https://id.wikipedia.org/wiki/Industri_otomotif",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_itl_instalasi": {
+    "subject_id": "smk_itl_instalasi",
+    "nama": "Instalasi Listrik",
+    "reference": {
+      "title": "Pembangkit listrik",
+      "link": "https://id.wikipedia.org/wiki/Pembangkit_listrik",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_itl_tenaga": {
+    "subject_id": "smk_itl_tenaga",
+    "nama": "Teknik Tenaga Listrik",
+    "reference": {
+      "title": "Energi listrik",
+      "link": "https://id.wikipedia.org/wiki/Energi_listrik",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_itl_proteksi": {
+    "subject_id": "smk_itl_proteksi",
+    "nama": "Proteksi Listrik",
+    "reference": {
+      "title": "Sistem proteksi listrik",
+      "link": "https://id.wikipedia.org/wiki/Sistem_proteksi_listrik",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tmo_otomotif": {
+    "subject_id": "smk_tmo_otomotif",
+    "nama": "Teknik Otomotif",
+    "reference": {
+      "title": "Transportasi",
+      "link": "https://id.wikipedia.org/wiki/Transportasi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tmo_diagnostik": {
+    "subject_id": "smk_tmo_diagnostik",
+    "nama": "Diagnostik Kendaraan",
+    "reference": {
+      "title": "Diagnostik kendaraan",
+      "link": "https://id.wikipedia.org/wiki/Diagnostik_kendaraan",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tmo_perawatan": {
+    "subject_id": "smk_tmo_perawatan",
+    "nama": "Perawatan Kendaraan",
+    "reference": {
+      "title": "Perawatan kendaraan",
+      "link": "https://id.wikipedia.org/wiki/Perawatan_kendaraan",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_perhotelan_fo": {
+    "subject_id": "smk_perhotelan_fo",
+    "nama": "Front Office",
+    "reference": {
+      "title": "Hotel",
+      "link": "https://id.wikipedia.org/wiki/Hotel",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_perhotelan_hk": {
+    "subject_id": "smk_perhotelan_hk",
+    "nama": "Housekeeping",
+    "reference": {
+      "title": "Hotel",
+      "link": "https://id.wikipedia.org/wiki/Hotel",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_perhotelan_fb": {
+    "subject_id": "smk_perhotelan_fb",
+    "nama": "Food & Beverage",
+    "reference": {
+      "title": "Hotel",
+      "link": "https://id.wikipedia.org/wiki/Hotel",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tata_boga_memasak": {
+    "subject_id": "smk_tata_boga_memasak",
+    "nama": "Teknik Memasak",
+    "reference": {
+      "title": "Hidangan",
+      "link": "https://id.wikipedia.org/wiki/Hidangan",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tata_boga_pastry": {
+    "subject_id": "smk_tata_boga_pastry",
+    "nama": "Pastry & Bakery",
+    "reference": {
+      "title": "Kue",
+      "link": "https://id.wikipedia.org/wiki/Kue",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tata_boga_gizi": {
+    "subject_id": "smk_tata_boga_gizi",
+    "nama": "Gizi &izi",
+    "reference": {
+      "title": "Nutrisi",
+      "link": "https://id.wikipedia.org/wiki/Nutrisi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tata_busana_pola": {
+    "subject_id": "smk_tata_busana_pola",
+    "nama": "Teknik Pola",
+    "reference": {
+      "title": "Pola busana",
+      "link": "https://id.wikipedia.org/wiki/Pola_busana",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tata_busana_menjahit": {
+    "subject_id": "smk_tata_busana_menjahit",
+    "nama": "Teknik Menjahit",
+    "reference": {
+      "title": "Menjahit",
+      "link": "https://id.wikipedia.org/wiki/Menjahit",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_tata_busana_desain": {
+    "subject_id": "smk_tata_busana_desain",
+    "nama": "Desain Busana",
+    "reference": {
+      "title": "Desain busana",
+      "link": "https://id.wikipedia.org/wiki/Desain_busana",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_keperawatan_dasar": {
+    "subject_id": "smk_keperawatan_dasar",
+    "nama": "Dasar Keperawatan",
+    "reference": {
+      "title": "Perawat",
+      "link": "https://id.wikipedia.org/wiki/Perawat",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_keperawatan_anatomi": {
+    "subject_id": "smk_keperawatan_anatomi",
+    "nama": "Anatomi & Fisiologi",
+    "reference": {
+      "title": "Perawat",
+      "link": "https://id.wikipedia.org/wiki/Perawat",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_keperawatan_kesehatan": {
+    "subject_id": "smk_keperawatan_kesehatan",
+    "nama": "Kesehatan Masyarakat",
+    "reference": {
+      "title": "Perawat",
+      "link": "https://id.wikipedia.org/wiki/Perawat",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_farmasi_obat": {
+    "subject_id": "smk_farmasi_obat",
+    "nama": "Obat-obatan",
+    "reference": {
+      "title": "Farmasi",
+      "link": "https://id.wikipedia.org/wiki/Farmasi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_farmasi_kimia": {
+    "subject_id": "smk_farmasi_kimia",
+    "nama": "Kimia Farmasi",
+    "reference": {
+      "title": "Farmasi",
+      "link": "https://id.wikipedia.org/wiki/Farmasi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_farmasi_pelayanan": {
+    "subject_id": "smk_farmasi_pelayanan",
+    "nama": "Pelayanan Farmasi",
+    "reference": {
+      "title": "Farmasi",
+      "link": "https://id.wikipedia.org/wiki/Farmasi",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_agribisnis_tanaman": {
+    "subject_id": "smk_agribisnis_tanaman",
+    "nama": "Agribisnis Tanaman",
+    "reference": {
+      "title": "Pertanian",
+      "link": "https://id.wikipedia.org/wiki/Pertanian",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_agribisnis_perkebunan": {
+    "subject_id": "smk_agribisnis_perkebunan",
+    "nama": "Agribisnis Perkebunan",
+    "reference": {
+      "title": "Pertanian",
+      "link": "https://id.wikipedia.org/wiki/Pertanian",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  },
+  "smk_agribisnis_pengolahan": {
+    "subject_id": "smk_agribisnis_pengolahan",
+    "nama": "Pengolahan Hasil",
+    "reference": {
+      "title": "Pertanian",
+      "link": "https://id.wikipedia.org/wiki/Pertanian",
+      "author": "Wikipedia",
+      "year": "2025"
+    }
+  }
+}

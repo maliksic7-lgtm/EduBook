@@ -20,8 +20,16 @@ if (!GEMINI_API_KEY) {
 
 const ai = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
-const PRIMARY_MODEL = 'gemini-2.5-flash';
-const RETRY_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+const PRIMARY_MODEL = 'gemini-3.1-flash-lite-preview';
+// Urutan model: utamakan model yang kuota hariannya besar & masih tersedia,
+// lalu fallback ke model lain bila kuota/limit sedang habis.
+const RETRY_MODELS = [
+    'gemini-3.1-flash-lite-preview',
+    'gemini-3.8-flash',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-3-flash-preview'
+];
 
 // ---------------------------------------------------------------
 // Evaluasi Hafalan (Smart-Review Lisan)
@@ -135,7 +143,7 @@ async function evaluateQuizFeedback(studentName, page, finalScore, totalSoal) {
 function fallbackExplanation(mode, text) {
     const snippet = text ? text.substring(0, 120) : 'materi';
     if (mode === 'simplify') {
-        return `Intinya, ${snippet} — ini merupakan bagian dari konsep Internet of Things (IoT) yang menghubungkan perangkat ke internet agar bisa dikendalikan dari jarak jauh dengan mudah! 🌐✨`;
+        return `Intinya, ${snippet} — ini bagian dari materi pelajaranmu yang bisa dipahami pelan-pelan dengan contoh sehari-hari! 🌐✨`;
     }
     return `Secara ilmiah, ${snippet} — sistem ini mengintegrasikan lapisan transduser fisik (node sensor/aktuator) dengan komputasi awan menggunakan arsitektur mikrokontroler berbasis jaringan. 📡🔋`;
 }
@@ -156,8 +164,8 @@ async function generateExplanation(text, mode) {
         `;
     } else if (mode === 'detail') {
         promptInstruksi = `
-        Anda adalah Ilmuwan & Engineer AIoT Senior dari Samsung Innovation Campus.
-        Tugas Anda adalah membedah secara ilmiah konsep teknologi di dalam materi berikut. Hubungkan dengan sensor, mikrokontroler ESP32, aktuator, atau cloud database.
+        Anda adalah Guru Senior & Ilmuwan lintas bidang untuk EduBook.
+        Tugas Anda adalah membedah secara ilmiah konsep di dalam materi berikut. Hubungkan dengan konsep keilmuan yang relevan dengan materinya (sains, teknologi, sosial, bahasa, atau humaniora) dan berikan contoh nyata.
 
         Materi: "${text}"
 
@@ -195,7 +203,7 @@ function fallbackRecommendation(studentName, avgHafalan, avgQuiz, gender) {
     const call = getGenderCall(gender);
     const hafalanMsg = avgHafalan >= 70 ? `sudah mantap di angka ${avgHafalan}%` : `masih perlu ditingkatkan (${avgHafalan}%)`;
     const quizMsg = avgQuiz >= 70 ? `sudah cukup baik di angka ${avgQuiz}%` : `masih ${avgQuiz}% — perlu lebih banyak latihan soal`;
-    const focus = avgHafalan > avgQuiz ? 'membaca ulang detail teknis seputar pinout mikrokontroler dan arsitektur IoT' : 'terus mengasah hafalan lisan dan pemahaman konsep dasar';
+    const focus = avgHafalan > avgQuiz ? 'membaca ulang detail materi di halaman-halaman yang nilainya masih rendah' : 'terus mengasah hafalan lisan dan pemahaman konsep dasar';
     return `Halo ${call} ${studentName}! Berdasarkan analisis cepat data lokal, rerata hafalan lisanmu ${hafalanMsg}. Sementara itu, pemahaman kognitif teorimu di kuis ${quizMsg}. Coba seimbangkan lagi porsi belajarmu dengan ${focus} ya! Semangat! 💪🔥`;
 }
 
@@ -215,7 +223,7 @@ async function generateRecommendation(studentName, stats, gender) {
     - Rerata Akurasi Kuis Objektif (Teori): ${avgQuiz}% (dari ${quizCount} kali percobaan)
     - Total Riwayat Aktivitas: ${totalLogs} sesi log tersimpan.
 
-    Berikan ulasan maksimal 3-4 kalimat. Fokus pada ketimpangan nilai jika ada (misal: hafalan bagus tapi kuis rendah, atau sebaliknya) dan kaitkan dengan topik AIoT (ESP32, Sensor, MQTT, atau Machine Learning). Gunakan gaya bahasa tutor sebaya yang asyik namun tetap edukatif. Panggil siswa dengan "kamu" (jangan gunakan "lo", "gue", "gw", "lu"). Jika perlu menyapa, gunakan kata panggilan "${call}" untuk siswa ini.
+    Berikan ulasan maksimal 3-4 kalimat. Fokus pada ketimpangan nilai jika ada (misal: hafalan bagus tapi kuis rendah, atau sebaliknya) dan kaitkan dengan mapel serta materi yang sedang dipelajari siswa. Gunakan gaya bahasa tutor sebaya yang asyik namun tetap edukatif. Panggil siswa dengan "kamu" (jangan gunakan "lo", "gue", "gw", "lu"). Jika perlu menyapa, gunakan kata panggilan "${call}" untuk siswa ini.
     `;
 
     try {
@@ -256,10 +264,7 @@ async function callGeminiWithRetry(promptSystem, maxRetries = 3) {
             } catch (error) {
                 console.log(`❌ Model ${model} failed:`, error.message);
                 lastError = error;
-                if (error.message.includes('503') || error.message.includes('UNAVAILABLE')) {
-                    continue;
-                }
-                throw error;
+                continue;
             }
         }
         if (attempt < maxRetries) {
@@ -269,6 +274,37 @@ async function callGeminiWithRetry(promptSystem, maxRetries = 3) {
         }
     }
     throw lastError || new Error('All models failed');
+}
+
+async function callGeminiWithImage(promptSystem, base64Data, mimeType, maxRetries = 2) {
+    if (!ai) throw new Error('AI_NOT_CONFIGURED');
+
+    const contents = [
+        { text: promptSystem },
+        { inlineData: { mimeType: mimeType || 'image/jpeg', data: base64Data } }
+    ];
+
+    let lastError = null;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        for (const model of RETRY_MODELS) {
+            try {
+                console.log(`🖼️ Image attempt ${attempt}: Trying model ${model}...`);
+                const response = await ai.models.generateContent({ model, contents });
+                if (response && response.text) {
+                    const text = response.text.trim();
+                    if (text) return text;
+                }
+            } catch (error) {
+                console.log(`❌ Image model ${model} failed:`, error.message);
+                lastError = error;
+                continue;
+            }
+        }
+        if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+        }
+    }
+    throw lastError || new Error('All vision models failed');
 }
 
 // ---------------------------------------------------------------
@@ -339,5 +375,6 @@ module.exports = {
     generateExplanation,
     generateRecommendation,
     generateQuizAnswerFeedback,
-    callGeminiWithRetry
+    callGeminiWithRetry,
+    callGeminiWithImage
 };

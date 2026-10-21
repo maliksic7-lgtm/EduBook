@@ -5,7 +5,7 @@
 
 const Book = require('../models/Book');
 
-let knowledgeBaseCache = { data: null, timestamp: null, pages: null };
+let knowledgeBaseCache = { data: null, timestamp: null };
 const KNOWLEDGE_BASE_TTL = 300000; // 5 menit
 
 const answerCache = new Map();
@@ -14,6 +14,10 @@ const ANSWER_CACHE_TTL = 3600000; // 1 jam
 
 const promptCache = new Map();
 const PROMPT_CACHE_MAX_SIZE = 50;
+
+const MAX_KNOWLEDGE_TEXT_LENGTH = 50000;
+const MAX_PARAGRAPHS_PER_PAGE = 3;
+const MAX_PAGES_SCANNED = 600;
 
 async function getKnowledgeBase(forceRefresh = false) {
     const now = Date.now();
@@ -26,43 +30,56 @@ async function getKnowledgeBase(forceRefresh = false) {
         return knowledgeBaseCache.data;
     }
 
-    console.log('📚 Fetching fresh knowledge base from database...');
+    console.log('📚 Fetching fresh knowledge base (streaming cursor)...');
 
     try {
-        const allPages = await Book.find({}).sort({ page_number: 1 });
+        // Cursor streaming: dokumen diproses satu per satu dan langsung dibuang,
+        // jadi tidak pernah ada seluruh koleksi (apalagi field quiz_questions
+        // yang besar) tertampung di memori sekaligus.
+        const cursor = Book.find({})
+            .select('title page_number subject_id paragraphs.text')
+            .sort({ page_number: 1, subject_id: 1 })
+            .lean()
+            .cursor({ batchSize: 25 });
 
-        let knowledgeBaseText = "";
-        const pageTitles = {};
-        const quizData = {};
+        let knowledgeBaseText = '';
+        let scannedPages = 0;
+        let truncated = false;
 
-        allPages.forEach(page => {
-            pageTitles[page.page_number] = page.title || `Halaman ${page.page_number}`;
+        for await (const page of cursor) {
+            scannedPages++;
 
-            if (page.quiz_questions && page.quiz_questions.length > 0) {
-                quizData[page.page_number] = page.quiz_questions.length;
+            if (knowledgeBaseText.length >= MAX_KNOWLEDGE_TEXT_LENGTH || scannedPages > MAX_PAGES_SCANNED) {
+                truncated = true;
+                break;
             }
 
-            knowledgeBaseText += `\n--- Halaman ${page.page_number}: ${page.title} ---\n`;
-            if (page.paragraphs && page.paragraphs.length > 0) {
-                page.paragraphs.forEach(p => {
-                    knowledgeBaseText += `${p.text} \n`;
-                });
+            const title = String(page.title || `Halaman ${page.page_number}`).slice(0, 80);
+            knowledgeBaseText += `\n--- ${page.subject_id || 'umum'} | Hal ${page.page_number}: ${title} ---\n`;
+
+            const paragraphs = Array.isArray(page.paragraphs) ? page.paragraphs : [];
+            for (const p of paragraphs.slice(0, MAX_PARAGRAPHS_PER_PAGE)) {
+                if (!p || typeof p.text !== 'string' || !p.text) continue;
+                const remaining = MAX_KNOWLEDGE_TEXT_LENGTH - knowledgeBaseText.length;
+                if (remaining <= 0) {
+                    truncated = true;
+                    break;
+                }
+                knowledgeBaseText += (p.text.length > remaining ? p.text.slice(0, remaining) : p.text) + '\n';
             }
-        });
+        }
 
         knowledgeBaseCache = {
             data: {
                 fullText: knowledgeBaseText,
-                pageTitles,
-                quizData,
-                totalPages: allPages.length,
-                lastUpdated: new Date().toISOString()
+                totalPages: scannedPages,
+                lastUpdated: new Date().toISOString(),
+                truncated
             },
-            timestamp: now,
-            pages: allPages
+            timestamp: now
         };
 
-        console.log(`✅ Knowledge base cached (${knowledgeBaseText.length} characters, ${allPages.length} pages)`);
+        console.log(`✅ Knowledge base cached (${knowledgeBaseText.length} karakter, ${scannedPages} halaman dipindai${truncated ? ', dipotong' : ''})`);
         return knowledgeBaseCache.data;
 
     } catch (error) {
@@ -134,7 +151,7 @@ function cachePrompt(question, contextHash, prompt) {
 function clearAllCache() {
     answerCache.clear();
     promptCache.clear();
-    knowledgeBaseCache = { data: null, timestamp: null, pages: null };
+    knowledgeBaseCache = { data: null, timestamp: null };
     console.log('🗑️ All caches cleared!');
 }
 

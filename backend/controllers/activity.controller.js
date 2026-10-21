@@ -2,6 +2,22 @@ const Book = require('../models/Book');
 const Activity = require('../models/Activity');
 const aiService = require('../services/aiService');
 const streamService = require('../services/streamService');
+const SUBJECTS = require('../seeds/subjects');
+
+const SUBJECT_ID_PATTERN = /^[a-z0-9_]{2,60}$/;
+
+function parseSubjectId(value) {
+    if (value === undefined || value === null || value === '') return { ok: true, value: null };
+    if (typeof value !== 'string') return { ok: false, value: null };
+    const id = value.trim().toLowerCase();
+    return SUBJECT_ID_PATTERN.test(id) ? { ok: true, value: id } : { ok: false, value: null };
+}
+
+function subjectNameById(subjectId) {
+    if (!subjectId) return 'Mapel Lainnya';
+    const found = SUBJECTS.find(s => s.subject_id === subjectId);
+    return found ? found.nama : subjectId;
+}
 
 function getStudentName(req) {
     if (req.user?.nama) return req.user.nama;
@@ -43,14 +59,18 @@ function isQuizActivity(log) {
 
 async function submitHafalanActivity(req, res) {
     try {
-        const { page, current_page, paragraph_id, text_to_evaluate, text_hafalan, book_text } = req.body;
+        const { page, current_page, paragraph_id, text_to_evaluate, text_hafalan, book_text, subject_id } = req.body;
         const studentName = getStudentName(req);
         const targetPage = parsePage(page ?? current_page);
         const suaraSiswa = normalizeText(text_to_evaluate ?? text_hafalan);
         const suppliedBookText = normalizeText(book_text);
+        const subject = parseSubjectId(subject_id);
 
         if (!studentName || !targetPage) {
             return res.status(400).json({ message: 'student_name dan nomor halaman diperlukan.' });
+        }
+        if (!subject.ok) {
+            return res.status(400).json({ message: 'subject_id tidak valid.' });
         }
         if (suaraSiswa === null || suppliedBookText === null) {
             return res.status(400).json({ message: 'Teks aktivitas tidak valid atau terlalu panjang.' });
@@ -67,7 +87,10 @@ async function submitHafalanActivity(req, res) {
                 return res.status(400).json({ message: 'paragraph_id tidak valid.' });
             }
 
-            const bukuDitemukan = await Book.findOne({ page_number: targetPage });
+            const bukuDitemukan = await Book.findOne({
+                page_number: targetPage,
+                ...(subject.value ? { subject_id: subject.value } : {})
+            });
             const paragrafCocok = bukuDitemukan?.paragraphs?.find(
                 paragraph => paragraph.paragraph_id === selectedParagraphId
             );
@@ -92,6 +115,7 @@ async function submitHafalanActivity(req, res) {
         const newActivity = new Activity({
             student_name: studentName,
             activity_type: 'hafalan',
+            subject_id: subject.value,
             current_page: targetPage,
             paragraph_id: selectedParagraphId,
             duration_minutes: 3,
@@ -111,14 +135,18 @@ async function submitHafalanActivity(req, res) {
 
 async function submitQuizActivity(req, res) {
     try {
-        const { page, score, total_soal } = req.body;
+        const { page, score, total_soal, subject_id } = req.body;
         const studentName = getStudentName(req);
         const pageNumber = parsePage(page);
         const finalScore = Number(score);
         const totalQuestionsInput = Number(total_soal);
+        const subject = parseSubjectId(subject_id);
 
         if (!studentName || !pageNumber) {
             return res.status(400).json({ message: 'student_name dan page diperlukan.' });
+        }
+        if (!subject.ok) {
+            return res.status(400).json({ message: 'subject_id tidak valid.' });
         }
         if (!Number.isFinite(finalScore) || finalScore < 0 || finalScore > 100) {
             return res.status(400).json({ message: 'score harus berupa angka antara 0 dan 100.' });
@@ -138,6 +166,7 @@ async function submitQuizActivity(req, res) {
         const quizActivity = new Activity({
             student_name: studentName,
             activity_type: 'quiz',
+            subject_id: subject.value,
             current_page: pageNumber,
             quiz_total_questions: totalQuestions,
             duration_minutes: 5,
@@ -160,14 +189,18 @@ async function submitQuizActivity(req, res) {
 
 async function submitListeningActivity(req, res) {
     try {
-        const { page, score, total_soal, listened_paragraphs } = req.body;
+        const { page, score, total_soal, listened_paragraphs, subject_id } = req.body;
         const studentName = getStudentName(req);
         const pageNumber = parsePage(page);
         const finalScore = Number(score);
         const totalQuestionsInput = Number(total_soal);
+        const subject = parseSubjectId(subject_id);
 
         if (!studentName || !pageNumber) {
             return res.status(400).json({ message: 'student_name dan page diperlukan.' });
+        }
+        if (!subject.ok) {
+            return res.status(400).json({ message: 'subject_id tidak valid.' });
         }
         if (!Number.isFinite(finalScore) || finalScore < 0 || finalScore > 100) {
             return res.status(400).json({ message: 'score harus berupa angka antara 0 dan 100.' });
@@ -176,6 +209,7 @@ async function submitListeningActivity(req, res) {
             return res.status(400).json({ message: 'total_soal tidak valid.' });
         }
 
+        const totalQuestions = totalQuestionsInput;
         const feedbackText = await aiService.evaluateQuizFeedback(
             studentName,
             pageNumber,
@@ -186,6 +220,7 @@ async function submitListeningActivity(req, res) {
         const listeningActivity = new Activity({
             student_name: studentName,
             activity_type: 'listening',
+            subject_id: subject.value,
             current_page: pageNumber,
             quiz_total_questions: totalQuestions,
             duration_minutes: 8,
@@ -223,14 +258,30 @@ async function getAnalytics(req, res) {
         const studentName = getStudentName(req);
         if (!studentName) return res.status(400).json({ message: 'student_name diperlukan.' });
 
-        const logs = await Activity.find({ student_name: studentName });
-        const allBooks = await Book.find({});
+        const logs = await Activity.find({ student_name: studentName }).lean();
+
+        // Diringkas lewat aggregation: cukup kirim page_number/title/subject_id
+        // dan JUMLAH soal per halaman, bukan seluruh array quiz_questions.
+        const bookDocs = await Book.aggregate([
+            {
+                $project: {
+                    _id: 0,
+                    page_number: 1,
+                    title: 1,
+                    subject_id: 1,
+                    quiz_count: { $size: { $ifNull: ['$quiz_questions', []] } }
+                }
+            }
+        ]);
+
+        const bookKey = (subjectId, page) => `${subjectId || 'umum'}|${page}`;
 
         const bookQuizCountMap = {};
         const bookTitleMap = {};
-        allBooks.forEach(b => {
-            bookQuizCountMap[b.page_number] = b.quiz_questions ? b.quiz_questions.length : 0;
-            bookTitleMap[b.page_number] = b.title || `Halaman ${b.page_number}`;
+        bookDocs.forEach(b => {
+            const key = bookKey(b.subject_id, b.page_number);
+            bookQuizCountMap[key] = b.quiz_count || 0;
+            bookTitleMap[key] = b.title || `Halaman ${b.page_number}`;
         });
 
         let totalDuration = 0;
@@ -257,6 +308,21 @@ async function getAnalytics(req, res) {
         const quizDates = new Set();
         const hafalanDates = new Set();
 
+        const perSubject = {};
+        const getSubjectBucket = (subjectId) => {
+            const id = subjectId || 'lainnya';
+            if (!perSubject[id]) {
+                perSubject[id] = {
+                    subject_id: id,
+                    hafalan_count: 0, hafalan_score_total: 0, hafalan_best: 0,
+                    quiz_count: 0, quiz_score_total: 0, quiz_best: 0,
+                    listening_count: 0, listening_score_total: 0, listening_best: 0,
+                    total_activities: 0
+                };
+            }
+            return perSubject[id];
+        };
+
         const calcStreak = (dates) => {
             const sorted = [...dates].sort((a, b) => new Date(a) - new Date(b));
             let best = 0, cur = 0;
@@ -276,9 +342,13 @@ async function getAnalytics(req, res) {
             const date = new Date(log.timestamp);
             const dayIndex = date.getDay();
             const page = log.current_page || log.page || 1;
+            const subjectId = log.subject_id || null;
+            const subjectPageKey = bookKey(subjectId, page);
             const dayStr = date.toDateString();
+            const bucket = getSubjectBucket(subjectId);
 
             const score = log.hafalan_features?.score || 0;
+            bucket.total_activities += 1;
 
             if (log.activity_type === 'listening') {
                 listeningCount++;
@@ -287,6 +357,11 @@ async function getAnalytics(req, res) {
                 totalDuration += log.duration_minutes || 8;
                 listeningDates.add(dayStr);
                 if (score > listeningBestScore) listeningBestScore = score;
+
+                bucket.listening_count++;
+                bucket.listening_score_total += score;
+                if (score > bucket.listening_best) bucket.listening_best = score;
+
                 const totalSoal = log.total_soal || 25;
                 listeningTotalSoal += totalSoal;
                 listeningCorrectSoal += Math.round((score / 100) * totalSoal);
@@ -297,12 +372,16 @@ async function getAnalytics(req, res) {
                 totalDuration += log.duration_minutes || 5;
                 quizDates.add(dayStr);
 
-                const questionsInThisPage = log.quiz_total_questions || bookQuizCountMap[page] || 0;
+                bucket.quiz_count++;
+                bucket.quiz_score_total += score;
+                if (score > bucket.quiz_best) bucket.quiz_best = score;
+
+                const questionsInThisPage = log.quiz_total_questions || bookQuizCountMap[subjectPageKey] || 0;
                 correctQuestions += Math.round((score / 100) * questionsInThisPage);
                 totalAttemptedQuestionsPool += questionsInThisPage;
 
-                if (!quizPageScores[page]) quizPageScores[page] = [];
-                quizPageScores[page].push(score);
+                if (!quizPageScores[subjectPageKey]) quizPageScores[subjectPageKey] = [];
+                quizPageScores[subjectPageKey].push(score);
             } else {
                 hafalanCount++;
                 totalHafalanScore += score;
@@ -310,8 +389,12 @@ async function getAnalytics(req, res) {
                 hafalanWeeklyCounts[dayIndex] += 1;
                 hafalanDates.add(dayStr);
 
-                if (!pageScores[page]) pageScores[page] = [];
-                pageScores[page].push(score);
+                bucket.hafalan_count++;
+                bucket.hafalan_score_total += score;
+                if (score > bucket.hafalan_best) bucket.hafalan_best = score;
+
+                if (!pageScores[subjectPageKey]) pageScores[subjectPageKey] = [];
+                pageScores[subjectPageKey].push(score);
             }
         });
 
@@ -354,6 +437,22 @@ async function getAnalytics(req, res) {
         const strongestPageTitle = strongestPage ? bookTitleMap[strongestPage] || `Halaman ${strongestPage}` : "None";
         const weakestPageTitle = weakestPage ? bookTitleMap[weakestPage] || `Halaman ${weakestPage}` : "None";
 
+        const subjectStats = Object.values(perSubject).map(b => ({
+            subject_id: b.subject_id,
+            subject_name: subjectNameById(b.subject_id === 'lainnya' ? null : b.subject_id),
+            hafalan_count: b.hafalan_count,
+            hafalan_avg: b.hafalan_count ? Math.round(b.hafalan_score_total / b.hafalan_count) : 0,
+            hafalan_best: b.hafalan_best,
+            quiz_count: b.quiz_count,
+            quiz_avg: b.quiz_count ? Math.round(b.quiz_score_total / b.quiz_count) : 0,
+            quiz_best: b.quiz_best,
+            listening_count: b.listening_count,
+            listening_avg: b.listening_count ? Math.round(b.listening_score_total / b.listening_count) : 0,
+            listening_best: b.listening_best,
+            total_activities: b.total_activities,
+            xp: b.hafalan_count * 15 + b.quiz_count * 5 + b.listening_count * 10
+        })).sort((a, b) => b.total_activities - a.total_activities);
+
         res.json({
             total_learning_time: totalDuration,
             quiz_precision: quizPrecision,
@@ -377,6 +476,7 @@ async function getAnalytics(req, res) {
             listening_weekly_chart: listeningWeeklyCounts,
             strongest_page_title: strongestPageTitle,
             weakest_page_title: weakestPageTitle,
+            subject_stats: subjectStats,
             total_activities: logs.length
         });
 

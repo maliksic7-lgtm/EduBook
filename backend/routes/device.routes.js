@@ -4,5 +4,6 @@ const deviceController = require('../controllers/device.controller');
 
 router.post('/device/keyword', deviceController.detectKeyword);
 router.get('/device/info', deviceController.getDeviceInfo);
+router.post('/device/navigate', deviceController.navigatePage);
 
 module.exports = router;

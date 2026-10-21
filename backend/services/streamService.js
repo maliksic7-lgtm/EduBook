@@ -1,14 +1,5 @@
-// streamService.js
-// Mengelola daftar koneksi SSE (Server-Sent Events) aktif dan menyiarkan event
-// ke semua client yang terhubung. Dipisah jadi service supaya mqttService dan
-// controller lain (activity, dsb) bisa broadcast tanpa saling import server.js.
-//
-// Ada dua mode:
-//  - broadcast(): kirim ke SEMUA client (event device/mode).
-//  - sendToUser(): kirim ke client milik satu user_id tertentu (DM realtime).
-
 const sseClients = new Set();
-const sseUserClients = new Map(); // user_id -> Set(res)
+const sseUserClients = new Map();
 
 function addClient(res) {
     sseClients.add(res);
@@ -63,5 +54,35 @@ function sendToUser(userId, data) {
     });
     if (sseUserClients.has(userId) && sseUserClients.get(userId).size === 0) sseUserClients.delete(userId);
 }
+
+const heartbeatInterval = setInterval(() => {
+    sseClients.forEach(client => {
+        if (client.writableEnded || client.destroyed) {
+            sseClients.delete(client);
+            return;
+        }
+        try {
+            client.write(': heartbeat\n\n');
+        } catch (error) {
+            sseClients.delete(client);
+        }
+    });
+    sseUserClients.forEach((set, userId) => {
+        set.forEach(client => {
+            if (client.writableEnded || client.destroyed) {
+                set.delete(client);
+                return;
+            }
+            try {
+                client.write(': heartbeat\n\n');
+            } catch (error) {
+                set.delete(client);
+            }
+        });
+        if (set.size === 0) sseUserClients.delete(userId);
+    });
+}, 30000);
+
+heartbeatInterval.unref();
 
 module.exports = { addClient, removeClient, broadcast, addUserClient, removeUserClient, sendToUser };

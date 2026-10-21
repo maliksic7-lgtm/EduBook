@@ -7,6 +7,7 @@ const Notification = require('../models/Notification');
 const Message = require('../models/Message');
 const { authenticateToken } = require('../middleware/auth');
 const streamService = require('../services/streamService');
+const titleService = require('../services/titleService');
 
 function getUserId(req) {
     return req.user?.user_id || '';
@@ -101,16 +102,25 @@ router.get('/friendship/status/:targetUserId', authenticateToken, async (req, re
     }
 });
 
-// Get my followers
+// Get followers (user_id optional: lihat daftar follower orang lain)
 router.get('/friendship/followers', authenticateToken, async (req, res) => {
     try {
         const me = getUserId(req);
-        const entries = await Friendship.find({ following: me }).sort({ createdAt: -1 }).limit(50);
+        const target = String(req.query.user_id || '').trim() || me;
+        const entries = await Friendship.find({ following: target }).sort({ createdAt: -1 }).limit(100);
         const userIds = entries.map(e => e.follower);
-        const users = await User.find({ user_id: { $in: userIds } }).select('nama user_id foto_profil kelas');
+        const [users, myFollows] = await Promise.all([
+            User.find({ user_id: { $in: userIds } }).select('nama user_id foto_profil kelas'),
+            Friendship.find({ follower: me, following: { $in: userIds } }).select('following')
+        ]);
+        const followSet = new Set(myFollows.map(f => f.following));
         const map = {};
         users.forEach(u => map[u.user_id] = u);
-        const result = entries.map(e => ({ ...map[e.follower]?.toObject(), followed_at: e.createdAt }));
+        const result = entries.filter(e => map[e.follower]).map(e => ({
+            ...map[e.follower].toObject(),
+            followed_at: e.createdAt,
+            i_follow: followSet.has(e.follower)
+        }));
         res.json(result);
     } catch (err) {
         console.error('Get followers error:', err);
@@ -118,16 +128,25 @@ router.get('/friendship/followers', authenticateToken, async (req, res) => {
     }
 });
 
-// Get who I follow
+// Get following (user_id optional: lihat daftar following orang lain)
 router.get('/friendship/following', authenticateToken, async (req, res) => {
     try {
         const me = getUserId(req);
-        const entries = await Friendship.find({ follower: me }).sort({ createdAt: -1 }).limit(50);
+        const target = String(req.query.user_id || '').trim() || me;
+        const entries = await Friendship.find({ follower: target }).sort({ createdAt: -1 }).limit(100);
         const userIds = entries.map(e => e.following);
-        const users = await User.find({ user_id: { $in: userIds } }).select('nama user_id foto_profil kelas');
+        const [users, myFollows] = await Promise.all([
+            User.find({ user_id: { $in: userIds } }).select('nama user_id foto_profil kelas'),
+            Friendship.find({ follower: me, following: { $in: userIds } }).select('following')
+        ]);
+        const followSet = new Set(myFollows.map(f => f.following));
         const map = {};
         users.forEach(u => map[u.user_id] = u);
-        const result = entries.map(e => ({ ...map[e.following]?.toObject(), followed_at: e.createdAt }));
+        const result = entries.filter(e => map[e.following]).map(e => ({
+            ...map[e.following].toObject(),
+            followed_at: e.createdAt,
+            i_follow: followSet.has(e.following)
+        }));
         res.json(result);
     } catch (err) {
         console.error('Get following error:', err);
@@ -154,7 +173,7 @@ router.get('/friendship/friends', authenticateToken, async (req, res) => {
 // Get full public profile with stats
 router.get('/users/profile/:userId', authenticateToken, async (req, res) => {
     try {
-        const user = await User.findOne({ user_id: req.params.userId }).select('nama user_id foto_profil kelas showcase_badges bio last_active title semester jenis_kelamin');
+        const user = await User.findOne({ user_id: req.params.userId }).select('nama user_id foto_profil kelas showcase_badges bio last_active title semester jenis_kelamin favorite_subject_id jenjang jurusan peminatan agama provinsi kota');
         if (!user) return res.status(404).json({ error: 'User tidak ditemukan' });
 
         const followerCount = await Friendship.countDocuments({ following: req.params.userId });
@@ -169,11 +188,21 @@ router.get('/users/profile/:userId', authenticateToken, async (req, res) => {
         let quizCount = 0;
         let quizCorrectSum = 0;
         let quizTotalScore = 0;
+        let listeningCount = 0;
+        let listeningSum = 0;
         const pageScores = {};
         const quizScores = {};
+        const subjectStats = {};
         const historyData = activities.map(a => {
             const isQuiz = a.activity_type === 'quiz';
+            const isListening = a.activity_type === 'listening';
             const score = a.hafalan_features?.score || 0;
+            if (a.subject_id) {
+                if (!subjectStats[a.subject_id]) subjectStats[a.subject_id] = { haf: [], quiz: [], listen: [] };
+                if (isQuiz) subjectStats[a.subject_id].quiz.push(score);
+                else if (isListening) subjectStats[a.subject_id].listen.push(score);
+                else subjectStats[a.subject_id].haf.push(score);
+            }
             if (isQuiz) {
                 quizCount++;
                 quizTotalScore += score;
@@ -183,6 +212,12 @@ router.get('/users/profile/:userId', authenticateToken, async (req, res) => {
                 const p = a.current_page || 1;
                 if (!quizScores[p]) quizScores[p] = [];
                 quizScores[p].push(score);
+            } else if (isListening) {
+                listeningCount++;
+                listeningSum += score;
+                const p = a.current_page || 1;
+                if (!pageScores[p]) pageScores[p] = [];
+                pageScores[p].push(score);
             } else {
                 hafalanCount++;
                 hafalanSum += score;
@@ -191,23 +226,56 @@ router.get('/users/profile/:userId', authenticateToken, async (req, res) => {
                 if (!pageScores[p]) pageScores[p] = [];
                 pageScores[p].push(score);
             }
-            return { activity_type: a.activity_type, timestamp: a.timestamp, hafalan_features: a.hafalan_features, current_page: a.current_page };
+            return { activity_type: a.activity_type, timestamp: a.timestamp, hafalan_features: a.hafalan_features, current_page: a.current_page, subject_id: a.subject_id || null };
         });
+
+        const avgOf = arr => arr.length ? Math.round(arr.reduce((s, v) => s + v, 0) / arr.length) : 0;
+        let bestSubject = null;
+        for (const [sid, st] of Object.entries(subjectStats)) {
+            const total = st.haf.length + st.quiz.length + st.listen.length;
+            if (!total) continue;
+            const avgs = [];
+            if (st.haf.length) avgs.push(avgOf(st.haf));
+            if (st.quiz.length) avgs.push(avgOf(st.quiz));
+            if (st.listen.length) avgs.push(avgOf(st.listen));
+            const avg = Math.round(avgs.reduce((s, v) => s + v, 0) / avgs.length);
+            const cand = { subject_id: sid, avg, total, hafalan_count: st.haf.length, quiz_count: st.quiz.length, listening_count: st.listen.length };
+            if (!bestSubject) bestSubject = cand;
+            else if ((cand.total >= 3) !== (bestSubject.total >= 3)) { if (cand.total >= 3) bestSubject = cand; }
+            else if (cand.total >= 3 && (cand.avg > bestSubject.avg || (cand.avg === bestSubject.avg && cand.total > bestSubject.total))) bestSubject = cand;
+            else if (cand.total < 3 && cand.total > bestSubject.total) bestSubject = cand;
+        }
+
+        const Subject = require('../models/Subject');
+        const wantedIds = [user.favorite_subject_id, bestSubject?.subject_id].filter(Boolean);
+        let subjectMap = {};
+        if (wantedIds.length) {
+            const subs = await Subject.find({ subject_id: { $in: wantedIds } }).select('subject_id nama icon');
+            subs.forEach(s => { subjectMap[s.subject_id] = { nama: s.nama, icon: s.icon }; });
+        }
+        if (bestSubject && subjectMap[bestSubject.subject_id]) {
+            bestSubject.nama = subjectMap[bestSubject.subject_id].nama;
+            bestSubject.icon = subjectMap[bestSubject.subject_id].icon;
+        }
+        const favoriteSubject = user.favorite_subject_id && subjectMap[user.favorite_subject_id]
+            ? { subject_id: user.favorite_subject_id, nama: subjectMap[user.favorite_subject_id].nama, icon: subjectMap[user.favorite_subject_id].icon }
+            : (user.favorite_subject_id ? { subject_id: user.favorite_subject_id, nama: user.favorite_subject_id, icon: '📘' } : null);
+
         const avgHafalan = hafalanCount > 0 ? Math.round(hafalanSum / hafalanCount) : 0;
         const quizPrecision = quizCount > 0 ? Math.round(quizTotalScore / quizCount) : 0;
 
         const uniqueDates = [...new Set(activities.map(a => new Date(a.timestamp).toDateString()))];
         const rankData = [
-            { lv:1, title:'Pemula AIoT Base', min:0 },
-            { lv:2, title:'Pengamat AIoT', min:300 },
-            { lv:3, title:'Penjelajah AIoT', min:800 },
-            { lv:4, title:'Perakit AIoT', min:1500 },
-            { lv:5, title:'Builder AIoT', min:2500 },
-            { lv:6, title:'Insinyur AIoT', min:4000 },
-            { lv:7, title:'Arsitek AIoT', min:6000 },
-            { lv:8, title:'Inovator AIoT', min:9000 },
-            { lv:9, title:'Master AIoT', min:13000 },
-            { lv:10, title:'Grand Master AIoT', min:18000 }
+            { lv:1, title:'Pemula', min:0 },
+            { lv:2, title:'Pengamat', min:300 },
+            { lv:3, title:'Penjelajah', min:800 },
+            { lv:4, title:'Perakit', min:1500 },
+            { lv:5, title:'Builder', min:2500 },
+            { lv:6, title:'Insinyur', min:4000 },
+            { lv:7, title:'Arsitek', min:6000 },
+            { lv:8, title:'Inovator', min:9000 },
+            { lv:9, title:'Master', min:13000 },
+            { lv:10, title:'Grand Master', min:18000 }
         ];
         let currentLevel = 1;
         let rankTitle = rankData[0].title;
@@ -218,7 +286,9 @@ router.get('/users/profile/:userId', authenticateToken, async (req, res) => {
         }
 
         res.json({
-            user: { nama: user.nama, user_id: user.user_id, foto_profil: user.foto_profil, kelas: user.kelas, showcase_badges: user.showcase_badges || [], bio: user.bio || '', last_active: user.last_active, title: user.title || '', semester: user.semester, jenis_kelamin: user.jenis_kelamin || '' },
+            user: { nama: user.nama, user_id: user.user_id, foto_profil: user.foto_profil, kelas: user.kelas, showcase_badges: user.showcase_badges || [], bio: user.bio || '', last_active: user.last_active, title: user.title || '', semester: user.semester, jenis_kelamin: user.jenis_kelamin || '', jenjang: user.jenjang || '', jurusan: user.jurusan || '', peminatan: user.peminatan || '', agama: user.agama || '', provinsi: user.provinsi || '', kota: user.kota || '', favorite_subject_id: user.favorite_subject_id || '' },
+            favoriteSubject,
+            bestSubject,
             stats: {
                 totalXP,
                 avgHafalan,
@@ -305,16 +375,81 @@ router.get('/notifications/unread-count', authenticateToken, async (req, res) =>
     }
 });
 
+// Get titles yang benar-benar masih dimiliki user (juara 1 leaderboard saat ini)
+router.get('/users/earned-titles', authenticateToken, async (req, res) => {
+    try {
+        const me = getUserId(req);
+        const user = await User.findOne({ user_id: me });
+        if (!user) return res.status(404).json({ error: 'User tidak ditemukan' });
+        const titles = await titleService.computeEarnedTitles(user);
+        let activeTitle = user.title || '';
+        if (activeTitle) {
+            const valid = titles.some(t => t.title === activeTitle && t.earned);
+            if (!valid) {
+                activeTitle = '';
+                await User.updateOne({ user_id: me }, { $set: { title: '' } });
+            }
+        }
+        res.json({ titles, title: activeTitle });
+    } catch (err) {
+        console.error('Earned titles error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Set title
 router.post('/users/set-title', authenticateToken, async (req, res) => {
     try {
         const me = getUserId(req);
         const { title } = req.body;
         if (typeof title !== 'string') return res.status(400).json({ error: 'Title harus string' });
-        await User.updateOne({ user_id: me }, { $set: { title: title.trim() } });
-        res.json({ ok: true, title: title.trim() });
+        const clean = title.trim().slice(0, 80);
+        if (clean) {
+            const user = await User.findOne({ user_id: me });
+            if (!user) return res.status(404).json({ error: 'User tidak ditemukan' });
+            const titles = await titleService.computeEarnedTitles(user);
+            if (!titles.some(t => t.title === clean && t.earned)) {
+                return res.status(403).json({ error: 'Gelar ini tidak lagi kamu miliki. Pilih gelar yang masih aktif.' });
+            }
+        }
+        await User.updateOne({ user_id: me }, { $set: { title: clean } });
+        res.json({ ok: true, title: clean });
     } catch (err) {
         console.error('Set title error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Set pelajaran favorit (maksimal 1, boleh dikosongkan)
+router.post('/users/favorite-subject', authenticateToken, async (req, res) => {
+    try {
+        const me = getUserId(req);
+        const { subject_id } = req.body;
+        if (typeof subject_id !== 'string') return res.status(400).json({ error: 'subject_id harus string' });
+        const sid = subject_id.trim();
+
+        if (sid) {
+            const user = await User.findOne({ user_id: me });
+            if (!user) return res.status(404).json({ error: 'User tidak ditemukan' });
+
+            const Subject = require('../models/Subject');
+            const subject = await Subject.findOne({ subject_id: sid, jenjang: user.jenjang, aktif: true });
+            if (!subject) return res.status(404).json({ error: 'Mapel tidak tersedia' });
+
+            const kelas = user.kelas;
+            const outOfRange = kelas && (kelas < subject.kelas_min || kelas > subject.kelas_max);
+            const wrongAgama = subject.kategori === 'agama' && subject.agama !== user.agama;
+            const wrongJurusan = subject.kategori === 'kejuruan' && subject.jurusan !== user.jurusan;
+            const wrongPeminatan = subject.kategori === 'peminatan' && subject.peminatan !== user.peminatan;
+            if (outOfRange || wrongAgama || wrongJurusan || wrongPeminatan) {
+                return res.status(400).json({ error: 'Mapel ini tidak tersedia untuk profilmu' });
+            }
+        }
+
+        await User.updateOne({ user_id: me }, { $set: { favorite_subject_id: sid } });
+        res.json({ ok: true, favorite_subject_id: sid });
+    } catch (err) {
+        console.error('Set favorite subject error:', err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -378,19 +513,43 @@ router.get('/users/compare/:userId1/:userId2', authenticateToken, async (req, re
 router.post('/dm/send', authenticateToken, async (req, res) => {
     try {
         const me = getUserId(req);
-        const { receiver_id, text } = req.body;
+        const { receiver_id, text, image, reply_to_id } = req.body;
         if (!receiver_id || me === receiver_id) return res.status(400).json({ message: 'Receiver tidak valid' });
-        if (!text || !text.trim()) return res.status(400).json({ message: 'Pesan kosong' });
-        if (text.trim().length > 2000) return res.status(400).json({ message: 'Pesan terlalu panjang (maks 2000 karakter)' });
+        const imageUrl = (typeof image === 'string' && /^\/uploads\/chat\/[A-Za-z0-9._-]+$/.test(image.trim())) ? image.trim() : '';
+        const cleanText = typeof text === 'string' ? text.trim() : '';
+        if (!cleanText && !imageUrl) return res.status(400).json({ message: 'Pesan kosong' });
+        if (cleanText.length > 2000) return res.status(400).json({ message: 'Pesan terlalu panjang (maks 2000 karakter)' });
 
         const receiver = await User.findOne({ user_id: receiver_id }).select('nama user_id');
         if (!receiver) return res.status(404).json({ message: 'User tidak ditemukan' });
 
+        let replyTo = null;
+        if (reply_to_id) {
+            const replyId = String(reply_to_id).trim();
+            if (!/^[a-f0-9]{24}$/i.test(replyId)) return res.status(400).json({ message: 'Pesan yang dibalas tidak valid' });
+            const original = await Message.findById(replyId).lean();
+            const belongs = original && (
+                (original.sender_id === me && original.receiver_id === receiver_id) ||
+                (original.sender_id === receiver_id && original.receiver_id === me)
+            );
+            if (!belongs) return res.status(404).json({ message: 'Pesan yang dibalas tidak ditemukan di percakapan ini' });
+            replyTo = {
+                message_id: String(original._id),
+                sender_id: original.sender_id,
+                nama: original.sender_name || (original.sender_id === me ? req.user?.nama : receiver.nama) || 'Siswa',
+                text: String(original.text || '').slice(0, 160),
+                has_image: !!original.image
+            };
+        }
+
+        const finalText = cleanText || '📷 Foto';
         const saved = await Message.create({
             sender_id: me,
             sender_name: req.user?.nama || 'Someone',
             receiver_id,
-            text: text.trim()
+            text: finalText,
+            image: imageUrl,
+            reply_to: replyTo
         });
 
         // Hapus notif lama untuk pembicaraan ini agar tidak menumpuk
@@ -401,7 +560,7 @@ router.post('/dm/send', authenticateToken, async (req, res) => {
             type: 'message',
             from_user_id: me,
             from_user_name: req.user?.nama || 'Someone',
-            message: `💬 ${req.user?.nama || 'Someone'}: ${text.trim().slice(0, 80)}${text.trim().length > 80 ? '…' : ''}`,
+            message: imageUrl ? `📷 ${req.user?.nama || 'Someone'} mengirim foto` : `💬 ${req.user?.nama || 'Someone'}: ${finalText.slice(0, 80)}${finalText.length > 80 ? '…' : ''}`,
             link: '#'
         });
 

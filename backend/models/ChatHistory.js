@@ -25,6 +25,10 @@ const ChatHistorySchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        image: {
+            type: String,
+            default: ''
+        },
         timestamp: {
             type: Date,
             default: Date.now

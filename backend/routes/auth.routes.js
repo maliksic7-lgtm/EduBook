@@ -20,6 +20,10 @@ router.get('/profile', authenticateToken, authController.getProfile);
 
 router.put('/profile', authenticateToken, upload.single('foto_profil'), authController.updateProfile);
 
+router.put('/mapel-aktif', authenticateToken, authController.updateMapelAktif);
+
 router.get('/me', authenticateToken, authController.me);
+
+router.delete('/account', authenticateToken, authController.deleteAccount);
 
 module.exports = router;

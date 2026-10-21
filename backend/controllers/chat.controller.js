@@ -3,6 +3,8 @@ const cacheService = require('../services/cacheService');
 const aiService = require('../services/aiService');
 const fallbackService = require('../services/fallbackService');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 function getStudentName(req) {
     if (req.user?.nama) return req.user.nama;
@@ -31,14 +33,35 @@ function normalizeMessage(value) {
     return message.length >= 1 && message.length <= 4000 ? message : null;
 }
 
+function normalizeImage(value) {
+    if (typeof value !== 'string') return null;
+    const url = value.trim();
+    if (!/^\/uploads\/chat\/[A-Za-z0-9._-]+$/.test(url)) return null;
+    return url;
+}
+
+function normalizeSubjectContext(value) {
+    if (!value || typeof value !== 'object') return null;
+    const pick = (v, max) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : null);
+    const ctx = {
+        subject_id: pick(value.subject_id, 80),
+        subject_name: pick(value.subject_name, 120),
+        page_title: pick(value.page_title, 200),
+        kelas: Number.isInteger(Number(value.kelas)) ? Number(value.kelas) : null
+    };
+    if (!ctx.subject_id && !ctx.subject_name) return null;
+    return ctx;
+}
+
 function buildConversationContext(messages) {
     const lastMessages = messages.slice(-5);
     const contextText = lastMessages.map(message => {
         const role = message.role === 'user' ? 'Siswa' : 'EduBot';
-        return `${role}: ${message.text}`;
+        const imageTag = message.image ? ' [mengirim gambar]' : '';
+        return `${role}: ${message.text}${imageTag}`;
     }).join('\n');
     const contextHash = crypto.createHash('sha256')
-        .update(lastMessages.map(message => `${message.role}:${message.text}`).join('|'))
+        .update(lastMessages.map(message => `${message.role}:${message.text}:${message.image || ''}`).join('|'))
         .digest('hex');
 
     return { contextText, contextHash };
@@ -97,7 +120,7 @@ async function createChatSession(req, res) {
                 : `Obrolan ${dynamicDate.toLocaleDateString('id-ID')}`,
             messages: [{
                 role: 'bot',
-                text: `Halo ${getGenderCall(req)}! Aku EduBot, tutor pintar pribadi kamu. Ada materi dari isi buku EduBook kita yang bikin kamu penasaran? Tanya aja langsung pakai ketik atau pencet tombol mic di bawah ya! 🚀`
+                text: `Halo ${getGenderCall(req)}! Aku EduBot, tutor pintar pribadi kamu untuk semua mata pelajaran. Mau tanya materi apa hari ini? Tanya aja langsung pakai ketik atau pencet tombol mic di bawah ya! 🚀`
             }],
             message_count: 1,
             created_at: dynamicDate,
@@ -131,12 +154,14 @@ async function deleteChatSession(req, res) {
 async function sendChatMessage(req, res) {
     const studentName = getStudentName(req);
     const sessionId = typeof req.body.session_id === 'string' ? req.body.session_id.trim() : '';
-    const message = normalizeMessage(req.body.message);
+    const image = normalizeImage(req.body.image_url || req.body.image);
+    let message = normalizeMessage(req.body.message);
+    if (!message && image) message = 'Tolong jelaskan gambar ini dan kaitkan dengan materi pelajaran.';
 
-    console.log(`📨 Received message: student=${studentName}, session=${sessionId}, msg="${message}"`);
+    console.log(`📨 Received message: student=${studentName}, session=${sessionId}, msg="${message}", image=${image || '-'}`);
 
-    if (!studentName || !sessionId || !message) {
-        return res.status(400).json({ message: 'student_name, session_id, dan message diperlukan' });
+    if (!studentName || !sessionId || (!message && !image)) {
+        return res.status(400).json({ message: 'student_name, session_id, dan message atau gambar diperlukan' });
     }
 
     let session;
@@ -146,12 +171,12 @@ async function sendChatMessage(req, res) {
 
         const previousContext = buildConversationContext(session.messages);
         const cacheScope = `${studentName}|${sessionId}|${previousContext.contextHash}`;
-        const cachedAnswer = cacheService.getCachedAnswer(message, cacheScope);
+        const cachedAnswer = image ? null : cacheService.getCachedAnswer(message, cacheScope);
 
         if (cachedAnswer) {
             console.log('✅ Returning cached answer');
 
-            session.messages.push({ role: 'user', text: message });
+            session.messages.push({ role: 'user', text: message, image: image || '' });
             session.messages.push({ role: 'bot', text: cachedAnswer });
             session.message_count += 2;
             session.updated_at = new Date();
@@ -168,7 +193,7 @@ async function sendChatMessage(req, res) {
 
         console.log(`✅ Session found: ${session.title}, messages: ${session.messages.length}`);
 
-        session.messages.push({ role: 'user', text: message });
+        session.messages.push({ role: 'user', text: message, image: image || '' });
         session.message_count += 1;
         session.updated_at = new Date();
         await session.save();
@@ -182,34 +207,57 @@ async function sendChatMessage(req, res) {
         console.log('📚 Getting knowledge base from cache...');
         const knowledgeBase = await cacheService.getKnowledgeBase();
 
-        let promptSystem = cacheService.getCachedPrompt(message, currentContextHash);
+        let promptSystem = image ? null : cacheService.getCachedPrompt(message, currentContextHash);
         if (!promptSystem) {
-            promptSystem = `Anda adalah "EduBot", asisten AI Tutor untuk "EduBook" (Samsung Innovation Campus Batch 8).
-Gunakan bahasa yang ramah dan santun. Panggil siswa dengan "kamu" (jangan gunakan kata "lo", "gue", "gw", "lu"). Jika perlu menyapa, gunakan kata panggilan "${getGenderCall(req)}" untuk siswa ini.
+            const subjectContext = normalizeSubjectContext(req.body?.subject);
+            const subjectBlock = subjectContext
+                ? `🎯 MAPEL YANG SEDANG DIBUKA SISWA (utamakan konteks ini bila relevan):
+- Mata pelajaran: ${subjectContext.subject_name || subjectContext.subject_id}
+- Kelas: ${subjectContext.kelas || '-'}
+- Halaman/materi yang sedang dibaca: ${subjectContext.page_title || '-'}
+`
+                : '';
+            const call = getGenderCall(req);
+            const imageInstruction = image
+                ? `\nSiswa mengirim sebuah GAMBAR. Amati gambar tersebut dengan saksama, jelaskan apa yang terlihat, lalu kaitkan dengan materi pelajaran yang relevan (semua mapel). Jika gambar berisi soal, bantu jawab dan jelaskan langkahnya.\n`
+                : '';
+            promptSystem = `Anda adalah "EduBot", asisten AI Tutor untuk "EduBook".
+Gunakan bahasa yang ramah dan santun. Panggil siswa dengan "kamu" (jangan gunakan kata "lo", "gue", "gw", "lu"). Jika perlu menyapa, gunakan kata panggilan "${call}" untuk siswa ini.
+Anda adalah tutor untuk SEMUA mata pelajaran sekolah (SD, SMP, SMA, SMK): Matematika, IPA, IPS, Bahasa Indonesia, Bahasa Inggris, Agama, PPKn, PJOK, Seni, Sejarah, Informatika, mapel kejuruan SMK, mapel peminatan, dan lainnya. Jawab pertanyaan siswa tentang mapel apa pun dengan jelas, benar, dan edukatif sesuai jenjang kelasnya.
 
-INSTRUKSI PENTING: Jika materi yang ditanyakan siswa tidak ada di isi buku EduBook secara spesifik, tetaplah jelaskan konsep dasar ilmiahnya secara luas, lengkap, dan edukatif sebagai tutor AIoT. Jangan menolak atau membatasi jawaban hanya karena materi tidak ditemukan di buku.
+${subjectBlock}${imageInstruction}
+INSTRUKSI PENTING: Jika materi yang ditanyakan tidak ada di isi buku EduBook secara spesifik, tetap jelaskan konsep dasarnya secara lengkap dan edukatif sebagai tutor pelajaran. Jangan menolak atau membatasi jawaban hanya karena materi tidak ditemukan di buku. Langsung jawab materi pelajaran yang ditanyakan dengan contoh konkret. Hindari jawaban meta seperti pembahasan metode pengajaran atau kebijakan kurikulum, kecuali siswa memang bertanya tentang itu.
 
 ${contextText ? `🔴 KONTEKS PERCAKAPAN SEBELUMNYA:\n${contextText}` : ''}
 
-📚 KNOWLEDGE BASE:
-${knowledgeBase.fullText.substring(0, 8000)}
+📚 KNOWLEDGE BASE (ringkasan isi buku EduBook saat ini):
+${knowledgeBase.fullText.substring(0, 20000)}
 
 Pertanyaan: "${message}"`;
 
-            cacheService.cachePrompt(message, currentContextHash, promptSystem);
+            if (!image) cacheService.cachePrompt(message, currentContextHash, promptSystem);
         } else {
             console.log('✅ Using cached prompt');
         }
 
         let reply;
         try {
-            reply = await aiService.callGeminiWithRetry(promptSystem, 3);
+            if (image) {
+                const filePath = path.join(__dirname, '..', image);
+                if (!fs.existsSync(filePath)) throw new Error('File gambar tidak ditemukan');
+                const buf = fs.readFileSync(filePath);
+                const ext = path.extname(filePath).toLowerCase();
+                const mime = ext === '.png' ? 'image/png' : ext === '.gif' ? 'image/gif' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
+                reply = await aiService.callGeminiWithImage(promptSystem, buf.toString('base64'), mime, 2);
+            } else {
+                reply = await aiService.callGeminiWithRetry(promptSystem, 3);
+                cacheService.cacheAnswer(message, reply, currentCacheScope);
+            }
             console.log('✅ Using AI response');
-            cacheService.cacheAnswer(message, reply, currentCacheScope);
         } catch (error) {
-            console.log('⚠️ AI failed, using fallback knowledge base');
+            console.log('⚠️ AI failed, using fallback knowledge base:', error.message);
             reply = fallbackService.getFallbackResponse(message);
-            cacheService.cacheAnswer(message, reply, currentCacheScope);
+            // Jangan cache jawaban fallback agar pertanyaan yang sama dicoba ulang ke AI.
         }
 
         session.messages.push({ role: 'bot', text: reply });

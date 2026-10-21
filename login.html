@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduBook — Masuk</title>
+    <link rel="icon" type="image/jpeg" href="LOGO EDUBOOK.jpeg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -546,7 +547,7 @@
                 <div class="form-step active" id="step1">
                     <div class="card-header">
                         <div class="logo">
-                            <div class="logo-icon">⚡</div>
+                            <div class="logo-icon"><img src="LOGO EDUBOOK.webp" alt="EduBook Logo" style="width:100%; height:100%; object-fit:cover; border-radius:16px;"></div>
                             <span class="logo-text">EduBook</span>
                         </div>
                         <h1>Selamat Datang</h1>
@@ -563,11 +564,11 @@
                         <span>Masuk dengan Google</span>
                     </button>
 
-                    <div class="divider">EduBook AIoT</div>
+                    <div class="divider">EduBook</div>
 
                     <div class="branding">
-                        <p>AIoT Literacy for Social Impact</p>
-                        <div class="badge">⚡ Smart Learning with AIoT</div>
+                        <p>AIoT Literacy for Education</p>
+                        <div class="badge">⚡ Education System with AIoT</div>
                     </div>
                 </div>
 
@@ -609,20 +610,105 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Semester</label>
-                            <select id="inputSemester">
-                                <option value="1">Semester 1</option>
-                                <option value="2">Semester 2</option>
+                            <label>Jenjang Pendidikan</label>
+                            <select id="inputJenjang" required>
+                                <option value="">Pilih Jenjang</option>
+                                <option value="sd">SD</option>
+                                <option value="smp">SMP</option>
+                                <option value="sma">SMA</option>
+                                <option value="smk">SMK</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Kelas</label>
-                            <select id="inputKelas">
-                                <option value="10">Kelas 10</option>
-                                <option value="11">Kelas 11</option>
-                                <option value="12">Kelas 12</option>
+                            <select id="inputKelas" required>
+                                <option value="">Pilih Kelas</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Agama</label>
+                        <select id="inputAgama" required>
+                            <option value="">Pilih Agama</option>
+                            <option value="islam">Islam</option>
+                            <option value="kristen">Kristen</option>
+                            <option value="katolik">Katolik</option>
+                            <option value="hindu">Hindu</option>
+                            <option value="buddha">Buddha</option>
+                            <option value="khonghucu">Khonghucu</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nama Sekolah</label>
+                        <input type="text" id="inputNamaSekolah" placeholder="Contoh: SMA NEGERI 1 PEKANBARU" required>
+                        <p id="schoolValidationMsg" style="font-size: 11px; margin-top: 4px; color: #94a3b8;"></p>
+                    </div>
+
+                    <div class="form-group" id="jurusanGroup" style="display: none;">
+                        <label>Jurusan (SMK)</label>
+                        <select id="inputJurusan" required>
+                            <option value="">Pilih Jurusan</option>
+                            <option value="tkj">Teknik Komputer &amp; Jaringan (TKJ)</option>
+                            <option value="rpl">Rekayasa Perangkat Lunak (RPL)</option>
+                            <option value="dkv">Desain Komunikasi Visual (DKV)</option>
+                            <option value="ak">Akuntansi (AK)</option>
+                            <option value="otkp">Manajemen Perkantoran (OTKP)</option>
+                            <option value="bd">Bisnis Digital (BD)</option>
+                            <option value="tkr">Teknik Kendaraan Ringan (TKR)</option>
+                            <option value="itl">Teknik Instalasi Tenaga Listrik (ITL)</option>
+                            <option value="tmo">Teknik Otomotif (TMO)</option>
+                            <option value="perhotelan">Perhotelan (PH)</option>
+                            <option value="tata_boga">Tata Boga (TB)</option>
+                            <option value="tata_busana">Tata Busana (TBS)</option>
+                            <option value="keperawatan">Keperawatan (KEP)</option>
+                            <option value="farmasi">Farmasi (FAR)</option>
+                            <option value="agribisnis">Agribisnis (AGB)</option>
+                            <option value="pemesinan">Teknik Pemesinan (TPM)</option>
+                            <option value="pengelasan">Teknik Pengelasan (TPL)</option>
+                            <option value="otoronik">Teknik Ototronik (TOT)</option>
+                            <option value="tsm">Teknik Sepeda Motor (TSM)</option>
+                            <option value="tkp">Teknik Konstruksi &amp; Perumahan (TKP)</option>
+                            <option value="ditf">Desain Interior &amp; Furnitur (DITF)</option>
+                            <option value="geomatika">Teknik Geomatika (TG)</option>
+                            <option value="tab">Teknik Alat Berat (TAB)</option>
+                            <option value="mekatronika">Teknik Mekatronika (MKT)</option>
+                            <option value="tei">Elektronika Industri (EI)</option>
+                            <option value="tav">Teknik Audio Video (TAV)</option>
+                            <option value="tki">Teknik Kimia Industri (TKI)</option>
+                            <option value="tet">Teknik Energi Terbarukan (TET)</option>
+                            <option value="tata_kecantikan">Tata Kecantikan &amp; Hairdressing (TKH)</option>
+                            <option value="upw">Usaha Perjalanan Wisata (UPW)</option>
+                            <option value="seni_pertunjukan">Seni Pertunjukan (SP)</option>
+                            <option value="animasi">Animasi (ANI)</option>
+                            <option value="broadcasting">Broadcasting &amp; Perfilman (BPF)</option>
+                            <option value="kehutanan">Kehutanan (KHT)</option>
+                            <option value="ternak">Agribisnis Ternak (AGT)</option>
+                            <option value="perikanan">Agribisnis Perikanan &amp; NKPI (APN)</option>
+                            <option value="tphp">Pengolahan Hasil Pertanian (TPHP)</option>
+                            <option value="logistik">Logistik (LOG)</option>
+                            <option value="tlm">Teknologi Laboratorium Medik (TLM)</option>
+                            <option value="dental">Keperawatan Gigi (KPG)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="peminatanGroup" style="display: none;">
+                        <label>Peminatan (SMA)</label>
+                        <select id="inputPeminatan" required>
+                            <option value="">Pilih Peminatan</option>
+                            <option value="mipa">MIPA - Matematika dan Ilmu Pengetahuan Alam</option>
+                            <option value="ips">IPS - Ilmu Pengetahuan Sosial</option>
+                            <option value="bahasa">Bahasa dan Budaya</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Semester</label>
+                        <select id="inputSemester" required>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                        </select>
                     </div>
 
                     <button class="submit-btn" id="submitProfile">
@@ -686,8 +772,16 @@
         const photoInput = document.getElementById('photoInput');
         const inputNama = document.getElementById('inputNama');
         const inputTglLahir = document.getElementById('inputTglLahir');
+        const inputJenjang = document.getElementById('inputJenjang');
         const inputKelas = document.getElementById('inputKelas');
+        const inputAgama = document.getElementById('inputAgama');
+        const inputNamaSekolah = document.getElementById('inputNamaSekolah');
+        const inputJurusan = document.getElementById('inputJurusan');
+        const inputPeminatan = document.getElementById('inputPeminatan');
         const inputSemester = document.getElementById('inputSemester');
+        const jurusanGroup = document.getElementById('jurusanGroup');
+        const peminatanGroup = document.getElementById('peminatanGroup');
+        const schoolValidationMsg = document.getElementById('schoolValidationMsg');
         const alertBanner = document.getElementById('alertBanner');
         const step2Alert = document.getElementById('step2Alert');
 
@@ -734,6 +828,90 @@
             window.location.href = API_URL + '/auth/google';
         });
 
+        // === Conditional Fields ===
+        const JENJANG_MAP = {
+            'SD': 'sd', 'SDN': 'sd', 'MI': 'sd',
+            'SMP': 'smp', 'SMPLB': 'smp', 'MTS': 'smp',
+            'SMA': 'sma', 'SMALB': 'sma', 'MA': 'sma',
+            'SMK': 'smk', 'MAK': 'smk',
+            'MAN': 'sma', 'MAK': 'smk'
+        };
+
+        function validateSchoolName(nama) {
+            const trimmed = nama.trim().toUpperCase();
+            let detectedJenjang = null;
+            for (const [prefix, jenjang] of Object.entries(JENJANG_MAP)) {
+                if (trimmed.startsWith(prefix + ' ') || trimmed === prefix) {
+                    detectedJenjang = jenjang;
+                    break;
+                }
+            }
+            if (!detectedJenjang) {
+                return { valid: false, error: 'Nama sekolah harus diawali jenjang (SD/SMP/SMA/SMK/MAN/MAK/MI/MTS)' };
+            }
+            const isNegeri = /\bNEGERI\b/.test(trimmed);
+            const status = isNegeri ? 'negeri' : 'swasta';
+            if (isNegeri) {
+                const negeriMatch = trimmed.match(/\bNEGERI\s+(\d+)\b/);
+                if (!negeriMatch) {
+                    return { valid: false, error: 'Format sekolah negeri: <JENJANG> NEGERI <NOMOR> <KOTA>. Contoh: SMA NEGERI 1 PEKANBARU' };
+                }
+            }
+            if (trimmed.length < 10) {
+                return { valid: false, error: 'Nama sekolah terlalu pendek' };
+            }
+            return { valid: true, jenjang: detectedJenjang, status: status, normalized: trimmed };
+        }
+
+        function updateKelasOptions(jenjang) {
+            inputKelas.innerHTML = '<option value="">Pilih Kelas</option>';
+            let kelasList = [];
+            if (jenjang === 'sd') kelasList = [1, 2, 3, 4, 5, 6];
+            else if (jenjang === 'smp') kelasList = [7, 8, 9];
+            else if (jenjang === 'sma' || jenjang === 'smk') kelasList = [10, 11, 12];
+            kelasList.forEach(k => {
+                const opt = document.createElement('option');
+                opt.value = k;
+                opt.textContent = 'Kelas ' + k;
+                inputKelas.appendChild(opt);
+            });
+        }
+
+        inputJenjang.addEventListener('change', () => {
+            const jenjang = inputJenjang.value;
+            updateKelasOptions(jenjang);
+            if (jenjang === 'smk') {
+                jurusanGroup.style.display = 'block';
+                inputJurusan.required = true;
+                peminatanGroup.style.display = 'none';
+                inputPeminatan.required = false;
+            } else if (jenjang === 'sma') {
+                peminatanGroup.style.display = 'block';
+                inputPeminatan.required = true;
+                jurusanGroup.style.display = 'none';
+                inputJurusan.required = false;
+            } else {
+                jurusanGroup.style.display = 'none';
+                peminatanGroup.style.display = 'none';
+                inputJurusan.required = false;
+                inputPeminatan.required = false;
+            }
+        });
+
+        inputNamaSekolah.addEventListener('input', () => {
+            const result = validateSchoolName(inputNamaSekolah.value);
+            if (inputNamaSekolah.value.trim() === '') {
+                schoolValidationMsg.textContent = '';
+                schoolValidationMsg.style.color = '#94a3b8';
+            } else if (result.valid) {
+                schoolValidationMsg.textContent = 'Terdeteksi: ' + result.jenjang.toUpperCase() + ' ' + (result.status === 'negeri' ? 'Negeri' : 'Swasta');
+                schoolValidationMsg.style.color = '#34d399';
+            } else {
+                schoolValidationMsg.textContent = result.error;
+                schoolValidationMsg.style.color = '#f87171';
+            }
+        });
+
         // === Photo Upload ===
         photoUpload.addEventListener('click', () => photoInput.click());
 
@@ -773,7 +951,12 @@
         submitBtn.addEventListener('click', async () => {
             const nama = inputNama.value.trim();
             const tglLahir = inputTglLahir.value;
+            const jenjang = inputJenjang.value;
             const kelas = inputKelas.value;
+            const agama = inputAgama.value;
+            const namaSekolah = inputNamaSekolah.value.trim();
+            const jurusan = inputJurusan.value;
+            const peminatan = inputPeminatan.value;
             const semester = inputSemester.value;
             const jenisKelamin = document.getElementById('inputJenisKelamin')?.value || '';
 
@@ -781,9 +964,21 @@
 
             if (!nama) { showStepError('Nama lengkap wajib diisi.'); return; }
             if (!tglLahir) { showStepError('Tanggal lahir wajib diisi.'); return; }
+            if (!jenjang) { showStepError('Pilih jenjang pendidikan.'); return; }
             if (!kelas) { showStepError('Pilih kelas.'); return; }
+            if (!agama) { showStepError('Pilih agama.'); return; }
+            if (!namaSekolah) { showStepError('Nama sekolah wajib diisi.'); return; }
+            if (jenjang === 'smk' && !jurusan) { showStepError('Pilih jurusan untuk SMK.'); return; }
+            if (jenjang === 'sma' && !peminatan) { showStepError('Pilih peminatan untuk SMA.'); return; }
             if (!semester) { showStepError('Pilih semester.'); return; }
             if (!jenisKelamin) { showStepError('Pilih jenis kelamin.'); return; }
+
+            const schoolValidation = validateSchoolName(namaSekolah);
+            if (!schoolValidation.valid) { showStepError(schoolValidation.error); return; }
+            if (schoolValidation.jenjang !== jenjang) {
+                showStepError('Jenjang dari nama sekolah (' + schoolValidation.jenjang.toUpperCase() + ') tidak sesuai dengan pilihan jenjang (' + jenjang.toUpperCase() + ')');
+                return;
+            }
 
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
@@ -792,9 +987,14 @@
                 const formData = new FormData();
                 formData.append('nama', nama);
                 formData.append('tanggal_lahir', tglLahir);
+                formData.append('jenjang', jenjang);
                 formData.append('kelas', kelas);
+                formData.append('agama', agama);
+                formData.append('nama_sekolah', schoolValidation.normalized);
                 formData.append('semester', semester);
                 formData.append('jenis_kelamin', jenisKelamin);
+                if (jenjang === 'smk') formData.append('jurusan', jurusan);
+                if (jenjang === 'sma') formData.append('peminatan', peminatan);
                 if (fotoFile) formData.append('foto_profil', fotoFile);
 
                 const res = await fetch(API_URL + '/auth/profile', {

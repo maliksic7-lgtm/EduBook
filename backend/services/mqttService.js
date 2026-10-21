@@ -1,17 +1,7 @@
-// mqttService.js
-// Satu-satunya jalur transport resmi untuk sinyal dari hardware EduBook
-// (ESP32-S3) ke server. Keputusan: MQTT-only (bukan HTTP), karena MQTT
-// lebih cocok untuk device tertanam yang terhubung lewat internet publik
-// (ringan, tahan koneksi tidak stabil, model publish-subscribe standar
-// industri IoT). Endpoint HTTP /api/hardware/* yang lama sudah dihapus.
-//
-// Sebelum hardware fisik tersedia, topic yang sama ini bisa "ditipu" oleh
-// simulator (lihat hardware/simulators/) untuk menguji seluruh alur
-// device -> server -> web dashboard tanpa komponen fisik.
-
 const mqtt = require('mqtt');
 const streamService = require('./streamService');
 const aiService = require('./aiService');
+const voiceCommandService = require('./voiceCommandService');
 
 const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883';
 const MQTT_TOPIC_PREFIX = process.env.MQTT_TOPIC_PREFIX || 'edubook/demo';
@@ -20,6 +10,7 @@ const MQTT_TOPIC_NAV = `${MQTT_TOPIC_PREFIX}/navbar`;
 const MQTT_TOPIC_VOICE = `${MQTT_TOPIC_PREFIX}/voice`;
 const MQTT_TOPIC_AUDIO = `${MQTT_TOPIC_PREFIX}/audio`;
 const MQTT_TOPIC_SYNC = `${MQTT_TOPIC_PREFIX}/sync`;
+const MQTT_TOPIC_CONFIG = `${MQTT_TOPIC_PREFIX}/config`;
 
 function isValidPage(page) {
     return Number.isInteger(Number(page)) && Number(page) >= 1 && Number(page) <= 10;
@@ -51,6 +42,8 @@ function initMqttService() {
         } catch (e) {
             handleRawMessage(topic, payloadString);
         }
+
+        message = null;
     });
 
     mqttClient.on('error', (err) => {
@@ -96,8 +89,39 @@ async function handleVoiceData(data) {
     const page = data.page || 1;
     const teksHafalan = data.text_hafalan || '';
     const paragraphId = data.paragraph_id || null;
+    const context = data.context || 'voice_command';
+    const language = data.language || 'id';
 
     streamService.broadcast({ type: 'VOICE_RECEIVED', student_name: studentName, page });
+
+    if (context === 'ask_mode') {
+        const keyword = await detectKeywordFromAudio(teksHafalan);
+        if (mqttClient) {
+            mqttClient.publish(MQTT_TOPIC_AUDIO, JSON.stringify({ keyword }));
+        }
+        return;
+    }
+
+    if (context === 'voice_command') {
+        const result = await voiceCommandService.processVoiceCommand(
+            teksHafalan,
+            studentName,
+            null,
+            language
+        );
+
+        if (mqttClient) {
+            mqttClient.publish(MQTT_TOPIC_AUDIO, JSON.stringify({
+                text: result.text,
+                intent: result.intent,
+                data: result.data,
+                language: language
+            }));
+        }
+
+        streamService.broadcast({ type: 'VOICE_RESULT', data: result });
+        return;
+    }
 
     let textAcuan = '';
     try {
@@ -131,6 +155,26 @@ async function handleVoiceData(data) {
     streamService.broadcast({ type: 'VOICE_RESULT', data: feedback });
 }
 
+async function detectKeywordFromAudio(audioBase64) {
+    try {
+        const deviceController = require('../controllers/device.controller');
+        const audioText = Buffer.from(audioBase64, 'base64').toString('utf-8').trim();
+        if (!audioText) return 'unknown';
+        const result = await new Promise((resolve, reject) => {
+            const mockReq = { body: { audio_text: audioText } };
+            const mockRes = {
+                json: (data) => resolve(data),
+                status: () => ({ json: (data) => reject(data) })
+            };
+            deviceController.detectKeyword(mockReq, mockRes);
+        });
+        return result.keyword || 'unknown';
+    } catch (e) {
+        console.error('Keyword detection error:', e.message);
+        return 'unknown';
+    }
+}
+
 function handleRawMessage(topic, payloadString) {
     if (topic === MQTT_TOPIC_PAGE) {
         const match = payloadString.match(/\d+/);
@@ -155,6 +199,6 @@ function publishToDevice(topic, data) {
 
 module.exports = {
     initMqttService,
-    MQTT_TOPIC_PAGE, MQTT_TOPIC_NAV, MQTT_TOPIC_VOICE, MQTT_TOPIC_AUDIO, MQTT_TOPIC_SYNC,
+    MQTT_TOPIC_PAGE, MQTT_TOPIC_NAV, MQTT_TOPIC_VOICE, MQTT_TOPIC_AUDIO, MQTT_TOPIC_SYNC, MQTT_TOPIC_CONFIG,
     publishToDevice
 };

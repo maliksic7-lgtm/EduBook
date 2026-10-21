@@ -41,15 +41,15 @@ function getFallbackResponse(question) {
         },
         {
             keywords: ['edubook', 'sic', 'samsung innovation', 'buku ini'],
-            answer: "📖 **EduBook** adalah buku pembelajaran interaktif untuk program **Samsung Innovation Campus (SIC) Batch 8**. Buku ini membahas tentang AIoT (Artificial Intelligence of Things) secara praktis dan mudah dipahami.\n\nMateri yang dibahas:\n• Halaman 1-10 tentang IoT, Sensor, ESP32, AI, dan ML"
+            answer: "📖 **EduBook** adalah platform buku pembelajaran interaktif digital. EduBook berisi materi lengkap untuk semua mata pelajaran sesuai kurikulum: Matematika, IPA, IPS, Bahasa Indonesia, Bahasa Inggris, Agama, PPKn, PJOK, Seni, Sejarah, Informatika, mapel kejuruan SMK, dan lainnya.\n\nSetiap mata pelajaran punya 10 bab materi, kuis pilihan ganda, latihan mendengarkan, dan evaluasi hafalan lisan."
         },
         {
             keywords: ['hello', 'halo', 'hi', 'hai', 'assalamualaikum', 'selamat pagi'],
-            answer: "👋 Halo juga! Selamat datang di EduBot, asisten AI tutor pribadi kamu.\n\nAda yang bisa aku bantu terkait materi AIoT? Coba tanyakan tentang:\n• IoT dan cara kerjanya\n• ESP32 dan fungsinya\n• Sensor dan aktuator\n• AI dan Machine Learning\n• Cloud dan MQTT"
+            answer: "👋 Halo juga! Selamat datang di EduBot, asisten AI tutor pribadi kamu untuk semua mata pelajaran.\n\nAda materi apa yang mau kamu tanyakan? Misalnya tentang Matematika, IPA, Bahasa Indonesia, Bahasa Inggris, Agama, IPS, atau mapel jurusanmu. Tanya aja!"
         },
         {
             keywords: ['terima kasih', 'makasih', 'thanks', 'thank you'],
-            answer: "😊 Sama-sama! Senang bisa membantu kamu belajar AIoT.\n\nJangan ragu untuk bertanya lagi ya! Kalau ada materi yang kurang jelas, langsung tanyakan ke EduBot. Semangat belajar! 💪"
+            answer: "😊 Sama-sama! Senang bisa membantu kamu belajar. Jangan ragu bertanya lagi ya — semua mapel bisa! Semangat belajar! 💪"
         }
     ];
 
@@ -66,7 +66,7 @@ function getFallbackResponse(question) {
         }
     }
 
-    return "🤖 **EduBot** siap membantu!\n\nMaaf, server AI sedang sibuk. Tapi kamu bisa coba tanyakan:\n• 'Apa itu IoT?'\n• 'Fungsi ESP32?'\n• 'Apa itu Machine Learning?'\n• 'Bagaimana cara kerja sensor?'\n\nCoba lagi ya, atau tanyakan dengan pertanyaan yang lebih spesifik! 🙏\n\n💡 *Tips: Pertanyaan yang lebih spesifik akan lebih mudah dijawab.*";
+    return "🤖 **EduBot** siap membantu!\n\nMaaf, server AI sedang sibuk. Tapi kamu bisa coba tanyakan materi mapel apa saja — Matematika, IPA, Bahasa Indonesia, Bahasa Inggris, Agama, IPS, atau mapel jurusanmu.\n\nCoba lagi ya, atau tanyakan dengan pertanyaan yang lebih spesifik! 🙏\n\n💡 *Tips: Pertanyaan yang lebih spesifik akan lebih mudah dijawab.*";
 }
 
 module.exports = { getFallbackResponse };
